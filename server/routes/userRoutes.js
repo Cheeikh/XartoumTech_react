@@ -25,7 +25,8 @@ router.get("/reset-password/:userId/:token", resetPassword);
 router.post("/reset-password", changePassword);
 
 // user routes
-router.post("/get-user", userAuth, getUser);
+router.get("/get-user", userAuth, getUser);
+router.get("/get-user/:id", userAuth, getUser); // Endpoint to get a user by ID
 router.put("/update-user", userAuth, updateUser);
 
 // friend request

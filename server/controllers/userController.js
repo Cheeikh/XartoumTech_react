@@ -172,12 +172,24 @@ export const changePassword = async (req, res, next) => {
 
 export const getUser = async (req, res, next) => {
   try {
-    // Utiliser req.user._id pour récupérer l'ID de l'utilisateur authentifié
-    const userId = req.user._id;
-    const { id } = req.params; // Optionnel : si vous souhaitez aussi récupérer un autre utilisateur via l'ID dans les params
+    let userId;
 
-    // Récupérer l'utilisateur par l'ID dans les paramètres ou, si non présent, par req.user._id
-    const user = await Users.findById(id ?? userId).populate({
+    if (req.params.id) {
+      // Si un ID est fourni dans les paramètres, on l'utilise pour récupérer l'utilisateur spécifié
+      userId = req.params.id;
+    } else if (req.user && req.user._id) {
+      // Sinon, on utilise l'ID de l'utilisateur authentifié
+      userId = req.user._id;
+    } else {
+      // Si aucun ID n'est disponible, on renvoie une erreur
+      return res.status(400).json({
+        success: false,
+        message: "Aucun ID d'utilisateur fourni",
+      });
+    }
+
+    // Récupérer l'utilisateur par son ID
+    const user = await Users.findById(userId).populate({
       path: "friends",
       select: "-password", // Exclure le mot de passe des amis
     });
@@ -200,12 +212,13 @@ export const getUser = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Erreur d'authentification",
+      message: "Erreur lors de la récupération de l'utilisateur",
       success: false,
       error: error.message,
     });
   }
 };
+
 
 
 export const updateUser = async (req, res, next) => {
@@ -250,8 +263,15 @@ export const updateUser = async (req, res, next) => {
 
 export const friendRequest = async (req, res) => {
   try {
-    const userId = req.user._id; // Utilisation de req.user._id
+    const userId = req.user._id; // ID de l'utilisateur authentifié
     const { requestTo } = req.body;
+
+    if (!requestTo) {
+      return res.status(400).json({
+        success: false,
+        message: "L'ID de l'utilisateur à ajouter est requis.",
+      });
+    }
 
     // Vérifier si l'utilisateur essaie d'envoyer une demande à lui-même
     if (userId.toString() === requestTo) {
@@ -261,46 +281,67 @@ export const friendRequest = async (req, res) => {
       });
     }
 
-    // Vérifier si une demande d'ami a déjà été envoyée ou reçue
-    const requestExist = await FriendRequest.findOne({
-      requestFrom: userId,
-      requestTo,
-    });
-
-    if (requestExist) {
-      return res.status(400).json({
+    // Vérifier si l'utilisateur cible existe
+    const targetUser = await Users.findById(requestTo);
+    if (!targetUser) {
+      return res.status(404).json({
         success: false,
-        message: "Demande d'ami déjà envoyée.",
+        message: "Utilisateur cible non trouvé.",
       });
     }
 
-    const accountExist = await FriendRequest.findOne({
-      requestFrom: requestTo,
-      requestTo: userId,
-    });
-
-    if (accountExist) {
+    // Vérifier si les utilisateurs sont déjà amis
+    if (
+      targetUser.friends.includes(userId) ||
+      req.user.friends.includes(requestTo)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Demande d'ami déjà envoyée.",
+        message: "Vous êtes déjà amis avec cet utilisateur.",
+      });
+    }
+
+    // Vérifier si une demande d'ami a déjà été envoyée ou reçue
+    const existingRequest = await FriendRequest.findOne({
+      $or: [
+        { requestFrom: userId, requestTo },
+        { requestFrom: requestTo, requestTo: userId },
+      ],
+    });
+
+    if (existingRequest) {
+      return res.status(400).json({
+        success: false,
+        message:
+          existingRequest.requestFrom.toString() === userId.toString()
+            ? "Demande d'ami déjà envoyée."
+            : "Cet utilisateur a déjà envoyé une demande d'ami.",
       });
     }
 
     // Créer une nouvelle demande d'ami
-    await FriendRequest.create({
-      requestTo,
+    const newFriendRequest = await FriendRequest.create({
       requestFrom: userId,
+      requestTo,
     });
+
+    // Optionnel : Ajouter une notification pour l'utilisateur cible
+    // await Notification.create({
+    //   user: requestTo,
+    //   type: "friend_request",
+    //   message: `${req.user.firstName} vous a envoyé une demande d'ami.`,
+    // });
 
     res.status(201).json({
       success: true,
       message: "Demande d'ami envoyée avec succès.",
+      data: newFriendRequest,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Erreur lors de l'envoi de la demande d'ami :", error);
     res.status(500).json({
-      message: "Erreur lors de l'envoi de la demande d'ami.",
       success: false,
+      message: "Erreur interne du serveur lors de l'envoi de la demande d'ami.",
       error: error.message,
     });
   }

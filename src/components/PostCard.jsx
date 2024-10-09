@@ -207,7 +207,7 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
       <div className="flex gap-3 items-center mb-2">
         <Link to={`/profile/${post?.userId?._id}`}>
           <img
-            src={post?.userId?.profileUrl ?? NoProfile}
+            src= {post?.userId?.profileUrl ?? NoProfile}
             alt={post?.userId?.firstName}
             className="w-14 h-14 object-cover rounded-full"
           />

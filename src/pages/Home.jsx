@@ -52,7 +52,7 @@ const Home = () => {
           postsResponse,
           getFriendRequestResponse,
         ] = await Promise.all([
-          makeRequest.post(`/users/get-user`),
+          makeRequest.get(`/users/get-user`),
           makeRequest.post(`/users/suggested-friends`),
           makeRequest.get(`/posts/get-posts`),
           makeRequest.post(`/users/get-friend-request`),
@@ -156,10 +156,8 @@ const Home = () => {
         status: "Accepted",
       });
       console.log("Friend Request Accepted:", requestId);
-
-      // Fetch updated friend requests after acceptance
-      const updatedUserResponse = await makeRequest.get(`/users/get-user`);
-      setFriendRequest(updatedUserResponse.data.user.friendRequests || []);
+      const getFriendRequestResponse = await makeRequest.post(`/users/get-friend-request`);
+      setGetFriendRequest(getFriendRequestResponse.data.data || []);
       setSuccessMsg("Demande d'ami acceptée !");
     } catch (error) {
       console.error("Erreur lors de l'acceptation de la demande:", error);
@@ -176,8 +174,8 @@ const Home = () => {
       console.log("Friend Request Denied:", requestId);
 
       // Fetch updated friend requests after denial
-      const updatedUserResponse = await makeRequest.get(`/users/get-user`);
-      setFriendRequest(updatedUserResponse.data.user.friendRequests || []);
+      const getFriendRequestResponse = await makeRequest.post(`/users/get-friend-request`);
+      setGetFriendRequest(getFriendRequestResponse.data.data || []);
       setSuccessMsg("Demande d'ami refusée !");
     } catch (error) {
       console.error("Erreur lors du refus de la demande:", error);
@@ -191,6 +189,8 @@ const Home = () => {
         requestTo: friendId,
       });
       console.log("Friend Request Sent to:", friendId);
+      const getSuggestedFriendsResponse = await makeRequest.post(`/users/suggested-friends`);
+      setSuggestedFriends(getSuggestedFriendsResponse.data.data || []);
       setSuccessMsg("Demande d'ami envoyée !");
     } catch (error) {
       console.error("Erreur lors de l'envoi de la demande d'ami:", error);
@@ -207,19 +207,19 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full px-0 lg:px-10 pb-20 2xl:px-40 bg-bgColor lg:rounded-lg min-h-screen overflow-hidden">
-      <TopBar />
+    <div className="w-full h-screen flex flex-col px-0 lg:px-10 2xl:px-40 bg-bgColor lg:rounded-lg">
+    <TopBar />
 
-      <div className="w-full flex gap-2 lg:gap-4 pt-5 pb-10 h-full">
-        {/* LEFT */}
-        <div className="hidden w-1/3 lg:w-1/4 h-full md:flex flex-col gap-6 overflow-y-auto">
-          <ProfileCard />
-          <FriendsCard />
-        </div>
+    <div className="w-full flex gap-2 lg:gap-4 pt-5 pb-10 flex-grow overflow-hidden">
+      {/* LEFT */}
+      <div className="hidden md:flex flex-col w-1/3 lg:w-1/4 gap-6 overflow-y-auto">
+        <ProfileCard user={user} />
+        <FriendsCard />
+      </div>
 
         {/* CENTER */}
-        <div className="flex-1 h-full px-4 flex flex-col gap-6 overflow-y-auto rounded-lg">
-          <form
+        <div className="flex-1 flex flex-col px-4 gap-6 overflow-y-auto rounded-lg">
+        <form
             onSubmit={handleSubmit(handlePostSubmit)}
             className="bg-primary px-4 rounded-lg"
           >
@@ -327,8 +327,8 @@ const Home = () => {
         </div>
 
         {/* RIGHT */}
-        <div className="hidden w-1/4 h-full lg:flex flex-col gap-8 overflow-y-auto">
-          {/* FRIEND REQUEST */}
+        <div className="hidden lg:flex flex-col w-1/4 gap-8 overflow-y-auto">
+        {/* FRIEND REQUEST */}
           <div className="w-full bg-primary shadow-sm rounded-lg px-6 py-5">
             <div className="flex items-center justify-between text-xl text-ascent-1 pb-2 border-b border-[#66666645]">
               <span>Demandes d'Ami</span>
