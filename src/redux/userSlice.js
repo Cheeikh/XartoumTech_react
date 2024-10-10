@@ -20,10 +20,18 @@ const userSlice = createSlice({
     updateProfile(state, action) {
       state.edit = action.payload;
     },
+    updateProfileModal(state, action) {
+      state.edit = action.payload;
+    },
+    updateUser(state, action) {
+      state.user = action.payload;
+      localStorage.setItem("user", JSON.stringify(action.payload));
+    },
+
   },
 });
 
-export const { login, logout, updateProfile } = userSlice.actions;
+export const { login, logout, updateProfile, updateUser, updateProfileModal } = userSlice.actions;
 export default userSlice.reducer;
 
 // Actions Thunk
@@ -38,3 +46,10 @@ export const Logout = () => (dispatch) => {
 export const UpdateProfile = (val) => (dispatch) => {
   dispatch(updateProfile(val));
 };
+export const UpdateUser = (user) => (dispatch) => {
+  dispatch(updateUser(user));
+};
+export const UpdateProfileModal = (val) => (dispatch) => {
+  dispatch(updateProfileModal(val));
+};
+

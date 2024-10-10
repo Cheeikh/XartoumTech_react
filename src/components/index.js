@@ -5,7 +5,9 @@ import TopBar from "./TopBar";
 import ProfileCard from "./ProfileCard";
 import FriendsCard from "./FriendsCard";
 import PostCard from "./PostCard";
+import PostCreator from "./PostCreator";
 import EditProfile from "./EditProfile";
+import FriendsManager from "./FriendsManager";
 
 export {
   Loading,
@@ -16,4 +18,6 @@ export {
   FriendsCard,
   PostCard,
   EditProfile,
+  PostCreator,
+  FriendsManager,
 };

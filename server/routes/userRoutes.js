@@ -1,3 +1,4 @@
+// userRoutes.js
 import express from "express";
 import path from "path";
 import {
@@ -14,34 +15,42 @@ import {
   verifyEmail,
 } from "../controllers/userController.js";
 import userAuth from "../middleware/authMiddleware.js";
+import upload from "../middleware/upload.js"; 
 
 const router = express.Router();
 const __dirname = path.resolve(path.dirname(""));
 
+
+
+// Routes publiques
 router.get("/verify/:userId/:token", verifyEmail);
+
 // PASSWORD RESET
 router.post("/request-passwordreset", requestPasswordReset);
 router.get("/reset-password/:userId/:token", resetPassword);
 router.post("/reset-password", changePassword);
 
-// user routes
+// Routes protégées par l'authentification
 router.get("/get-user", userAuth, getUser);
-router.get("/get-user/:id", userAuth, getUser); // Endpoint to get a user by ID
-router.put("/update-user", userAuth, updateUser);
+router.get("/get-user/:id", userAuth, getUser); // Récupérer un utilisateur par ID
 
-// friend request
+// Mise à jour de l'utilisateur avec gestion du fichier image
+router.put("/update-user", userAuth, upload.single("profileUrl"), updateUser);
+
+// Demandes d'amis
 router.post("/friend-request", userAuth, friendRequest);
 router.post("/get-friend-request", userAuth, getFriendRequest);
 
-// accept / deny friend request
+// Acceptation / refus des demandes d'amis
 router.post("/accept-request", userAuth, acceptRequest);
 
-// view profile
+// Vue du profil
 router.post("/profile-view", userAuth, profileViews);
 
-//suggested friends
+// Amis suggérés
 router.post("/suggested-friends", userAuth, suggestedFriends);
 
+// Routes supplémentaires
 router.get("/verified", (req, res) => {
   res.sendFile(path.join(__dirname, "./views/build", "index.html"));
 });

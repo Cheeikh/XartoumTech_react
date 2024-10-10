@@ -369,7 +369,7 @@ export const deletePost = async (req, res, next) => {
     }
 
     // Vérifier si l'utilisateur est le propriétaire du post
-    if (post.userId.toString() !== userId) {
+    if (post.userId._id.toString() !== userId.toString()) {
       return res.status(403).json({ success: false, message: "Unauthorized to delete this post" });
     }
 

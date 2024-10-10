@@ -5,6 +5,8 @@ import { compareString, createJWT, hashString } from "../utils/index.js";
 import PasswordReset from "../models/PasswordReset.js";
 import { resetPasswordLink } from "../utils/sendEmail.js";
 import FriendRequest from "../models/friendRequest.js";
+import cloudinary from '../utils/cloudinaryConfig.js';
+import streamifier from 'streamifier';
 
 export const verifyEmail = async (req, res) => {
   const { userId, token } = req.params;
@@ -219,45 +221,75 @@ export const getUser = async (req, res, next) => {
   }
 };
 
-
-
 export const updateUser = async (req, res, next) => {
   try {
-    const { firstName, lastName, location, profileUrl, profession } = req.body;
+    const { firstName, lastName, location, profession } = req.body;
 
-    if (!(firstName || lastName || contact || profession || location)) {
-      next("Please provide all required fields");
-      return;
+    // Vérification des champs requis
+    if (!(firstName && lastName && location && profession)) {
+      return res.status(400).json({ message: "Veuillez fournir tous les champs requis." });
     }
 
-    const { userId } = req.body.user;
+    const userId = req.user._id; // Récupérer l'ID de l'utilisateur depuis req.user
 
     const updateUser = {
       firstName,
       lastName,
       location,
-      profileUrl,
       profession,
-      _id: userId,
     };
+
+    if (req.file) {
+      // Fonction pour télécharger le fichier vers Cloudinary en utilisant un flux
+      const streamUpload = (buffer) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: 'profiles',
+              resource_type: 'auto',
+            },
+            (error, result) => {
+              if (result) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            }
+          );
+          streamifier.createReadStream(buffer).pipe(stream);
+        });
+      };
+
+      try {
+        const result = await streamUpload(req.file.buffer);
+        updateUser.profileUrl = result.secure_url;
+      } catch (error) {
+        console.error('Erreur lors du téléchargement sur Cloudinary :', error);
+        return res.status(500).json({ message: "Erreur lors du téléchargement de l'image." });
+      }
+    }
+
     const user = await Users.findByIdAndUpdate(userId, updateUser, {
       new: true,
-    });
+    }).populate({ path: "friends", select: "-password" });
 
-    await user.populate({ path: "friends", select: "-password" });
-    const token = createJWT(user?._id);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
 
-    user.password = undefined;
+    const token = createJWT(user._id);
+
+    user.password = undefined; // Supprimer le mot de passe avant d'envoyer la réponse
 
     res.status(200).json({
-      sucess: true,
-      message: "User updated successfully",
+      success: true,
+      message: "Profil mis à jour avec succès.",
       user,
       token,
     });
   } catch (error) {
-    console.log(error);
-    res.status(404).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors de la mise à jour du profil." });
   }
 };
 
