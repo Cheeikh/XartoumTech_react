@@ -176,6 +176,7 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
     try {
       await likePost(post._id);
       // Optionnel : Rafraîchir l'état du post si nécessaire
+
     } catch (error) {
       console.error("Erreur lors du like du post :", error);
     }
@@ -249,12 +250,12 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
             <img
               src={post?.media}
               alt="post media"
-              className="w-full h-[300px] object-cover mt-2 rounded-lg"
+              className="w-full h-[500px]  mt-2 rounded-lg"
             />
           ) : (
             <video
               src={post?.media}
-              className="w-full h-[300px] object-cover mt-2 rounded-lg"
+              className="w-full h-[500px]  mt-2 rounded-lg"
               autoPlay
               loop
               muted
@@ -271,11 +272,12 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
           className="flex gap-2 items-center text-base cursor-pointer"
           onClick={handleLikePost}
         >
-          {post?.likes?.includes(user?._id) ? (
+         {post?.likes?.some((like) => like?.$oid === user?._id) ? (
             <BiSolidLike size={20} color="blue" />
           ) : (
             <BiLike size={20} />
           )}
+
           {post?.likes?.length} Likes
         </p>
 

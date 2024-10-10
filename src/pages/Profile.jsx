@@ -35,7 +35,7 @@ const Profile = () => {
     fetchUserData();
 
     // Désactiver le défilement
-    document.body.style.overflow = 'hidden';
+    // document.body.style.overflow = 'hidden';
 
     // Réactiver le défilement lors du démontage du composant
     return () => {
@@ -62,21 +62,21 @@ const Profile = () => {
     : "bg-blue-700 text-white hover:bg-blue-800";
 
   return (
-    <div className={`${containerClass} min-h-screen overflow-hidden`}>
+    <div className={`${containerClass} min-h-screen bg-bgColor`}>
       <TopBar />
-      <div className='max-w-5xl mx-auto pt-8 px-4'>
+      <div className='max-w-5xl  mx-auto pt-8 px-4 overflow-scroll bg-bgColor'>
         {loading ? (
           <Loading />
         ) : (
           <>
             {errMsg && <p className="text-red-500">{errMsg}</p>}
             {/* En-tête du profil */}
-            <div className='flex mb-8'>
+            <div className='flex mb-8 '>
               <div className='w-1/3 flex justify-center'>
                 <img
                   src={userInfo?.profileUrl || NoProfile}
                   alt={userInfo?.username}
-                  className='w-40 h-40 rounded-full object-cover'
+                  className='w-40 h-40 rounded-full'
                 />
               </div>
               <div className='w-2/3'>
@@ -85,7 +85,7 @@ const Profile = () => {
                   {currentUser._id !== id && (
                     <button 
                       onClick={handleFollow}
-                      className={`${buttonClass} px-4 py-1 rounded font-semibold`}
+                      className={`px-4 py-1 rounded font-semibold`}
                     >
                       {userInfo?.isFollowing ? "Suivi" : "Suivre"}
                     </button>
@@ -94,7 +94,7 @@ const Profile = () => {
                 <div className='flex mb-4'>
                   <span className='mr-8'><strong>{posts.length}</strong> publications</span>
                   <span className='mr-8'><strong>{userInfo?.friends?.length}</strong> abonnés</span>
-                  <span><strong>{userInfo?.following?.length}</strong> abonnements</span>
+                  <span><strong>{userInfo?.friends?.length}</strong> abonnements</span>
                 </div>
                 <div>
                   <p className='font-semibold'>{userInfo?.firstName} {userInfo?.lastName}</p>
@@ -105,7 +105,7 @@ const Profile = () => {
             </div>
 
             {/* Grille de publications */}
-            <div className='grid grid-cols-3 gap-1'>
+            <div className='grid grid-cols-3 gap-1 overflow-scroll bg-primary rounded-lg'>
               {posts.map((post) => (
                 <PostCard
                   key={post._id}

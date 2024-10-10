@@ -125,11 +125,8 @@ const Home = () => {
       console.log("Like Post Response:", response);
 
       // Mettre à jour le post dans la liste des posts
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post._id === postId ? response.data.data : post
-        )
-      );
+      const postsResponse = await makeRequest.get(`/posts/get-posts`);
+      setPosts(postsResponse.data.data);
     } catch (error) {
       console.error("Erreur lors de l'ajout du like:", error);
       setErrMsg("Échec de l'ajout du like.");
@@ -210,7 +207,7 @@ const Home = () => {
     <div className="w-full h-screen flex flex-col px-0 lg:px-10 2xl:px-40 bg-bgColor lg:rounded-lg">
     <TopBar />
 
-    <div className="w-full flex gap-2 lg:gap-4 pt-5 pb-10 flex-grow overflow-hidden">
+    <div className="w-full flex gap-2 lg:gap-4 pt-5  flex-grow overflow-hidden h-full">
       {/* LEFT */}
       <div className="hidden md:flex flex-col w-1/3 lg:w-1/4 gap-6 overflow-y-auto">
         <ProfileCard user={user} />
