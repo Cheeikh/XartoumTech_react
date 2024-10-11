@@ -14,6 +14,7 @@ import {
   updateUser,
   verifyEmail,
   getFriends,
+  searchUsers,
 } from "../controllers/userController.js";
 import userAuth from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js"; 
@@ -62,5 +63,8 @@ router.get("/resetpassword", (req, res) => {
 
 // Ajoutez cette route avec les autres routes protégées
 router.get("/friends", userAuth, getFriends);
+
+// Ajoutez cette ligne avec les autres routes
+router.get("/search", userAuth, searchUsers);
 
 export default router;

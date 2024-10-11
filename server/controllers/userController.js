@@ -548,3 +548,25 @@ export const getFriends = async (req, res) => {
     });
   }
 };
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { term } = req.query;
+    const users = await Users.find({
+      $or: [
+        { firstName: { $regex: term, $options: 'i' } },
+        { lastName: { $regex: term, $options: 'i' } },
+      ],
+      _id: { $ne: req.user._id }
+    }).select('firstName lastName profileUrl');
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Erreur lors de la recherche d'utilisateurs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la recherche d'utilisateurs",
+      error: error.message
+    });
+  }
+};
