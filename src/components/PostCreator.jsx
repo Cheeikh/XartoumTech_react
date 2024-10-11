@@ -63,7 +63,7 @@ const PostCreator = ({ onPostCreated }) => {
       setPosting(false);
     }
   };
-
+console.log(user);
   return (
     <form
       onSubmit={handleSubmit(handlePostSubmit)}
@@ -71,7 +71,7 @@ const PostCreator = ({ onPostCreated }) => {
     >
       <div className="w-full flex items-center gap-2 py-4 border-b border-[#66666645]">
         <img
-          src={user?.profileUrl ?? NoProfile}
+          src={user?.user?.profileUrl ?? NoProfile}
           alt="User Image"
           className="w-14 h-14 rounded-full object-cover"
         />

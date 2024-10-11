@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { TbSocial } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -9,6 +9,8 @@ import { BsMoon, BsSunFill } from "react-icons/bs";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { SetTheme } from "../redux/theme";
 import { Logout } from "../redux/userSlice";
+import { makeRequest } from "../axios";
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 
 const TopBar = () => {
   const { theme } = useSelector((state) => state.theme);
@@ -20,6 +22,9 @@ const TopBar = () => {
     formState: { errors },
   } = useForm();
 
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+
   const handleTheme = () => {
     const themeValue = theme === "light" ? "dark" : "light";
 
@@ -27,6 +32,31 @@ const TopBar = () => {
   };
 
   const handleSearch = async (data) => {};
+
+  const handleShowNotifications = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await makeRequest.get(`/notifications`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      if (response.data.success) {
+        setNotifications(response.data.data);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération des notifications:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.token) {
+      fetchNotifications();
+    }
+  }, [user]);
 
   return (
     <div className='topbar w-full flex items-center justify-between py-3 md:py-6 px-4 bg-primary'>
@@ -60,8 +90,43 @@ const TopBar = () => {
         <button onClick={() => handleTheme()}>
           {theme ? <BsMoon /> : <BsSunFill />}
         </button>
-        <div className='hidden lg:flex'>
-          <IoMdNotificationsOutline />
+        <Link to="/messagerie" className="relative">
+          <IoChatbubbleEllipsesOutline className="cursor-pointer" />
+        </Link>
+        <div className='relative'>
+          <IoMdNotificationsOutline
+            className='cursor-pointer'
+            onClick={handleShowNotifications}
+          />
+          {notifications.length > 0 && (
+            <span className='absolute -top-2 -right-2 bg-red-500  rounded-full w-5 h-5 flex items-center justify-center text-xs'>
+              {notifications.length}
+            </span>
+          )}
+          {showNotifications && (
+            <div className='absolute top-full right-0 mt-2 w-80 bg-primary shadow-lg rounded-lg overflow-hidden z-50'>
+              <div className='p-4'>
+                <h3 className='text-lg font-semibold mb-2'>Notifications</h3>
+                {notifications.length === 0 ? (
+                  <p>Aucune nouvelle notification</p>
+                ) : (
+                  <ul>
+                    {notifications.map((notif) => (
+                      <li key={notif._id} className='mb-2 p-2 hover:bg-gray-100 rounded '>
+                        <p className='text-sm'>
+                          {notif.type === 'like' && `${notif.sender.firstName} a aimé votre publication`}
+                          {notif.type === 'comment' && `${notif.sender.firstName} a commenté votre publication`}
+                          {notif.type === 'friend_request' && `${notif.sender.firstName} vous a envoyé une demande d'ami`}
+                          {notif.type === 'friend_accept' && `${notif.sender.firstName} a accepté votre demande d'ami`}
+                        </p>
+                        <p className='text-xs text-gray-500'>{new Date(notif.createdAt).toLocaleString()}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div>

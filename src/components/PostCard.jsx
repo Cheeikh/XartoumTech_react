@@ -102,7 +102,7 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
     >
       <div className="w-full flex items-center gap-2 py-4">
         <img
-          src={user?.profileUrl ?? NoProfile}
+          src={user?.user?.profileUrl ?? NoProfile}
           alt="User Image"
           className="w-10 h-10 rounded-full object-cover"
         />
@@ -151,6 +151,22 @@ const PostCard = ({ post }) => {
   const [loadingComments, setLoadingComments] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [postState, setPostState] = useState(post);
+  const [postUser, setPostUser] = useState(null);
+
+  useEffect(() => {
+    const fetchPostUser = async () => {
+      try {
+        const response = await makeRequest.get(`/users/get-user/${post.userId._id}`);
+        if (response.data.success) {
+          setPostUser(response.data.user);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération de l'utilisateur du post:", error);
+      }
+    };
+
+    fetchPostUser();
+  }, [post.userId._id]);
 
   useEffect(() => {
     if (showComments) {
@@ -218,34 +234,33 @@ const PostCard = ({ post }) => {
     return null; // Le post a été supprimé
   }
 
-  console.log(postState);
 
   return (
     <div className="mb-2 bg-primary p-4 rounded-xl">
       {/* En-tête du Post */}
       <div className="flex gap-3 items-center mb-2">
-        <Link to={`/profile/${postState?.userId?._id}`}>
+        <Link to={`/profile/${postUser?._id}`}>
           <img
-            src={postState?.userId?.profileUrl ?? NoProfile}
-            alt={postState?.userId?.firstName}
+            src={postUser?.profileUrl ?? NoProfile}
+            alt={postUser?.firstName}
             className="w-14 h-14 object-cover rounded-full"
           />
         </Link>
 
         <div className="w-full flex justify-between">
           <div>
-            <Link to={`/profile/${postState?.userId?._id}`}>
+            <Link to={`/profile/${postUser?._id}`}>
               <p className="font-medium text-lg text-ascent-1">
-                {postState?.userId?.firstName} {postState?.userId?.lastName}
+                {postUser?.firstName} {postUser?.lastName}
               </p>
             </Link>
             <span className="text-ascent-2">
-              {postState?.userId?.profession ?? "Pas de profession"}
+              {postUser?.profession ?? "Pas de profession"}
             </span>
           </div>
 
           <span className="text-ascent-2">
-            {moment(postState?.createdAt).fromNow()}
+            {moment(post?.createdAt).fromNow()}
           </span>
         </div>
       </div>
@@ -272,12 +287,12 @@ const PostCard = ({ post }) => {
             <img
               src={postState?.media}
               alt="post media"
-              className="w-full h-[500px] mt-2 rounded-lg"
+              className="w-full  mt-2 rounded-lg"
             />
           ) : (
             <video
               src={postState?.media}
-              className="w-full h-[500px] mt-2 rounded-lg"
+              className="w-full mt-2 rounded-lg"
               autoPlay
               loop
               muted
@@ -366,7 +381,7 @@ const PostCard = ({ post }) => {
                       className="flex gap-2 items-center text-base text-ascent-2 cursor-pointer"
                       onClick={() => handleLikeComment(comment._id)}
                     >
-                      {comment?.likes?.includes(user?._id) ? (
+                      {comment?.likes?.includes(user.user?._id) ? (
                         <BiSolidLike size={20} color="blue" />
                       ) : (
                         <BiLike size={20} />

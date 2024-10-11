@@ -13,6 +13,7 @@ import {
   suggestedFriends,
   updateUser,
   verifyEmail,
+  getFriends,
 } from "../controllers/userController.js";
 import userAuth from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js"; 
@@ -58,5 +59,8 @@ router.get("/verified", (req, res) => {
 router.get("/resetpassword", (req, res) => {
   res.sendFile(path.join(__dirname, "./views/build", "index.html"));
 });
+
+// Ajoutez cette route avec les autres routes protégées
+router.get("/friends", userAuth, getFriends);
 
 export default router;

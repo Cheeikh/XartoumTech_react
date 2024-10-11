@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
   edit: false,
+  friends: [], // Ajout d'un état pour les amis
 };
 
 const userSlice = createSlice({
@@ -27,11 +28,13 @@ const userSlice = createSlice({
       state.user = action.payload;
       localStorage.setItem("user", JSON.stringify(action.payload));
     },
-
+    setFriends(state, action) {
+      state.friends = action.payload;
+    },
   },
 });
 
-export const { login, logout, updateProfile, updateUser, updateProfileModal } = userSlice.actions;
+export const { login, logout, updateProfile, updateUser, updateProfileModal, setFriends } = userSlice.actions;
 export default userSlice.reducer;
 
 // Actions Thunk
@@ -51,5 +54,8 @@ export const UpdateUser = (user) => (dispatch) => {
 };
 export const UpdateProfileModal = (val) => (dispatch) => {
   dispatch(updateProfileModal(val));
+};
+export const UpdateFriends = (friends) => (dispatch) => {
+  dispatch(setFriends(friends));
 };
 

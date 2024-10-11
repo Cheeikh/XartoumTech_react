@@ -7,6 +7,8 @@ import { useSelector } from "react-redux";
 import { makeRequest } from "../axios";
 import { CustomButton, Loading } from "../components";
 import { NoProfile } from "../assets";
+import { useDispatch } from "react-redux";
+import { UpdateFriends } from "../redux/userSlice";
 
 const FriendsManager = () => {
   const { user } = useSelector((state) => state.user);
@@ -15,6 +17,7 @@ const FriendsManager = () => {
   const [errMsg, setErrMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (user) {
@@ -35,13 +38,31 @@ const FriendsManager = () => {
           makeRequest.post(`/users/suggested-friends`),
         ]);
 
-      setFriendRequests(friendRequestsResponse.data.data || []);
-      setSuggestedFriends(suggestedFriendsResponse.data.data || []);
+      const friendRequests = friendRequestsResponse.data.data || [];
+      setFriendRequests(friendRequests);
+
+      // Filtrer les suggestions pour exclure les utilisateurs qui ont déjà envoyé une demande
+      const suggestedFriends = suggestedFriendsResponse.data.data || [];
+      const filteredSuggestions = suggestedFriends.filter(
+        (suggested) => !friendRequests.some((request) => request.requestFrom._id === suggested._id)
+      );
+      setSuggestedFriends(filteredSuggestions);
     } catch (error) {
       console.error("Erreur lors du chargement des données d'amis :", error);
       setErrMsg("Échec du chargement des données d'amis.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateFriendsList = async () => {
+    try {
+      const response = await makeRequest.get("/users/friends");
+      if (response.data.success) {
+        dispatch(UpdateFriends(response.data.data));
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la liste d'amis:", error);
     }
   };
 
@@ -51,10 +72,9 @@ const FriendsManager = () => {
         rid: requestId,
         status: "Accepted",
       });
-      console.log("Demande d'ami acceptée :", requestId);
       setSuccessMsg("Demande d'ami acceptée !");
-      // Rafraîchir les données
       fetchFriendsData();
+      updateFriendsList(); // Mise à jour de la liste des amis
     } catch (error) {
       console.error("Erreur lors de l'acceptation de la demande :", error);
       setErrMsg("Échec de l'acceptation de la demande.");
@@ -67,10 +87,9 @@ const FriendsManager = () => {
         rid: requestId,
         status: "Denied",
       });
-      console.log("Demande d'ami refusée :", requestId);
       setSuccessMsg("Demande d'ami refusée !");
-      // Rafraîchir les données
       fetchFriendsData();
+      updateFriendsList(); // Mise à jour de la liste des amis
     } catch (error) {
       console.error("Erreur lors du refus de la demande :", error);
       setErrMsg("Échec du refus de la demande.");
@@ -82,10 +101,8 @@ const FriendsManager = () => {
       await makeRequest.post("/users/friend-request", {
         requestTo: friendId,
       });
-      console.log("Demande d'ami envoyée à :", friendId);
       setSuccessMsg("Demande d'ami envoyée !");
-      // Rafraîchir les données
-      fetchFriendsData();
+      fetchFriendsData(); // Rafraîchir les données
     } catch (error) {
       console.error("Erreur lors de l'envoi de la demande d'ami :", error);
       if (

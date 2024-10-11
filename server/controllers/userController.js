@@ -7,6 +7,7 @@ import { resetPasswordLink } from "../utils/sendEmail.js";
 import FriendRequest from "../models/friendRequest.js";
 import cloudinary from '../utils/cloudinaryConfig.js';
 import streamifier from 'streamifier';
+import Notification from "../models/notificationModel.js";
 
 export const verifyEmail = async (req, res) => {
   const { userId, token } = req.params;
@@ -197,9 +198,9 @@ export const getUser = async (req, res, next) => {
     });
 
     if (!user) {
-      return res.status(404).send({
-        message: "Utilisateur non trouvé",
+      return res.status(404).json({
         success: false,
+        message: "Utilisateur non trouvé",
       });
     }
 
@@ -212,10 +213,10 @@ export const getUser = async (req, res, next) => {
       user: user,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
-      message: "Erreur lors de la récupération de l'utilisateur",
       success: false,
+      message: "Erreur lors de la récupération de l'utilisateur",
       error: error.message,
     });
   }
@@ -357,12 +358,12 @@ export const friendRequest = async (req, res) => {
       requestTo,
     });
 
-    // Optionnel : Ajouter une notification pour l'utilisateur cible
-    // await Notification.create({
-    //   user: requestTo,
-    //   type: "friend_request",
-    //   message: `${req.user.firstName} vous a envoyé une demande d'ami.`,
-    // });
+    // Créer une notification pour la demande d'ami
+    await Notification.create({
+      recipient: requestTo,
+      sender: userId,
+      type: "friend_request",
+    });
 
     res.status(201).json({
       success: true,
@@ -440,6 +441,13 @@ export const acceptRequest = async (req, res, next) => {
       friend.friends.push(updatedRequest?.requestTo);
 
       await friend.save();
+
+      // Créer une notification pour l'acceptation de la demande d'ami
+      await Notification.create({
+        recipient: updatedRequest.requestFrom,
+        sender: userId,
+        type: "friend_accept",
+      });
     }
 
     res.status(201).json({
@@ -458,18 +466,24 @@ export const acceptRequest = async (req, res, next) => {
 
 export const suggestedFriends = async (req, res) => {
   try {
-    const userId = req.user._id; // Utilisation de req.user._id
+    const userId = req.user._id;
 
-    let queryObject = {};
+    // Trouver toutes les demandes d'ami envoyées par l'utilisateur actuel
+    const sentRequests = await FriendRequest.find({ requestFrom: userId });
+    const sentRequestIds = sentRequests.map(request => request.requestTo.toString());
 
-    queryObject._id = { $ne: userId };
-    queryObject.friends = { $nin: userId };
+    let queryObject = {
+      _id: { $ne: userId },
+      friends: { $ne: userId },
+      _id: { $nin: sentRequestIds }
+    };
 
-    let queryResult = Users.find(queryObject)
+    let queryResult = await Users.find(queryObject)
       .limit(15)
       .select("firstName lastName profileUrl profession -password");
 
-    const suggestedFriends = await queryResult;
+    // Filtrage supplémentaire pour s'assurer que l'utilisateur connecté n'est pas inclus
+    const suggestedFriends = queryResult.filter(user => user._id.toString() !== userId.toString());
 
     res.status(200).json({
       success: true,
@@ -480,7 +494,6 @@ export const suggestedFriends = async (req, res) => {
     res.status(404).json({ message: error.message });
   }
 };
-
 
 export const profileViews = async (req, res, next) => {
   try {
@@ -503,6 +516,35 @@ export const profileViews = async (req, res, next) => {
       message: "auth error",
       success: false,
       error: error.message,
+    });
+  }
+};
+
+export const getFriends = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await Users.findById(userId).populate({
+      path: 'friends',
+      select: 'firstName lastName profileUrl profession'
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilisateur non trouvé"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user.friends
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des amis:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la récupération des amis",
+      error: error.message
     });
   }
 };
