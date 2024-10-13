@@ -50,7 +50,7 @@ export const createPost = async (req, res, next) => {
     });
 
     // Créer une notification pour le post créé
-    await createNotification(/* recipientId (ex: pour les amis ou abonnés), */ userId, "new_post", post._id);
+    await createNotification(userId, userId, "new_post", post._id); // Correction ici
 
     // Populer le post avec les données de l'utilisateur
     const populatedPost = await Posts.findById(post._id).populate({

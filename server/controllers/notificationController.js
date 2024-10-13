@@ -8,7 +8,7 @@ export const createNotification = async (recipientId, senderId, type, postId = n
     const notification = await Notification.create({
       recipient: recipientId,
       sender: senderId,
-      type,
+      type: type,
       post: postId,
     });
 
@@ -80,8 +80,19 @@ export const markAllNotificationsAsRead = async (req, res) => {
 
 export const markNotificationAsRead = async (req, res) => {
   const { notificationId } = req.params;
+  
+  // Vérifier si l'ID est valide
+  if (!mongoose.isValidObjectId(notificationId)) {
+    return res.status(400).json({
+      success: false,
+      message: "ID de notification invalide",
+    });
+  }
+
   try {
     const userId = req.user._id;
+    console.log("Tentative de mise à jour de la notification avec ID :", notificationId);
+    
     const notification = await Notification.findOneAndUpdate(
       { _id: notificationId, recipient: userId },
       { read: true },
@@ -108,6 +119,7 @@ export const markNotificationAsRead = async (req, res) => {
     });
   }
 };
+
 
 export const archiveOldNotifications = async () => {
   const thresholdDate = new Date();

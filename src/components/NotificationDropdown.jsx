@@ -12,9 +12,10 @@ const NotificationDropdown = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const dropdownRef = useRef(null); // Utilisation d'un ref pour le dropdown
+  const [error, setError] = useState(null); // État pour gérer les erreurs
+  const dropdownRef = useRef(null); 
 
-  const socket = io("http://localhost:8800");
+  const socket = useRef(io("http://localhost:8800")); // Utilisation d'un ref pour Socket.IO
 
   // Toggle affichage notifications
   const handleShowNotifications = useCallback(() => {
@@ -45,6 +46,7 @@ const NotificationDropdown = () => {
     if (!hasMore || isLoading) return;
 
     setIsLoading(true);
+    setError(null); // Réinitialiser l'erreur avant une nouvelle requête
     try {
       const response = await makeRequest.get(`/notifications?page=${page}`, {
         headers: {
@@ -59,6 +61,7 @@ const NotificationDropdown = () => {
       }
     } catch (error) {
       console.error("Erreur lors de la récupération des notifications:", error);
+      setError("Erreur lors de la récupération des notifications.");
     } finally {
       setIsLoading(false);
     }
@@ -90,17 +93,18 @@ const NotificationDropdown = () => {
       });
     };
 
-    socket.on("new_notification", handleNewNotification);
+    socket.current.on("new_notification", handleNewNotification);
 
     return () => {
-      socket.off("new_notification", handleNewNotification);
+      socket.current.off("new_notification", handleNewNotification);
     };
-  }, [socket]);
+  }, []);
 
   // Générer le contenu de la notification
   const getNotificationContent = (notif) => {
     const notifTypes = {
       like: `${notif.sender.firstName} a aimé votre publication`,
+      post: `${notif.sender.firstName} a publié une nouvelle publication`,
       new_post: `${notif.sender.firstName} a publié un nouveau post`,
       friend_request: `${notif.sender.firstName} vous a envoyé une demande d'ami`,
       friend_accept: `${notif.sender.firstName} a accepté votre demande d'ami`,
@@ -145,6 +149,32 @@ const NotificationDropdown = () => {
     };
   }, []);
 
+  // Gérer le clic sur une notification
+  const handleNotificationClick = async (notif) => {
+    console.log("Notification clicked:", notif);
+    // Marquer la notification comme lue lors du clic
+    await markNotificationAsRead(notif._id);
+    // Vous pouvez gérer la navigation ici si nécessaire
+  };
+
+  // Marquer une notification spécifique comme lue
+  const markNotificationAsRead = async (id) => {
+    try {
+      await makeRequest.put(`/notifications/${id}/mark-read`, null, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notif) =>
+          notif._id === id ? { ...notif, read: true } : notif
+        )
+      );
+    } catch (error) {
+      console.error("Erreur lors du marquage de la notification comme lue:", error);
+    }
+  };
+
   // Rendre une notification avec clé unique
   const renderNotification = (notif) => {
     return (
@@ -153,8 +183,8 @@ const NotificationDropdown = () => {
         className={`p-2 mb-2 rounded hover:bg-gray-100 flex items-center space-x-2 ${
           !notif.read ? 'bg-blue-100' : ''
         }`}
+        onClick={() => handleNotificationClick(notif)} // Ajout du gestionnaire de clic
       >
-        {/* Ajout de l'image de profil ici */}
         <img
           src={notif.sender.profileUrl ?? NoProfile}
           alt="User Image"
@@ -177,7 +207,7 @@ const NotificationDropdown = () => {
         onClick={handleShowNotifications}
       />
       {notifications.filter((n) => !n.read).length > 0 && (
-        <span className="absolute flex items-center justify-center w-5 h-5 text-xs bg-red-800 rounded-full -top-2 -right-2" style={{ backgroundColor: '#f56565', color: '#fff'  }}>
+        <span className="absolute flex items-center justify-center w-5 h-5 text-xs bg-red-800 rounded-full -top-2 -right-2" style={{ backgroundColor: '#f56565', color: '#fff' }}>
           {notifications.filter((n) => !n.read).length > 9 ? "9+" : notifications.filter((n) => !n.read).length}
         </span>
       )}
@@ -185,6 +215,7 @@ const NotificationDropdown = () => {
         <div className="absolute right-0 z-50 mt-2 overflow-hidden rounded-lg shadow-lg top-full w-80 bg-primary">
           <div className="p-4">
             <h3 className="mb-2 text-lg font-semibold">Notifications</h3>
+            {error && <p className="text-red-500">{error}</p>} {/* Affichage des erreurs */}
             {uniqueNotifications.length === 0 ? (
               <p>Aucune nouvelle notification</p>
             ) : (
