@@ -14,12 +14,25 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["like", "comment", "friend_request", "friend_accept"],
+      enum: [
+        "like",
+        "comment",
+        "new_post",
+        "friend_request",
+        "friend_accept",
+        "group_invite",
+        "event_invite",
+        "new_comment",
+      ],
       required: true,
     },
     post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Posts",
+    },
+    metadata: {
+      type: Object, // Permet d'ajouter des informations supplémentaires selon le type de notification
+      default: {},
     },
     read: {
       type: Boolean,
@@ -28,6 +41,9 @@ const notificationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Ajout d'un index composite pour optimiser les requêtes
+notificationSchema.index({ recipient: 1, read: 1 });
 
 const Notification = mongoose.model("Notification", notificationSchema);
 

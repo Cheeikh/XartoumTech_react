@@ -3,6 +3,7 @@ import Comments from "../models/commentModel.js";
 import Posts from "../models/postModel.js";
 import cloudinary from "../utils/cloudinaryConfig.js";
 import streamifier from "streamifier";
+import { createNotification } from "./notificationController.js";
 
 export const createPost = async (req, res, next) => {
   try {
@@ -48,6 +49,9 @@ export const createPost = async (req, res, next) => {
       mediaType: mediaType,
     });
 
+    // Créer une notification pour le post créé
+    await createNotification(/* recipientId (ex: pour les amis ou abonnés), */ userId, "new_post", post._id);
+
     // Populer le post avec les données de l'utilisateur
     const populatedPost = await Posts.findById(post._id).populate({
       path: "userId",
@@ -64,6 +68,7 @@ export const createPost = async (req, res, next) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const getPosts = async (req, res, next) => {
   try {
@@ -196,7 +201,7 @@ export const getComments = async (req, res, next) => {
 
 export const likePost = async (req, res, next) => {
   try {
-    const userId  = req.user._id;
+    const userId = req.user._id;
     const { id } = req.params;
 
     const post = await Posts.findById(id);
@@ -210,6 +215,8 @@ export const likePost = async (req, res, next) => {
       post.likes.pull(userId);
     } else {
       post.likes.push(userId);
+      // Créer une notification pour le like
+      await createNotification(post.userId, userId, "like", id);
     }
 
     await post.save();
@@ -224,6 +231,7 @@ export const likePost = async (req, res, next) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const likePostComment = async (req, res, next) => {
   const { id, rid } = req.params; // id: ID du commentaire, rid: ID de la réponse (facultatif)
@@ -297,7 +305,7 @@ export const likePostComment = async (req, res, next) => {
 export const commentPost = async (req, res, next) => {
   try {
     const { comment } = req.body;
-    const userId  = req.user._id;
+    const userId = req.user._id;
     const { postId } = req.params; // id: post ID
 
     if (!comment || comment.trim() === "") {
@@ -310,8 +318,11 @@ export const commentPost = async (req, res, next) => {
       postId: postId,
     });
 
-    // Mettre à jour le post avec l'ID du commentaire
     await Posts.findByIdAndUpdate(postId, { $push: { comments: newComment._id } }, { new: true });
+
+    // Créer une notification pour le commentaire
+    const postOwnerId = (await Posts.findById(postId)).userId; // Récupérer l'ID de l'utilisateur qui a créé le post
+    await createNotification(postOwnerId, userId, "new_comment", postId);
 
     res.status(201).json({
       success: true,
