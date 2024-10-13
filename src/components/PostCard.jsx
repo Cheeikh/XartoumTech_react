@@ -98,7 +98,7 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-full border-b border-[#66666645]"
+      className="w-full border-b border-[#9a00d7]"
     >
       <div className="w-full flex items-center gap-2 py-4">
         <img
@@ -135,7 +135,7 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
           <CustomButton
             title="Soumettre"
             type="submit"
-            containerStyles="bg-[#0444a4] text-white py-1 px-3 rounded-full font-semibold text-sm"
+            containerStyles="bg-[#9a00d7] text-white py-1 px-3 rounded-full font-semibold text-sm"
           />
         )}
       </div>
@@ -274,7 +274,7 @@ const PostCard = ({ post }) => {
 
           {postState?.description?.length > 300 && (
             <span
-              className="text-blue ml-2 font-medium cursor-pointer"
+              className="text-[#9a00d7] ml-2 font-medium cursor-pointer"
               onClick={() => setShowAll(!showAll)}
             >
               {showAll ? "Montrer moins" : "Montrer plus"}
@@ -303,14 +303,14 @@ const PostCard = ({ post }) => {
       {/* Actions du Post */}
       <div
         className="mt-4 flex justify-between items-center px-3 py-2 text-ascent-2
-          text-base border-t border-[#66666645]"
+          text-base border-t border-[#9a00d7]"
       >
         <p
           className="flex gap-2 items-center text-base cursor-pointer"
           onClick={handleLikePost}
         >
           {postState?.likes?.includes(user.user?._id) ? (
-            <BiSolidLike size={20} color="blue" />
+            <BiSolidLike size={20} color="#9a00d7" />
           ) : (
             <BiLike size={20} />
           )}
@@ -339,7 +339,7 @@ const PostCard = ({ post }) => {
 
       {/* Section des Commentaires */}
       {showComments && (
-        <div className="w-full mt-4 border-t border-[#66666645] pt-4 ">
+        <div className="w-full mt-4 border-t border-[#9a00d7] pt-4 ">
           {/* Formulaire pour Ajouter un Commentaire */}
           <CommentForm
             user={user}
@@ -389,7 +389,7 @@ const PostCard = ({ post }) => {
                       {comment?.likes?.length} J'aime
                     </p>
                     <span
-                      className="text-blue cursor-pointer"
+                      className="text-[#9a00d7] cursor-pointer"
                       onClick={() =>
                         setShowReply(
                           showReply === comment._id ? null : comment._id

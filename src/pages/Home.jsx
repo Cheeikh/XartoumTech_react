@@ -10,7 +10,8 @@ import {
   ProfileCard,
   TopBar,
   PostCreator,
-  FriendsManager
+  FriendsManager,
+  Stories
 } from "../components";
 
 const Home = () => {
@@ -18,10 +19,11 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState([]);
+  const [stories, setStories] = useState([]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setErrMsg("");
@@ -30,6 +32,11 @@ const Home = () => {
         // Appel des données des posts
         const postsResponse = await makeRequest.get(`/posts/get-posts`);
         setPosts(postsResponse.data.data || []);
+
+        // Appel des données des stories
+        const storiesResponse = await makeRequest.get(`/stories`);
+        setStories(storiesResponse.data.data || []);
+
         setLoading(false);
       } catch (error) {
         console.error("Erreur lors du fetch des données:", error);
@@ -39,7 +46,7 @@ const Home = () => {
     };
 
     if (user) {
-      fetchPosts();
+      fetchData();
     }
   }, [user]);
 
@@ -60,6 +67,7 @@ const Home = () => {
 
         {/* CENTER */}
         <div className="flex-1 flex flex-col px-4 gap-6 overflow-y-auto rounded-lg">
+          <Stories stories={stories} />
           <PostCreator onPostCreated={handlePostCreated} />
 
           {loading ? (

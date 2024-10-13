@@ -361,15 +361,15 @@ const MessagerieView = () => {
                     {msg.messageType === 'audio' && (
                       <div className="flex items-center space-x-2">
                         {isPlaying && currentAudio?.src === msg.content ? (
-                          <Pause onClick={pauseAudio} className="cursor-pointer text-blue-500" />
+                          <Pause onClick={pauseAudio} className="cursor-pointer text-[#9a00d7]-500" />
                         ) : (
-                          <Play onClick={() => playAudio(msg.content)} className="cursor-pointer text-blue-500" />
+                          <Play onClick={() => playAudio(msg.content)} className="cursor-pointer text-[#9a00d7]-500" />
                         )}
                         <span>Message audio</span>
                       </div>
                     )}
                     {msg.messageType === 'file' && (
-                      <a href={msg.content} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                      <a href={msg.content} target="_blank" rel="noopener noreferrer" className="text-[#9a00d7]-500 underline">
                         Fichier joint
                       </a>
                     )}
@@ -418,7 +418,7 @@ const MessagerieView = () => {
                 </div>
               )}
               {newMessage || audioBlob ? (
-                <Send onClick={audioBlob ? sendAudioMessage : handleSendMessage} className="text-blue-500 cursor-pointer" />
+                <Send onClick={audioBlob ? sendAudioMessage : handleSendMessage} className="text-[#9a00d7]-500 cursor-pointer" />
               ) : isRecording ? (
                 <Square onClick={stopRecording} className="text-red-500 cursor-pointer" />
               ) : (

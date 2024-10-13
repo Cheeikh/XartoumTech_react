@@ -1,4 +1,3 @@
-// EditProfile.jsx
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { MdClose, MdDelete } from "react-icons/md";
@@ -49,11 +48,8 @@ const EditProfile = () => {
       });
 
       if (response.data.success) {
-        // Mettre à jour l'utilisateur dans le store Redux
         dispatch(UpdateUser(response.data.user));
-        // Afficher une notification de succès
         toast.success(response.data.message);
-        // Fermer la modal
         dispatch(UpdateProfileModal(false));
       } else {
         setErrMsg(response.data.message || "Échec de la mise à jour du profil.");
@@ -209,7 +205,7 @@ const EditProfile = () => {
                 ) : (
                   <CustomButton
                     type="submit"
-                    containerStyles={`inline-flex justify-center rounded-md bg-blue px-8 py-3 text-sm font-medium text-white outline-none`}
+                    containerStyles="inline-flex justify-center rounded-md bg-blue px-8 py-3 text-sm font-medium text-white outline-none"
                     title="Soumettre"
                   />
                 )}

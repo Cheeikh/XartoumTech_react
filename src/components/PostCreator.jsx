@@ -68,7 +68,7 @@ const PostCreator = ({ onPostCreated }) => {
       onSubmit={handleSubmit(handlePostSubmit)}
       className="bg-primary px-4 rounded-lg"
     >
-      <div className="w-full flex items-center gap-2 py-4 border-b border-[#66666645]">
+      <div className="w-full flex items-center gap-2 py-4 border-b border-[#9a00d7]">
         <img
           src={user?.user?.profileUrl ?? NoProfile}
           alt="User Image"
@@ -142,8 +142,8 @@ const PostCreator = ({ onPostCreated }) => {
             title={posting ? "Publication..." : "Publier"}
             containerStyles={`${
               posting
-                ? "bg-[#0444a4] opacity-50 cursor-not-allowed"
-                : "bg-[#0444a4]"
+                ? "bg-[#9a00d7] opacity-50 cursor-not-allowed"
+                : "bg-[#9a00d7]"
             } text-white py-1 px-6 rounded-full font-semibold text-sm`}
             disabled={posting}
           />

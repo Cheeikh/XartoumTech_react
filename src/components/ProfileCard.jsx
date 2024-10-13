@@ -22,7 +22,7 @@ const ProfileCard = ({ user }) => {
   return (
     <div>
       <div className='w-full bg-primary flex flex-col items-center shadow-sm rounded-xl px-6 py-4 '>
-        <div className='w-full flex items-center justify-between border-b pb-5 border-[#66666645]'>
+        <div className='w-full flex items-center justify-between border-b pb-5 border-[#9a00d7]'>
           <Link to={"/profile/" + user.user?._id} className='flex gap-2'>
             <img
               src={user.user?.profileUrl ?? NoProfile}
@@ -44,7 +44,7 @@ const ProfileCard = ({ user }) => {
             {user?._id === data?._id ? (
               <LiaEditSolid
                 size={22}
-                className='text-blue cursor-pointer'
+                className='text-[#9a00d7] cursor-pointer'
                 onClick={() => dispatch(UpdateProfile(true))}
               />
             ) : (
@@ -58,7 +58,7 @@ const ProfileCard = ({ user }) => {
           </div>
         </div>
 
-        <div className='w-full flex flex-col gap-2 py-4 border-b border-[#66666645]'>
+        <div className='w-full flex flex-col gap-2 py-4 border-b border-[#9a00d7]'>
           <div className='flex gap-2 items-center text-ascent-2'>
             <CiLocationOn className='text-xl text-ascent-1' />
             <span>{user?.user.location ?? "Add Location"}</span>
@@ -70,7 +70,7 @@ const ProfileCard = ({ user }) => {
           </div>
         </div>
 
-        <div className='w-full flex flex-col gap-2 py-4 border-b border-[#66666645]'>
+        <div className='w-full flex flex-col gap-2 py-4 border-b border-[#9a00d7]'>
           <p className='text-xl text-ascent-1 font-semibold'>
             {user.user?.friends?.length} Friends
           </p>
@@ -80,7 +80,7 @@ const ProfileCard = ({ user }) => {
             <span className='text-ascent-1 text-lg'>{user.user?.views?.length}</span>
           </div>
 
-          <span className='text-base text-blue'>
+          <span className='text-base text-[#9a00d7]'>
             {user.user?.verified ? "Verified Account" : "Not Verified"}
           </span>
 

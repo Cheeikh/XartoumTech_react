@@ -11,7 +11,7 @@ import { SetTheme } from "../redux/theme";
 import { Logout } from "../redux/userSlice";
 import { makeRequest } from "../axios";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
-
+import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
 const TopBar = () => {
   const { theme } = useSelector((state) => state.theme);
   const { user } = useSelector((state) => state.user);
@@ -61,12 +61,7 @@ const TopBar = () => {
   return (
     <div className='topbar w-full flex items-center justify-between py-3  px-4 bg-primary rounded-xl'>
       <Link to='/' className='flex gap-2 items-center'>
-        <div className='p-1 md:p-2 bg-[#065ad8] rounded text-white'>
-          <TbSocial />
-        </div>
-        <span className='text-xl md:text-2xl text-[#065ad8] font-semibold'>
-          XartoumTech
-        </span>
+        <img src={LogoImage} alt="XartoumTech" className='h-10 md:h-16' />
       </Link>
 
       <form
@@ -75,13 +70,13 @@ const TopBar = () => {
       >
         <TextInput
           placeholder='Search...'
-          styles='w-[18rem] lg:w-[38rem]  rounded-l-full py-3 '
+          styles='w-[18rem] lg:w-[38rem]  rounded-full py-3 '
           register={register("search")}
         />
         <CustomButton
           title='Search'
           type='submit'
-          containerStyles='bg-[#0444a4] text-white px-6 py-2.5 mt-2 rounded-r-full'
+          containerStyles='bg-[#9a00d7] text-white px-6 py-2.5 mt-2 rounded-full ml-[-3rem]'
         />
       </form>
 
@@ -133,7 +128,7 @@ const TopBar = () => {
           <CustomButton
             onClick={() => dispatch(Logout())}
             title='Log Out'
-            containerStyles='text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#666] rounded-full'
+            containerStyles='text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#9a00d7] rounded-full'
           />
         </div>
       </div>
