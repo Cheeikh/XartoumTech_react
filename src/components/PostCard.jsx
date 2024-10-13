@@ -287,12 +287,12 @@ const PostCard = ({ post }) => {
             <img
               src={postState?.media}
               alt="post media"
-              className="w-full  mt-2 rounded-lg"
+              className="w-auto max-h-[90vh] mt-2 rounded-lg mx-auto block"
             />
           ) : (
             <video
               src={postState?.media}
-              className="w-full mt-2 rounded-lg"
+              className="w-auto max-h-[90vh] mt-2 rounded-lg mx-auto block"
               autoPlay
               loop
               muted

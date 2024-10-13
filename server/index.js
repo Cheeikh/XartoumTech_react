@@ -10,6 +10,7 @@ import helmet from "helmet";
 import dbConnection from "./dbConfig/index.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import router from "./routes/index.js";
+import messageRoutes from './routes/messageRoutes.js';
 
 const __dirname = path.resolve(path.dirname(""));
 
@@ -43,6 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan("dev"));
 app.use(router);
+app.use('/messages', messageRoutes);
 
 // Error middleware
 app.use(errorMiddleware);

@@ -63,7 +63,6 @@ const PostCreator = ({ onPostCreated }) => {
       setPosting(false);
     }
   };
-console.log(user);
   return (
     <form
       onSubmit={handleSubmit(handlePostSubmit)}
