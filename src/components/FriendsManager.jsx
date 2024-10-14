@@ -1,108 +1,122 @@
-// FriendsManager.jsx
+// Imports nécessaires
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-// Assurez-vous d'importer les bonnes icônes et composants
-import { BsPersonFillAdd } from "react-icons/bs";
-import { useSelector } from "react-redux";
-import { makeRequest } from "../axios";
-import { CustomButton, Loading } from "../components";
-import { NoProfile } from "../assets";
-import { useDispatch } from "react-redux";
-import { UpdateFriends } from "../redux/userSlice";
+import { Link } from "react-router-dom"; // Utilisé pour la navigation interne
+import { BsPersonFillAdd } from "react-icons/bs"; // Icône utilisée pour ajouter un ami
+import { useSelector, useDispatch } from "react-redux"; // Hooks Redux pour accéder et modifier le state
+import { makeRequest } from "../axios"; // Fonction pour effectuer des requêtes HTTP
+import { CustomButton, Loading } from "../components"; // Composants personnalisés pour les boutons et les indicateurs de chargement
+import { NoProfile } from "../assets"; // Image par défaut si un utilisateur n'a pas d'image de profil
+import { UpdateFriends } from "../redux/userSlice"; // Action Redux pour mettre à jour la liste des amis dans le state
 
+// Composant FriendsManager
 const FriendsManager = () => {
+  // On extrait l'utilisateur courant du state via Redux
   const { user } = useSelector((state) => state.user);
-  const [friendRequests, setFriendRequests] = useState([]);
-  const [suggestedFriends, setSuggestedFriends] = useState([]);
-  const [errMsg, setErrMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
-  const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
 
+  // Hooks useState pour gérer différents états locaux :
+  const [friendRequests, setFriendRequests] = useState([]); // Requêtes d'amis reçues
+  const [suggestedFriends, setSuggestedFriends] = useState([]); // Suggestions d'amis
+  const [errMsg, setErrMsg] = useState(""); // Message d'erreur
+  const [successMsg, setSuccessMsg] = useState(""); // Message de succès
+  const [loading, setLoading] = useState(false); // Indicateur de chargement
+
+  const dispatch = useDispatch(); // Utilisé pour envoyer des actions à Redux
+
+  // useEffect est utilisé pour charger les données d'amis une fois que l'utilisateur est disponible
   useEffect(() => {
     if (user) {
-      fetchFriendsData();
+      fetchFriendsData(); // Fonction pour charger les données des amis (demandes et suggestions)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Le tableau de dépendance inclut 'user', donc ce hook se déclenche lorsque 'user' change
   }, [user]);
 
+  // Fonction pour charger les données relatives aux amis : requêtes d'amis et suggestions
   const fetchFriendsData = async () => {
     try {
-      setLoading(true);
-      setErrMsg("");
+      setLoading(true); // On active le mode de chargement
+      setErrMsg(""); // Réinitialise les messages d'erreur et de succès
       setSuccessMsg("");
 
+      // On effectue deux requêtes en parallèle : récupération des demandes d'amis et des suggestions
       const [friendRequestsResponse, suggestedFriendsResponse] =
         await Promise.all([
-          makeRequest.post(`/users/get-friend-request`),
-          makeRequest.post(`/users/suggested-friends`),
+          makeRequest.post(`/users/get-friend-request`), // Récupère les demandes d'amis
+          makeRequest.post(`/users/suggested-friends`), // Récupère les suggestions d'amis
         ]);
 
+      // Stocke les résultats des demandes d'amis
       const friendRequests = friendRequestsResponse.data.data || [];
       setFriendRequests(friendRequests);
 
-      // Filtrer les suggestions pour exclure les utilisateurs qui ont déjà envoyé une demande
+      // Filtre les suggestions pour exclure les utilisateurs qui ont déjà envoyé une demande
       const suggestedFriends = suggestedFriendsResponse.data.data || [];
       const filteredSuggestions = suggestedFriends.filter(
-        (suggested) => !friendRequests.some((request) => request.requestFrom._id === suggested._id)
+        (suggested) =>
+          !friendRequests.some(
+            (request) => request.requestFrom._id === suggested._id
+          )
       );
-      setSuggestedFriends(filteredSuggestions);
+      setSuggestedFriends(filteredSuggestions); // Met à jour la liste des suggestions
     } catch (error) {
       console.error("Erreur lors du chargement des données d'amis :", error);
-      setErrMsg("Échec du chargement des données d'amis.");
+      setErrMsg("Échec du chargement des données d'amis."); // Affiche un message d'erreur
     } finally {
-      setLoading(false);
+      setLoading(false); // Fin du mode de chargement
     }
   };
 
+  // Fonction pour mettre à jour la liste des amis (après acceptation ou refus d'une demande)
   const updateFriendsList = async () => {
     try {
-      const response = await makeRequest.get("/users/friends");
+      const response = await makeRequest.get("/users/friends"); // Récupère la liste des amis
       if (response.data.success) {
-        dispatch(UpdateFriends(response.data.data));
+        dispatch(UpdateFriends(response.data.data)); // Met à jour la liste des amis dans le state Redux
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour de la liste d'amis:", error);
     }
   };
 
+  // Fonction pour accepter une demande d'ami
   const handleAcceptFriend = async (requestId) => {
     try {
       await makeRequest.post("/users/accept-request", {
         rid: requestId,
-        status: "Accepted",
+        status: "Accepted", // Envoie l'état 'Accepted' pour cette requête
       });
       setSuccessMsg("Demande d'ami acceptée !");
-      fetchFriendsData();
-      updateFriendsList(); // Mise à jour de la liste des amis
+      fetchFriendsData(); // Recharge les données après l'acceptation
+      updateFriendsList(); // Met à jour la liste des amis
     } catch (error) {
       console.error("Erreur lors de l'acceptation de la demande :", error);
       setErrMsg("Échec de l'acceptation de la demande.");
     }
   };
 
+  // Fonction pour refuser une demande d'ami
   const handleDenyFriend = async (requestId) => {
     try {
       await makeRequest.post("/users/accept-request", {
         rid: requestId,
-        status: "Denied",
+        status: "Denied", // Envoie l'état 'Denied' pour cette requête
       });
       setSuccessMsg("Demande d'ami refusée !");
-      fetchFriendsData();
-      updateFriendsList(); // Mise à jour de la liste des amis
+      fetchFriendsData(); // Recharge les données après le refus
+      updateFriendsList(); // Met à jour la liste des amis
     } catch (error) {
       console.error("Erreur lors du refus de la demande :", error);
       setErrMsg("Échec du refus de la demande.");
     }
   };
 
+  // Fonction pour envoyer une demande d'ami
   const handleSendFriendRequest = async (friendId) => {
     try {
       await makeRequest.post("/users/friend-request", {
-        requestTo: friendId,
+        requestTo: friendId, // L'ID de l'utilisateur à qui on envoie la demande
       });
       setSuccessMsg("Demande d'ami envoyée !");
-      fetchFriendsData(); // Rafraîchir les données
+      fetchFriendsData(); // Recharge les données après l'envoi de la demande
     } catch (error) {
       console.error("Erreur lors de l'envoi de la demande d'ami :", error);
       if (
@@ -110,17 +124,18 @@ const FriendsManager = () => {
         error.response.data &&
         error.response.data.message
       ) {
-        setErrMsg(error.response.data.message); // Afficher le message d'erreur du backend
+        setErrMsg(error.response.data.message); // Affiche un message d'erreur spécifique du backend
       } else {
         setErrMsg("Échec de l'envoi de la demande d'ami.");
       }
     }
   };
 
+  // Rendu du composant : deux sections (demandes d'amis et amis suggérés)
   return (
     <div className="hidden lg:flex flex-col w-1/4 gap-8 overflow-y-auto">
       {loading ? (
-        <Loading />
+        <Loading /> // Si les données sont en cours de chargement, on affiche le composant de chargement
       ) : (
         <>
           {/* Messages d'erreur ou de succès */}
@@ -131,13 +146,14 @@ const FriendsManager = () => {
             <div className="text-green-500 text-center">{successMsg}</div>
           )}
 
-          {/* FRIEND REQUESTS */}
+          {/* DEMANDES D'AMIS */}
           <div className="w-full bg-primary shadow-sm rounded-lg px-6 py-5">
             <div className="flex items-center justify-between text-xl text-ascent-1 pb-2 border-b border-[#9a00d7]">
               <span>Demandes d'Ami</span>
               <span>{friendRequests?.length}</span>
             </div>
 
+            {/* Affichage des demandes d'amis */}
             <div className="w-full flex flex-col gap-4 pt-4">
               {friendRequests?.map(({ _id, requestFrom: from }) => (
                 <div key={_id} className="flex items-center justify-between">
@@ -146,7 +162,7 @@ const FriendsManager = () => {
                     className="w-full flex gap-4 items-center cursor-pointer"
                   >
                     <img
-                      src={from?.profileUrl ?? NoProfile}
+                      src={from?.profileUrl ?? NoProfile} // Utilise l'image de profil ou l'image par défaut
                       alt={from?.firstName}
                       className="w-10 h-10 object-cover rounded-full"
                     />
@@ -160,15 +176,16 @@ const FriendsManager = () => {
                     </div>
                   </Link>
 
+                  {/* Boutons pour accepter ou refuser la demande */}
                   <div className="flex gap-1">
                     <CustomButton
                       title="Accepter"
-                      onClick={() => handleAcceptFriend(_id)}
+                      onClick={() => handleAcceptFriend(_id)} // Accepte la demande
                       containerStyles="bg-[#9a00d7] text-xs text-white px-1.5 py-1 rounded-full"
                     />
                     <CustomButton
                       title="Refuser"
-                      onClick={() => handleDenyFriend(_id)}
+                      onClick={() => handleDenyFriend(_id)} // Refuse la demande
                       containerStyles="border border-[#666] text-xs text-ascent-1 px-1.5 py-1 rounded-full"
                     />
                   </div>
@@ -177,45 +194,44 @@ const FriendsManager = () => {
             </div>
           </div>
 
-          {/* SUGGESTED FRIENDS */}
-          <div className="w-full bg-primary shadow-sm rounded-lg px-5 py-5">
-            <div className="flex items-center justify-between text-lg text-ascent-1 border-b border-[#9a00d7]">
-              <span>Ami·e·s Suggéré·e·s</span>
+          {/* AMIS SUGGÉRÉS */}
+          <div className="w-full bg-primary shadow-sm rounded-lg px-6 py-5">
+            <div className="flex items-center justify-between text-xl text-ascent-1 pb-2 border-b border-[#9a00d7]">
+              <span>Suggestions d'Ami</span>
             </div>
+
+            {/* Affichage des suggestions d'amis */}
             <div className="w-full flex flex-col gap-4 pt-4">
-              {suggestedFriends?.map((friend) => (
+              {suggestedFriends?.map((suggested) => (
                 <div
-                  className="flex items-center justify-between "
-                  key={friend._id}
+                  key={suggested._id}
+                  className="w-full flex items-center gap-4"
                 >
-                  <Link 
-                    to={`/profile/${friend._id}`}
+                  <Link
+                    to={`/profile/${suggested._id}`}
                     className="w-full flex gap-4 items-center cursor-pointer"
                   >
                     <img
-                      src={friend?.profileUrl ?? NoProfile}
-                      alt={friend?.firstName}
+                      src={suggested?.profileUrl ?? NoProfile}
+                      alt={suggested?.firstName}
                       className="w-10 h-10 object-cover rounded-full"
                     />
                     <div className="flex-1">
                       <p className="text-base font-medium text-ascent-1">
-                        {friend?.firstName} {friend?.lastName}
+                        {suggested?.firstName} {suggested?.lastName}
                       </p>
                       <span className="text-sm text-ascent-2">
-                        {friend?.profession ?? "Pas de Profession"}
+                        {suggested?.profession ?? "Pas de Profession"}
                       </span>
                     </div>
                   </Link>
 
-                  <div className="flex gap-1">
-                    <button
-                      className="bg-[#0444a40a] text-sm text-white p-1 rounded"
-                      onClick={() => handleSendFriendRequest(friend._id)}
-                      title="Ajouter en ami"
-                    >
-                      <BsPersonFillAdd size={20} className="text-[#9a00d7]" />
-                    </button>
-                  </div>
+                  {/* Bouton pour envoyer une demande d'ami */}
+                  <CustomButton
+                    title={<BsPersonFillAdd size={20} />}
+                    onClick={() => handleSendFriendRequest(suggested._id)} // Envoie une demande d'ami
+                    containerStyles="text-ascent-1 text-2xl border border-[#666] px-1.5 py-1 rounded-full"
+                  />
                 </div>
               ))}
             </div>
@@ -226,4 +242,4 @@ const FriendsManager = () => {
   );
 };
 
-export default FriendsManager;
+export default FriendsManager; // On exporte le composant pour l'utiliser ailleurs

@@ -8,7 +8,7 @@ import { createNotification } from "./notificationController.js";
 export const createPost = async (req, res, next) => {
   try {
     const { description } = req.body;
-    const userId = req.user._id; // Utilisez _id au lieu de id
+    const userId = req.user._id;
     let mediaUrl = null;
     let mediaType = null;
 
@@ -16,6 +16,15 @@ export const createPost = async (req, res, next) => {
       return res
         .status(400)
         .json({ message: "Vous devez fournir une description" });
+    }
+
+    // Vérifier et réinitialiser les crédits de l'utilisateur si nécessaire
+    const user = await Users.findById(userId);
+    user.checkAndResetDailyCredits();
+
+    // Vérifier si l'utilisateur a suffisamment de crédits
+    if (!user.usePostCredit()) {
+      return res.status(403).json({ message: "Limite de publications quotidiennes atteinte" });
     }
 
     // Si un fichier est téléchargé, téléchargez-le sur Cloudinary
