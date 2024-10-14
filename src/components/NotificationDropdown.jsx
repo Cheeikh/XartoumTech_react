@@ -13,7 +13,7 @@ const NotificationDropdown = () => {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null); // État pour gérer les erreurs
-  const dropdownRef = useRef(null); 
+  const dropdownRef = useRef(null);
 
   const socket = useRef(io("http://localhost:8800")); // Utilisation d'un ref pour Socket.IO
 
@@ -37,7 +37,10 @@ const NotificationDropdown = () => {
         prevNotifications.map((notif) => ({ ...notif, read: true }))
       );
     } catch (error) {
-      console.error("Erreur lors du marquage des notifications comme lues:", error);
+      console.error(
+        "Erreur lors du marquage des notifications comme lues:",
+        error
+      );
     }
   }, [user]);
 
@@ -68,12 +71,15 @@ const NotificationDropdown = () => {
   }, [user, page, hasMore, isLoading]);
 
   // Gestion du scroll pour charger plus de notifications
-  const handleScroll = useCallback((event) => {
-    const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
-    if (scrollHeight - scrollTop === clientHeight) {
-      fetchNotifications();
-    }
-  }, [fetchNotifications]);
+  const handleScroll = useCallback(
+    (event) => {
+      const { scrollTop, clientHeight, scrollHeight } = event.currentTarget;
+      if (scrollHeight - scrollTop === clientHeight) {
+        fetchNotifications();
+      }
+    },
+    [fetchNotifications]
+  );
 
   // Charger les notifications au montage du composant
   useEffect(() => {
@@ -171,7 +177,10 @@ const NotificationDropdown = () => {
         )
       );
     } catch (error) {
-      console.error("Erreur lors du marquage de la notification comme lue:", error);
+      console.error(
+        "Erreur lors du marquage de la notification comme lue:",
+        error
+      );
     }
   };
 
@@ -181,7 +190,7 @@ const NotificationDropdown = () => {
       <li
         key={notif._id}
         className={`p-2 mb-2 rounded hover:bg-gray-100 flex items-center space-x-2 ${
-          !notif.read ? 'bg-blue-100' : ''
+          !notif.read ? "bg-blue-100" : ""
         }`}
         onClick={() => handleNotificationClick(notif)} // Ajout du gestionnaire de clic
       >
@@ -207,15 +216,21 @@ const NotificationDropdown = () => {
         onClick={handleShowNotifications}
       />
       {notifications.filter((n) => !n.read).length > 0 && (
-        <span className="absolute flex items-center justify-center w-5 h-5 text-xs bg-red-800 rounded-full -top-2 -right-2" style={{ backgroundColor: '#f56565', color: '#fff' }}>
-          {notifications.filter((n) => !n.read).length > 9 ? "9+" : notifications.filter((n) => !n.read).length}
+        <span
+          className="absolute flex items-center justify-center w-5 h-5 text-xs bg-red-800 rounded-full -top-2 -right-2"
+          style={{ backgroundColor: "#f56565", color: "#fff" }}
+        >
+          {notifications.filter((n) => !n.read).length > 9
+            ? "9+"
+            : notifications.filter((n) => !n.read).length}
         </span>
       )}
       {showNotifications && (
         <div className="absolute right-0 z-50 mt-2 overflow-hidden rounded-lg shadow-lg top-full w-80 bg-primary">
           <div className="p-4">
             <h3 className="mb-2 text-lg font-semibold">Notifications</h3>
-            {error && <p className="text-red-500">{error}</p>} {/* Affichage des erreurs */}
+            {error && <p className="text-red-500">{error}</p>}{" "}
+            {/* Affichage des erreurs */}
             {uniqueNotifications.length === 0 ? (
               <p>Aucune nouvelle notification</p>
             ) : (
@@ -228,7 +243,7 @@ const NotificationDropdown = () => {
         </div>
       )}
     </div>
-  );  
+  );
 };
 
 export default NotificationDropdown;
