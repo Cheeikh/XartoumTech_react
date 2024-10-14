@@ -1,30 +1,11 @@
-import multer from "multer";
-import path from "path";
+// Import multer
+import multer from 'multer';
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
+// Configure storage to use memory
+const storage = multer.memoryStorage();
 
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'video/mp4', 'video/quicktime'];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Type de fichier non pris en charge'), false);
-  }
-};
+// Initialize multer with the storage configuration
+const upload = multer({ storage: storage });
 
-const upload = multer({ 
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // limite à 10MB
-  }
-});
-
+// Export if needed
 export default upload;

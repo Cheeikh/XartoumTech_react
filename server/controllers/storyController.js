@@ -2,6 +2,8 @@ import Story from "../models/storyModel.js";
 import User from "../models/userModel.js";
 import cloudinary from "../utils/cloudinaryConfig.js";
 import fs from "fs";
+import streamifier from 'streamifier';
+
 
 export const createStory = async (req, res) => {
   try {
@@ -15,13 +17,39 @@ export const createStory = async (req, res) => {
       });
     }
 
-    // Télécharger le fichier sur Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "auto",
-    });
+    console.log('Fichier reçu :', req.file);
 
-    // Supprimer le fichier temporaire
-    fs.unlinkSync(req.file.path);
+    // Fonction pour télécharger le fichier vers Cloudinary en utilisant un flux
+    const streamUpload = (buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'stories',
+            resource_type: 'auto',
+          },
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
+    };
+
+    // Vérifier que le buffer est défini
+    if (!req.file.buffer) {
+      return res.status(400).json({
+        success: false,
+        message: "Le fichier n'a pas été correctement téléchargé.",
+      });
+    }
+
+    const result = await streamUpload(req.file.buffer);
+
+    // Pas besoin de supprimer un fichier du disque car nous utilisons memoryStorage
 
     const newStory = new Story({
       user: userId,
@@ -41,6 +69,7 @@ export const createStory = async (req, res) => {
       story: newStory,
     });
   } catch (error) {
+    console.error('Erreur lors de la création de la story:', error);
     res.status(500).json({
       success: false,
       message: "Erreur lors de la création de la story",

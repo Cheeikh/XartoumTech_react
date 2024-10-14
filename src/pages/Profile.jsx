@@ -176,6 +176,7 @@ const Profile = () => {
                   <Image size={16} className="inline mr-2" /> Identifié
                 </button>
               </div>
+              
               <div className={`grid grid-cols-${postsPerRow} gap-1 p-1`}>
                 {posts.map((post, index) => (
                   <div 
