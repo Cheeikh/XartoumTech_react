@@ -2,6 +2,8 @@ import Conversation from '../models/conversationModel.js';
 import Message from '../models/messageModel.js';
 import User from '../models/userModel.js';
 import cloudinary from '../utils/cloudinaryConfig.js';
+import streamifier from 'streamifier';
+
 
 export const getConversations = async (req, res) => {
   try {
@@ -83,17 +85,37 @@ export const sendAudioMessage = async (req, res) => {
   console.log('req.file:', req.file);
   console.log('Content-Type:', req.headers['content-type']);
 
-
   if (!audioFile) {
     return res.status(400).json({ message: "Aucun fichier audio n'a été fourni" });
   }
 
   try {
-    // Assurez-vous que cette fonction est correctement importée et configurée
-    const result = await cloudinary.uploader.upload(audioFile.path, {
-      resource_type: "auto",
-      folder: "chat_audio"
-    });
+    // Vérifier que le buffer est disponible
+    if (!audioFile.buffer) {
+      return res.status(400).json({ message: "Le fichier audio n'a pas été correctement téléchargé." });
+    }
+
+    // Fonction pour télécharger le fichier vers Cloudinary en utilisant un flux
+    const streamUpload = (buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "auto",
+            folder: "chat_audio"
+          },
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
+    };
+
+    const result = await streamUpload(audioFile.buffer);
 
     const newMessage = new Message({
       conversation: conversationId,
@@ -123,10 +145,32 @@ export const sendFileMessage = async (req, res) => {
   }
 
   try {
-    const result = await cloudinary.uploader.upload(file.path, {
-      resource_type: "auto",
-      folder: "chat_files"
-    });
+    // Vérifier que le buffer est disponible
+    if (!file.buffer) {
+      return res.status(400).json({ message: "Le fichier n'a pas été correctement téléchargé." });
+    }
+
+    // Fonction pour télécharger le fichier vers Cloudinary en utilisant un flux
+    const streamUpload = (buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "auto",
+            folder: "chat_files"
+          },
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
+    };
+
+    const result = await streamUpload(file.buffer);
 
     const newMessage = new Message({
       conversation: conversationId,
@@ -142,6 +186,7 @@ export const sendFileMessage = async (req, res) => {
 
     res.status(201).json(populatedMessage);
   } catch (error) {
+    console.error("Erreur lors de l'envoi du fichier:", error);
     res.status(500).json({ message: "Erreur lors de l'envoi du fichier" });
   }
 };
