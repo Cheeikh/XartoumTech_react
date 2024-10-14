@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { makeRequest } from "../axios";
 import { UserLogin } from "../redux/userSlice";
+import { motion } from "framer-motion";
 
 import BackgroundImage from "../assets/top-view-fabrics-with-thread-copy-space.png";
 import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
@@ -74,13 +75,23 @@ const Login = () => {
         backgroundImage: `url(${BackgroundImage})`,
       }}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 50 }}
+        transition={{ duration: 0.5 }}
         className="absolute right-[7vw] top-[4vh] w-[20vw] h-[20vw] bg-no-repeat bg-contain"
         style={{
           backgroundImage: `url(${LogoImage})`,
         }}
-      ></div>
-      <div className="form-container rounded-2xl p-12 w-2/5 max-w-[37vw] shadow-md ml-auto mt-36">
+      ></motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 50 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="form-container rounded-2xl p-12 w-2/5 max-w-[37vw] shadow-md ml-auto mt-36"
+      >
         <div className="form-title text-2xl font-bold mb-6 text-center">
           Connectez-vous à votre compte
         </div>
@@ -150,7 +161,7 @@ const Login = () => {
             </Link>
           </span>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

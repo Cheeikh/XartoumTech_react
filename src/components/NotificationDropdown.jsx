@@ -3,7 +3,6 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { NoProfile } from "../assets";
 import { makeRequest } from "../axios";
 import { useSelector } from "react-redux";
-import { io } from "socket.io-client";
 
 const NotificationDropdown = () => {
   const { user } = useSelector((state) => state.user);
@@ -12,10 +11,44 @@ const NotificationDropdown = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null); // État pour gérer les erreurs
+  const [error, setError] = useState(null);
   const dropdownRef = useRef(null);
 
-  const socket = useRef(io("http://localhost:8800")); // Utilisation d'un ref pour Socket.IO
+  // Supprimer la référence à socket.io
+  // const socket = useRef(io("http://localhost:8800"));
+
+  // Fonction pour récupérer les nouvelles notifications
+  const fetchNewNotifications = useCallback(async () => {
+    try {
+      const response = await makeRequest.get(`/notifications?page=1`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      if (response.data.success) {
+        const newNotifications = response.data.data;
+        setNotifications((prev) => {
+          const updatedNotifications = [...newNotifications, ...prev];
+          return updatedNotifications.filter((notif, index, self) =>
+            index === self.findIndex((t) => t._id === notif._id)
+          );
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération des nouvelles notifications:", error);
+    }
+  }, [user]);
+
+  // Utiliser un intervalle pour récupérer les nouvelles notifications
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (user?.token) {
+        fetchNewNotifications();
+      }
+    }, 30000); // Vérifier toutes les 30 secondes
+
+    return () => clearInterval(intervalId);
+  }, [user, fetchNewNotifications]);
 
   // Toggle affichage notifications
   const handleShowNotifications = useCallback(() => {
@@ -87,24 +120,6 @@ const NotificationDropdown = () => {
       fetchNotifications();
     }
   }, [user, fetchNotifications]);
-
-  // Gérer les notifications via Socket.IO
-  useEffect(() => {
-    const handleNewNotification = (notification) => {
-      setNotifications((prev) => {
-        if (!prev.some((n) => n._id === notification._id)) {
-          return [notification, ...prev];
-        }
-        return prev;
-      });
-    };
-
-    socket.current.on("new_notification", handleNewNotification);
-
-    return () => {
-      socket.current.off("new_notification", handleNewNotification);
-    };
-  }, []);
 
   // Générer le contenu de la notification
   const getNotificationContent = (notif) => {
