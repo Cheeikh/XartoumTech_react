@@ -1,4 +1,4 @@
-// Frontend - PostCard.jsx
+// PostCard.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
@@ -9,7 +9,8 @@ import { useForm } from "react-hook-form";
 import TextInput from "./TextInput";
 import Loading from "./Loading";
 import CustomButton from "./CustomButton";
-import { makeRequest } from "../axios"; // Assurez-vous que makeRequest est correctement importé
+import { makeRequest } from "../axios";
+import { useSelector } from "react-redux";
 
 const ReplyCard = ({ reply, user, handleLike }) => {
   return (
@@ -36,7 +37,7 @@ const ReplyCard = ({ reply, user, handleLike }) => {
       </div>
 
       <div className="ml-12">
-        <p className="text-ascent-2 ">{reply?.comment}</p>
+        <p className="text-ascent-2">{reply?.comment}</p>
         <div className="mt-2 flex gap-6">
           <p
             className="flex gap-2 items-center text-base text-ascent-2 cursor-pointer"
@@ -47,7 +48,7 @@ const ReplyCard = ({ reply, user, handleLike }) => {
             ) : (
               <BiLike size={20} />
             )}
-            {reply?.likes?.length} Likes
+            {reply?.likes?.length} J'aime
           </p>
         </div>
       </div>
@@ -87,8 +88,7 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
     } catch (error) {
       console.error("Erreur lors de la soumission du commentaire :", error);
       setErrMsg(
-        error.response?.data?.message ||
-          "Échec de la soumission du commentaire."
+        error.response?.data?.message || "Échec de la soumission du commentaire."
       );
     } finally {
       setLoading(false);
@@ -102,7 +102,7 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
     >
       <div className="w-full flex items-center gap-2 py-4">
         <img
-          src={user?.profileUrl ?? NoProfile}
+          src={user?.user?.profileUrl ?? NoProfile}
           alt="User Image"
           className="w-10 h-10 rounded-full object-cover"
         />
@@ -110,7 +110,7 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
         <TextInput
           name="comment"
           styles="w-full rounded-full py-3"
-          placeholder="Comment this post"
+          placeholder="Commenter ce post"
           register={register("comment", {
             required: "Le commentaire ne peut pas être vide",
           })}
@@ -133,7 +133,7 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
           <Loading />
         ) : (
           <CustomButton
-            title="Submit"
+            title="Soumettre"
             type="submit"
             containerStyles="bg-[#0444a4] text-white py-1 px-3 rounded-full font-semibold text-sm"
           />
@@ -143,12 +143,30 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
   );
 };
 
-const PostCard = ({ post, user, deletePost, likePost }) => {
+const PostCard = ({ post }) => {
+  const { user } = useSelector((state) => state.user);
   const [showAll, setShowAll] = useState(false);
   const [showReply, setShowReply] = useState(null);
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [postState, setPostState] = useState(post);
+  const [postUser, setPostUser] = useState(null);
+
+  useEffect(() => {
+    const fetchPostUser = async () => {
+      try {
+        const response = await makeRequest.get(`/users/get-user/${post.userId._id}`);
+        if (response.data.success) {
+          setPostUser(response.data.user);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération de l'utilisateur du post:", error);
+      }
+    };
+
+    fetchPostUser();
+  }, [post.userId._id]);
 
   useEffect(() => {
     if (showComments) {
@@ -174,10 +192,27 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
 
   const handleLikePost = async () => {
     try {
-      await likePost(post._id);
-      // Optionnel : Rafraîchir l'état du post si nécessaire
+      const response = await makeRequest.post(`/posts/like/${postState._id}`);
+      if (response.data.success) {
+        // Mettre à jour l'état local du post
+        setPostState(prevState => ({
+          ...prevState,
+          likes: response.data.data.likes
+        }));
+      }
     } catch (error) {
-      console.error("Erreur lors du like du post :", error);
+      console.error("Erreur lors de l'ajout du like:", error);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce post ?")) {
+      try {
+        await makeRequest.delete(`/posts/${post._id}`);
+        setPostState(null);
+      } catch (error) {
+        console.error("Erreur lors de la suppression du post:", error);
+      }
     }
   };
 
@@ -195,32 +230,33 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
     }
   };
 
-  const handleDeletePost = () => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce post ?")) {
-      deletePost(post._id);
-    }
-  };
+  if (!postState) {
+    return null; // Le post a été supprimé
+  }
+
 
   return (
     <div className="mb-2 bg-primary p-4 rounded-xl">
-      {/* Header du Post */}
+      {/* En-tête du Post */}
       <div className="flex gap-3 items-center mb-2">
-        <Link to={`/profile/${post?.userId?._id}`}>
+        <Link to={`/profile/${postUser?._id}`}>
           <img
-            src={post?.userId?.profileUrl ?? NoProfile}
-            alt={post?.userId?.firstName}
+            src={postUser?.profileUrl ?? NoProfile}
+            alt={postUser?.firstName}
             className="w-14 h-14 object-cover rounded-full"
           />
         </Link>
 
         <div className="w-full flex justify-between">
           <div>
-            <Link to={`/profile/${post?.userId?._id}`}>
+            <Link to={`/profile/${postUser?._id}`}>
               <p className="font-medium text-lg text-ascent-1">
-                {post?.userId?.firstName} {post?.userId?.lastName}
+                {postUser?.firstName} {postUser?.lastName}
               </p>
             </Link>
-            <span className="text-ascent-2">{post?.userId?.location}</span>
+            <span className="text-ascent-2">
+              {postUser?.profession ?? "Pas de profession"}
+            </span>
           </div>
 
           <span className="text-ascent-2">
@@ -232,29 +268,31 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
       {/* Contenu du Post */}
       <div>
         <p className="text-ascent-2">
-          {showAll ? post?.description : post?.description.slice(0, 300)}
+          {showAll
+            ? postState?.description
+            : postState?.description.slice(0, 300)}
 
-          {post?.description?.length > 300 && (
+          {postState?.description?.length > 300 && (
             <span
               className="text-blue ml-2 font-medium cursor-pointer"
               onClick={() => setShowAll(!showAll)}
             >
-              {showAll ? "Show Less" : "Show More"}
+              {showAll ? "Montrer moins" : "Montrer plus"}
             </span>
           )}
         </p>
 
-        {post?.media &&
-          (post?.mediaType === "image" ? (
+        {postState?.media &&
+          (postState?.mediaType === "image" ? (
             <img
-              src={post?.media}
+              src={postState?.media}
               alt="post media"
-              className="w-full h-[300px] object-cover mt-2 rounded-lg"
+              className="w-full  mt-2 rounded-lg"
             />
           ) : (
             <video
-              src={post?.media}
-              className="w-full h-[300px] object-cover mt-2 rounded-lg"
+              src={postState?.media}
+              className="w-full mt-2 rounded-lg"
               autoPlay
               loop
               muted
@@ -265,18 +303,19 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
       {/* Actions du Post */}
       <div
         className="mt-4 flex justify-between items-center px-3 py-2 text-ascent-2
-        text-base border-t border-[#66666645]"
+          text-base border-t border-[#66666645]"
       >
         <p
           className="flex gap-2 items-center text-base cursor-pointer"
           onClick={handleLikePost}
         >
-          {post?.likes?.includes(user?._id) ? (
+          {postState?.likes?.includes(user.user?._id) ? (
             <BiSolidLike size={20} color="blue" />
           ) : (
             <BiLike size={20} />
           )}
-          {post?.likes?.length} Likes
+
+          {postState?.likes?.length} J'aime
         </p>
 
         <p
@@ -284,16 +323,16 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
           onClick={() => setShowComments(!showComments)}
         >
           <BiComment size={20} />
-          {post?.comments?.length} Comments
+          {postState?.comments?.length} Commentaires
         </p>
 
-        {user?._id === post?.userId?._id && (
+        {user?.user?._id === postState?.userId?._id && (
           <div
             className="flex gap-1 items-center text-base text-ascent-1 cursor-pointer"
             onClick={handleDeletePost}
           >
             <MdOutlineDeleteOutline size={20} />
-            <span>Delete</span>
+            <span>Supprimer</span>
           </div>
         )}
       </div>
@@ -304,7 +343,7 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
           {/* Formulaire pour Ajouter un Commentaire */}
           <CommentForm
             user={user}
-            postId={post._id}
+            postId={postState._id}
             refreshComments={getComments}
           />
 
@@ -342,12 +381,12 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
                       className="flex gap-2 items-center text-base text-ascent-2 cursor-pointer"
                       onClick={() => handleLikeComment(comment._id)}
                     >
-                      {comment?.likes?.includes(user?._id) ? (
+                      {comment?.likes?.includes(user.user?._id) ? (
                         <BiSolidLike size={20} color="blue" />
                       ) : (
                         <BiLike size={20} />
                       )}
-                      {comment?.likes?.length} Likes
+                      {comment?.likes?.length} J'aime
                     </p>
                     <span
                       className="text-blue cursor-pointer"
@@ -357,7 +396,7 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
                         )
                       }
                     >
-                      Reply
+                      Répondre
                     </span>
                   </div>
 
@@ -365,7 +404,7 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
                   {showReply === comment._id && (
                     <CommentForm
                       user={user}
-                      postId={post._id}
+                      postId={postState._id}
                       parentId={comment._id}
                       refreshComments={getComments}
                     />
@@ -383,7 +422,7 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
                         )
                       }
                     >
-                      Show Replies ({comment?.replies?.length})
+                      Afficher les réponses ({comment?.replies?.length})
                     </p>
 
                     {showReply === comment._id &&
@@ -403,7 +442,7 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
             ))
           ) : (
             <span className="flex text-sm py-4 text-ascent-2 text-center">
-              No Comments, be the first to comment
+              Aucun commentaire, soyez le premier à commenter
             </span>
           )}
         </div>

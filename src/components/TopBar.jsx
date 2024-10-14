@@ -6,31 +6,26 @@ import TextInput from "./TextInput";
 import CustomButton from "./CustomButton";
 import { useForm } from "react-hook-form";
 import { BsMoon, BsSunFill } from "react-icons/bs";
-import { IoMdNotificationsOutline } from "react-icons/io";
 import { SetTheme } from "../redux/theme";
 import { Logout } from "../redux/userSlice";
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import NotificationDropdown from "./NotificationDropdown"; // Import du nouveau composant
 
 const TopBar = () => {
   const { theme } = useSelector((state) => state.theme);
-  const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit } = useForm();
 
   const handleTheme = () => {
     const themeValue = theme === "light" ? "dark" : "light";
-
     dispatch(SetTheme(themeValue));
   };
 
   const handleSearch = async (data) => {};
 
   return (
-    <div className='topbar w-full flex items-center justify-between py-3 md:py-6 px-4 bg-primary'>
-      <Link to='/' className='flex gap-2 items-center'>
+    <div className='flex items-center justify-between w-full px-4 py-3 topbar bg-primary'>
+      <Link to='/' className='flex items-center gap-2'>
         <div className='p-1 md:p-2 bg-[#065ad8] rounded text-white'>
           <TbSocial />
         </div>
@@ -40,7 +35,7 @@ const TopBar = () => {
       </Link>
 
       <form
-        className='hidden md:flex items-center justify-center'
+        className='items-center justify-center hidden md:flex'
         onSubmit={handleSubmit(handleSearch)}
       >
         <TextInput
@@ -56,21 +51,22 @@ const TopBar = () => {
       </form>
 
       {/* ICONS */}
-      <div className='flex gap-4 items-center text-ascent-1 text-md md:text-xl'>
+      <div className='flex items-center gap-4 text-ascent-1 text-md md:text-xl'>
         <button onClick={() => handleTheme()}>
           {theme ? <BsMoon /> : <BsSunFill />}
         </button>
-        <div className='hidden lg:flex'>
-          <IoMdNotificationsOutline />
-        </div>
+        <Link to='/messagerie' className='relative'>
+          <IoChatbubbleEllipsesOutline className='cursor-pointer' />
+        </Link>
+        
+        {/* Notifications */}
+        <NotificationDropdown />
 
-        <div>
-          <CustomButton
-            onClick={() => dispatch(Logout())}
-            title='Log Out'
-            containerStyles='text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#666] rounded-full'
-          />
-        </div>
+        <CustomButton
+          onClick={() => dispatch(Logout())}
+          title='Log Out'
+          containerStyles='text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#666] rounded-full'
+        />
       </div>
     </div>
   );

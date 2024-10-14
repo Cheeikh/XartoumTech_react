@@ -7,13 +7,11 @@ import PasswordReset from "../models/PasswordReset.js";
 
 dotenv.config();
 
-const { AUTH_EMAIL, AUTH_PASSWORD, APP_URL } = process.env;
-
 let transporter = nodemailer.createTransport({
-  host: "smtp-mail.outlook.com",
+  service: "gmail",
   auth: {
-    user: AUTH_EMAIL,
-    pass: AUTH_PASSWORD,
+    user: "cheeikhmbacke@gmail.com",
+    pass: "ctllinyjbatjqtzx",
   },
 });
 
@@ -22,11 +20,11 @@ export const sendVerificationEmail = async (user, res) => {
 
   const token = _id + uuidv4();
 
-  const link = APP_URL + "users/verify/" + _id + "/" + token;
+  const link = "http://localhost:8800/users/verify/" + _id + "/" + token;
 
   //   mail options
   const mailOptions = {
-    from: AUTH_EMAIL,
+    from: "cheeikhmbacke@gmail.com",
     to: email,
     subject: "Email Verification",
     html: `<div
@@ -85,11 +83,11 @@ export const resetPasswordLink = async (user, res) => {
   const { _id, email } = user;
 
   const token = _id + uuidv4();
-  const link = APP_URL + "users/reset-password/" + _id + "/" + token;
+  const link = "http://localhost:8800/users/reset-password/" + _id + "/" + token;
 
   //   mail options
   const mailOptions = {
-    from: AUTH_EMAIL,
+    from: "cheeikhmbacke@gmail.com",
     to: email,
     subject: "Password Reset",
     html: `<p style="font-family: Arial, sans-serif; font-size: 16px; color: #333; background-color: #f7f7f7; padding: 20px; border-radius: 5px;">
