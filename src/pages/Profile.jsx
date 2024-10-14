@@ -65,11 +65,8 @@ const Profile = () => {
     }
   };
 
-  const containerClass = theme === "light" ? "bg-bgColor text-gray-900" : " text-gray-100";
   const cardClass = theme === "light" ? "bg-white" : "bg-gray-800";
-  const buttonClass = theme === "light" 
-    ? "bg-blue-500 text-white hover:bg-blue-600" 
-    : "bg-blue-700 text-white hover:bg-blue-800";
+ 
 
     const PostModal = ({ postIndex, onClose, onPrevious, onNext }) => {
       if (postIndex === null) return null;
@@ -78,17 +75,21 @@ const Profile = () => {
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center ">
           <div className="absolute inset-0 bg-black opacity-75 backdrop-blur-sm"></div>
-          <div className="z-10 bg-white dark:bg-gray-800 w-full max-w-4xl rounded-lg overflow-hidden relative">
+          <div className="z-10 bg-primary dark:bg-gray-800 w-full max-w-4xl rounded-lg overflow-hidden relative">
             <div className="flex flex-col md:flex-row">
               <div className="w-full md:w-2/3 relative flex items-center justify-center bg-black">
-                <img src={post.media} alt={post.description} className="max-w-full max-h-[80vh] object-contain" />
+                {post.mediaType === 'video' ? (
+                  <video src={post.media} controls className="max-w-full max-h-[80vh] object-contain" />
+                ) : (
+                  <img src={post.media} alt={post.description} className="max-w-full max-h-[80vh] object-contain" />
+                )}
                 {postIndex > 0 && (
-                  <button onClick={onPrevious} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-1 shadow-lg">
+                  <button onClick={onPrevious} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-primary dark:bg-gray-800 rounded-full p-1 shadow-lg">
                     <ChevronLeft size={24} />
                   </button>
                 )}
                 {postIndex < posts.length - 1 && (
-                  <button onClick={onNext} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-1 shadow-lg">
+                  <button onClick={onNext} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary dark:bg-gray-800 rounded-full p-1 shadow-lg">
                     <ChevronRight size={24} />
                   </button>
                 )}
@@ -109,7 +110,7 @@ const Profile = () => {
             </div>
             <button 
               onClick={onClose} 
-              className="absolute top-4 right-4 text-white bg-gray-800 rounded-full p-2 shadow-lg hover:bg-gray-700 transition-colors"
+              className="absolute top-4 right-4  bg-gray-800 rounded-full p-2 shadow-lg hover:bg-gray-700 transition-colors"
             >
               <X size={24} />
             </button>
@@ -119,15 +120,15 @@ const Profile = () => {
     };
 
   return (
-    <div className={`bg-bgColor min-h-screen `}>
+    <div className="w-full h-screen flex flex-col px-0 lg:px-10 2xl:px-40 bg-bgColor lg:rounded-lg">
       <TopBar />
-      <div className='max-w-4xl mx-auto pt-8 px-4 bg-primary'>
-        {loading ? (
+      <div className="flex-1 flex flex-col px-4 gap-6 overflow-y-auto rounded-lg h-full bg-primary mt-5 pt-5 text-ascent-1">
+      {loading ? (
           <Loading />
         ) : (
           <>
             {errMsg && <p className="text-red-500 mb-4">{errMsg}</p>}
-            <div className='flex flex-col md:flex-row mb-8'>
+            <div className='flex flex-col md:flex-row mb-8 '>
               <div className='w-full md:w-1/3 flex justify-center mb-6 md:mb-0'>
                 <img
                   src={userInfo?.profileUrl || NoProfile}
@@ -141,7 +142,7 @@ const Profile = () => {
                   {currentUser._id !== id && (
                     <button 
                       onClick={handleFollow}
-                      className={`${buttonClass} px-4 py-1 rounded font-semibold mt-2 md:mt-0`}
+                      className={`button px-4 py-1 rounded font-semibold mt-2 md:mt-0`}
                     >
                       {userInfo?.isFollowing ? "Suivi" : "Suivre"}
                     </button>
@@ -182,11 +183,18 @@ const Profile = () => {
                     className="aspect-square relative group cursor-pointer"
                     onClick={() => setSelectedPostIndex(index)}
                   >
-                    <img 
-                      src={post.media} 
-                      alt={post.description} 
-                      className="w-full h-full object-cover"
-                    />
+                    {post.mediaType === 'video' ? (
+                      <video 
+                        src={post.media} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img 
+                        src={post.media} 
+                        alt={post.description} 
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <p className="text-white text-sm">{post.description}</p>
                     </div>

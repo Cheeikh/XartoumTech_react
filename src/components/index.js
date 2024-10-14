@@ -8,6 +8,7 @@ import PostCard from "./PostCard";
 import PostCreator from "./PostCreator";
 import EditProfile from "./EditProfile";
 import FriendsManager from "./FriendsManager";
+import Stories from "./Stories";
 
 export {
   Loading,
@@ -20,4 +21,5 @@ export {
   EditProfile,
   PostCreator,
   FriendsManager,
+  Stories
 };

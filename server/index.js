@@ -11,6 +11,7 @@ import errorMiddleware from "./middleware/errorMiddleware.js";
 import router from "./routes/index.js";
 import http from "http"; // Import http
 import { Server } from "socket.io"; // Import socket.io
+import messageRoutes from './routes/messageRoutes.js';
 
 const __dirname = path.resolve(path.dirname(""));
 
@@ -53,6 +54,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan("dev"));
 app.use(router);
+app.use('/messages', messageRoutes);
 
 // Configurer les événements de socket.io
 io.on("connection", (socket) => {

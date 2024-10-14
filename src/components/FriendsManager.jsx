@@ -133,7 +133,7 @@ const FriendsManager = () => {
 
           {/* FRIEND REQUESTS */}
           <div className="w-full bg-primary shadow-sm rounded-lg px-6 py-5">
-            <div className="flex items-center justify-between text-xl text-ascent-1 pb-2 border-b border-[#66666645]">
+            <div className="flex items-center justify-between text-xl text-ascent-1 pb-2 border-b border-[#9a00d7]">
               <span>Demandes d'Ami</span>
               <span>{friendRequests?.length}</span>
             </div>
@@ -164,7 +164,7 @@ const FriendsManager = () => {
                     <CustomButton
                       title="Accepter"
                       onClick={() => handleAcceptFriend(_id)}
-                      containerStyles="bg-[#0444a4] text-xs text-white px-1.5 py-1 rounded-full"
+                      containerStyles="bg-[#9a00d7] text-xs text-white px-1.5 py-1 rounded-full"
                     />
                     <CustomButton
                       title="Refuser"
@@ -179,16 +179,16 @@ const FriendsManager = () => {
 
           {/* SUGGESTED FRIENDS */}
           <div className="w-full bg-primary shadow-sm rounded-lg px-5 py-5">
-            <div className="flex items-center justify-between text-lg text-ascent-1 border-b border-[#66666645]">
+            <div className="flex items-center justify-between text-lg text-ascent-1 border-b border-[#9a00d7]">
               <span>Ami·e·s Suggéré·e·s</span>
             </div>
             <div className="w-full flex flex-col gap-4 pt-4">
               {suggestedFriends?.map((friend) => (
                 <div
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between "
                   key={friend._id}
                 >
-                  <Link
+                  <Link 
                     to={`/profile/${friend._id}`}
                     className="w-full flex gap-4 items-center cursor-pointer"
                   >
@@ -209,11 +209,11 @@ const FriendsManager = () => {
 
                   <div className="flex gap-1">
                     <button
-                      className="bg-[#0444a430] text-sm text-white p-1 rounded"
+                      className="bg-[#0444a40a] text-sm text-white p-1 rounded"
                       onClick={() => handleSendFriendRequest(friend._id)}
                       title="Ajouter en ami"
                     >
-                      <BsPersonFillAdd size={20} className="text-[#0f52b6]" />
+                      <BsPersonFillAdd size={20} className="text-[#9a00d7]" />
                     </button>
                   </div>
                 </div>
