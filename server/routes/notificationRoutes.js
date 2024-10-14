@@ -1,10 +1,20 @@
 import express from "express";
-import { getNotifications, markNotificationAsRead } from "../controllers/notificationController.js";
+import {
+  createNotification,
+  archiveOldNotifications,
+  getNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from "../controllers/notificationController.js";
 import userAuth from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+// Routes pour les notifications
+router.post("/", userAuth, createNotification);
 router.get("/", userAuth, getNotifications);
-router.patch("/:notificationId/read", userAuth, markNotificationAsRead);
+router.put("/mark-all-read", userAuth, markAllNotificationsAsRead);
+router.put("/:notificationId/mark-read", userAuth, markNotificationAsRead);
+router.delete("/archive", userAuth, archiveOldNotifications);
 
 export default router;
