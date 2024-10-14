@@ -1,9 +1,12 @@
 import Notification from "../models/notificationModel.js";
 import { io } from "../index.js";
 
-
-
-export const createNotification = async (recipientId, senderId, type, postId = null) => {
+export const createNotification = async (
+  recipientId,
+  senderId,
+  type,
+  postId = null
+) => {
   try {
     const notification = await Notification.create({
       recipient: recipientId,
@@ -29,7 +32,12 @@ export const getNotifications = async (req, res) => {
   const pageNumber = parseInt(page, 10);
   const limitNumber = parseInt(limit, 10);
 
-  if (isNaN(pageNumber) || pageNumber < 1 || isNaN(limitNumber) || limitNumber < 1) {
+  if (
+    isNaN(pageNumber) ||
+    pageNumber < 1 ||
+    isNaN(limitNumber) ||
+    limitNumber < 1
+  ) {
     return res.status(400).json({
       success: false,
       message: "Les paramètres de pagination sont invalides.",
@@ -80,7 +88,7 @@ export const markAllNotificationsAsRead = async (req, res) => {
 
 export const markNotificationAsRead = async (req, res) => {
   const { notificationId } = req.params;
-  
+
   // Vérifier si l'ID est valide
   if (!mongoose.isValidObjectId(notificationId)) {
     return res.status(400).json({
@@ -91,8 +99,11 @@ export const markNotificationAsRead = async (req, res) => {
 
   try {
     const userId = req.user._id;
-    console.log("Tentative de mise à jour de la notification avec ID :", notificationId);
-    
+    console.log(
+      "Tentative de mise à jour de la notification avec ID :",
+      notificationId
+    );
+
     const notification = await Notification.findOneAndUpdate(
       { _id: notificationId, recipient: userId },
       { read: true },
@@ -119,7 +130,6 @@ export const markNotificationAsRead = async (req, res) => {
     });
   }
 };
-
 
 export const archiveOldNotifications = async () => {
   const thresholdDate = new Date();

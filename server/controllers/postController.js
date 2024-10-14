@@ -13,7 +13,9 @@ export const createPost = async (req, res, next) => {
     let mediaType = null;
 
     if (!description) {
-      return res.status(400).json({ message: "Vous devez fournir une description" });
+      return res
+        .status(400)
+        .json({ message: "Vous devez fournir une description" });
     }
 
     // Si un fichier est téléchargé, téléchargez-le sur Cloudinary
@@ -69,7 +71,6 @@ export const createPost = async (req, res, next) => {
   }
 };
 
-
 export const getPosts = async (req, res, next) => {
   try {
     const { search, limit = 10, page = 1 } = req.query;
@@ -79,9 +80,7 @@ export const getPosts = async (req, res, next) => {
     let query = {};
     if (search) {
       query = {
-        $or: [
-          { description: { $regex: search, $options: "i" } }
-        ]
+        $or: [{ description: { $regex: search, $options: "i" } }],
       };
     }
 
@@ -112,7 +111,9 @@ export const getPosts = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Erreur lors de la récupération des posts:", error);
-    res.status(500).json({ message: "Erreur serveur lors de la récupération des posts" });
+    res
+      .status(500)
+      .json({ message: "Erreur serveur lors de la récupération des posts" });
   }
 };
 
@@ -121,20 +122,20 @@ export const getPost = async (req, res, next) => {
     const { id } = req.params;
 
     const post = await Posts.findById(id)
-        .populate({
+      .populate({
+        path: "userId",
+        select: "firstName lastName location profileUrl -password",
+      })
+      .populate({
+        path: "comments",
+        populate: {
           path: "userId",
           select: "firstName lastName location profileUrl -password",
-        })
-        .populate({
-          path: "comments",
-          populate: {
-            path: "userId",
-            select: "firstName lastName location profileUrl -password",
-          },
-          options: {
-            sort: { createdAt: -1 },
-          },
-        });
+        },
+        options: {
+          sort: { createdAt: -1 },
+        },
+      });
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -156,11 +157,11 @@ export const getUserPost = async (req, res, next) => {
     const { id } = req.params;
 
     const post = await Posts.find({ userId: id })
-        .populate({
-          path: "userId",
-          select: "firstName lastName location profileUrl -password",
-        })
-        .sort({ _id: -1 });
+      .populate({
+        path: "userId",
+        select: "firstName lastName location profileUrl -password",
+      })
+      .sort({ _id: -1 });
 
     res.status(200).json({
       success: true,
@@ -178,15 +179,15 @@ export const getComments = async (req, res, next) => {
     const { postId } = req.params;
 
     const postComments = await Comments.find({ postId })
-        .populate({
-          path: "userId",
-          select: "firstName lastName location profileUrl -password",
-        })
-        .populate({
-          path: "replies.userId",
-          select: "firstName lastName location profileUrl -password",
-        })
-        .sort({ createdAt: -1 });
+      .populate({
+        path: "userId",
+        select: "firstName lastName location profileUrl -password",
+      })
+      .populate({
+        path: "replies.userId",
+        select: "firstName lastName location profileUrl -password",
+      })
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -223,7 +224,9 @@ export const likePost = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: hasLiked ? "Post unliked successfully" : "Post liked successfully",
+      message: hasLiked
+        ? "Post unliked successfully"
+        : "Post liked successfully",
       data: post,
     });
   } catch (error) {
@@ -231,7 +234,6 @@ export const likePost = async (req, res, next) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 export const likePostComment = async (req, res, next) => {
   const { id, rid } = req.params; // id: ID du commentaire, rid: ID de la réponse (facultatif)
@@ -318,7 +320,11 @@ export const commentPost = async (req, res, next) => {
       postId: postId,
     });
 
-    await Posts.findByIdAndUpdate(postId, { $push: { comments: newComment._id } }, { new: true });
+    await Posts.findByIdAndUpdate(
+      postId,
+      { $push: { comments: newComment._id } },
+      { new: true }
+    );
 
     // Créer une notification pour le commentaire
     const postOwnerId = (await Posts.findById(postId)).userId; // Récupérer l'ID de l'utilisateur qui a créé le post
@@ -338,7 +344,7 @@ export const commentPost = async (req, res, next) => {
 export const replyPostComment = async (req, res, next) => {
   const { comment } = req.body;
   const { commentId } = req.params; // id: comment ID
-  const userId  = req.user._id;
+  const userId = req.user._id;
 
   if (!comment || comment.trim() === "") {
     return res.status(400).json({ message: "Reply is required." });
@@ -376,12 +382,16 @@ export const deletePost = async (req, res, next) => {
 
     const post = await Posts.findById(id);
     if (!post) {
-      return res.status(404).json({ success: false, message: "Post not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     // Vérifier si l'utilisateur est le propriétaire du post
     if (post.userId.toString() !== userId.toString()) {
-      return res.status(403).json({ success: false, message: "Unauthorized to delete this post" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Unauthorized to delete this post" });
     }
 
     await Posts.findByIdAndDelete(id);
