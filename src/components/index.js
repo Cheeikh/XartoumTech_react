@@ -9,6 +9,8 @@ import PostCreator from "./PostCreator";
 import EditProfile from "./EditProfile";
 import FriendsManager from "./FriendsManager";
 import Stories from "./Stories";
+import FollowSuggestedUsers from "./FollowSuggestedUsers";
+import FollowButton from "./FollowButton";
 
 export {
   Loading,
@@ -21,5 +23,8 @@ export {
   EditProfile,
   PostCreator,
   FriendsManager,
-  Stories
+  Stories,
+  FollowSuggestedUsers,
+  FollowButton,
+  
 };

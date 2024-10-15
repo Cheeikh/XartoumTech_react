@@ -29,6 +29,8 @@ const userSchema = new mongoose.Schema(
         friends: [{ type: Schema.Types.ObjectId, ref: "Users" }],
         views: [{ type: Schema.Types.ObjectId, ref: "Users" }],
         verified: { type: Boolean, default: false },
+        following: [{ type: Schema.Types.ObjectId, ref: "Users" }], // Utilisateurs suivis
+        followers: [{ type: Schema.Types.ObjectId, ref: "Users" }], // Utilisateurs qui suivent
     },
     { timestamps: true }
 );

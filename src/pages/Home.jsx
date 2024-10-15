@@ -11,7 +11,9 @@ import {
   TopBar,
   PostCreator,
   FriendsManager,
-  Stories
+  Stories,
+  // FollowSuggestedUsers,
+  // FollowButton
 } from "../components";
 
 const Home = () => {
@@ -85,6 +87,7 @@ const Home = () => {
 
         {/* RIGHT */}
         <FriendsManager/>
+        {/* <FollowSuggestedUsers /> */}
       </div>
 
       {edit && <EditProfile/>}
