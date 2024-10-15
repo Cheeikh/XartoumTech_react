@@ -82,51 +82,51 @@ const TopBar = () => {
           </button>
           {/* Dropdown Menu */}
           {isOpen && (
-            <div className='absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-10'>
+            <div className='absolute right-0 mt-2 w-48 bg-primary rounded-md overflow-hidden shadow-xl z-10'>
               <Link to='/profile' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
                 {/* Profile picture  and name */}
                 <div className='flex items-center border-b-2 border-'>
                   <img
-                    src={NoProfile}
+                    src={NoProfile} 
                     alt="Photo de profil"
                     className='w-10 h-10 object-cover rounded-full'
                   />
                   <p className='ml-2'>idrissa</p>
                 </div>
               </Link>
-              <Link to='/settings' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+              <Link to='/notifications' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
                {/* Notifications */}
                 <div className='flex items-center'>
-                  <IoNotifications size={20} />
+                  <IoNotifications size={20} className="text-[#7e22ce]" />
                   <p className='ml-2'>Notifications</p>
                 </div>
               </Link>
               <Link to='/messages' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
                 {/* Messages */}
                 <div className='flex items-center'>
-                  <AiOutlineMessage size={20} />
+                  <AiOutlineMessage size={20} className="text-[#7e22ce]" />
                   <p className='ml-2'>Messages</p>
                 </div>
               </Link>
-              <Link to='/chat' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
-                {/* Chat */}
+              <Link to='/getCoins' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+                {/* Coins */}
                 <div className='flex items-center'>
-                  <FaCoins size={20} />
+                  <FaCoins size={20} className="text-[#7e22ce]"/>
                   <p className='ml-2'>Get Coins</p>
                 </div>
               </Link>
               <Link to='/settings' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
                 {/* Settings */}
                 <div className='flex items-center'>
-                  <Settings size={20} />
+                  <Settings size={20} className="text-[#7e22ce]"/>
                   <p className='ml-2'>Settings</p>
                 </div>
               </Link>
-              <Link to='/settings' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
-                {/* Settings */}
+              <Link to='/' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+                {/* Logout */}
                 <div className='flex items-center'>
-                  < IoMdLogOut size={20} />
-                  <p className='ml-2'>Deconnexion</p>
+                  < IoMdLogOut size={20} className="text-[#7e22ce]" />
+                  <p className='ml-2' onClick={() => dispatch(Logout())}>Deconnexion</p>
                 </div>
               </Link>
               
