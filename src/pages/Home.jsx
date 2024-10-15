@@ -1,6 +1,6 @@
-// Frontend - Home.jsx
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+
 import { makeRequest } from "../axios";
 import {
   EditProfile,
@@ -13,8 +13,10 @@ import {
   FriendsManager,
   Stories
 } from "../components";
+import CreditPurchase from "../components/CreditPurchase";
 
 const Home = () => {
+  const dispatch = useDispatch();
   const { user, edit } = useSelector((state) => state.user);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -54,15 +56,31 @@ const Home = () => {
     setPosts([newPost, ...posts]);
   };
 
+  const handlePurchase = async (amount) => {
+    try {
+      // Appel à l'API pour effectuer l'achat
+      const response = await makeRequest.post('/credits/purchase', { amount });
+      
+      // Mise à jour du state global de l'utilisateur avec les nouveaux crédits
+      dispatch({ type: 'UPDATE_USER_CREDITS', payload: response.data.newCreditBalance });
+      
+      setSuccessMsg(`Achat de ${amount} crédit(s) réussi !`);
+    } catch (error) {
+      console.error("Erreur lors de l'achat de crédits:", error);
+      setErrMsg("Échec de l'achat de crédits.");
+    }
+  };
+
   return (
     <div className="w-full h-screen flex flex-col px-0 lg:px-10 2xl:px-40 bg-bgColor lg:rounded-lg">
       <TopBar />
-
       <div className="w-full flex gap-2 lg:gap-4 pt-5 flex-grow overflow-hidden h-full">
         {/* LEFT */}
         <div className="hidden md:flex flex-col w-1/3 lg:w-1/4 gap-6 overflow-y-auto">
+        <CreditPurchase currentCredits={user.credits} onPurchase={handlePurchase} />
           <ProfileCard user={user} />
           <FriendsCard />
+        
         </div>
 
         {/* CENTER */}
@@ -84,10 +102,18 @@ const Home = () => {
         </div>
 
         {/* RIGHT */}
+       
         <FriendsManager/>
+        
       </div>
+      
 
       {edit && <EditProfile/>}
+      
+      {/* Affichage des messages de succès ou d'erreur */}
+      {successMsg && <div className="text-green-500">{successMsg}</div>}
+      {errMsg && <div className="text-red-500">{errMsg}</div>}
+      
     </div>
   );
 };
