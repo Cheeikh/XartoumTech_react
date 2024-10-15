@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { TbSocial } from "react-icons/tb";
-import { BsShare } from "react-icons/bs";
-import { AiOutlineInteraction } from "react-icons/ai";
-import { ImConnection } from "react-icons/im";
-import { CustomButton, Loading, TextInput } from "../components";
-import { BgImage } from "../assets";
 import { toast } from "react-toastify";
 import { makeRequest } from "../axios";
+import BackgroundImage from "../assets/top-view-fabrics-with-thread-copy-space.png";
+import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
+import { motion } from "framer-motion";
 
 const Register = () => {
   const {
@@ -54,178 +51,170 @@ const Register = () => {
   };
 
   return (
-      <div className='bg-bgColor w-full h-[100vh] flex items-center justify-center p-6'>
-        <div className='w-full md:w-2/3 h-fit lg:h-full 2xl:h-5/6 py-8 lg:py-0 flex flex-row-reverse bg-primary rounded-xl overflow-hidden shadow-xl'>
-          {/* LEFT */}
-          <div className='w-full lg:w-1/2 h-full p-10 2xl:px-20 flex flex-col justify-center'>
-            <div className='w-full flex gap-2 items-center mb-6'>
-              <div className='p-2 bg-[#065ad8] rounded text-white'>
-                <TbSocial />
-              </div>
-              <span className='text-2xl text-[#065ad8] font-semibold'>
-              XartoumTech
-            </span>
-            </div>
-
-            <p className='text-ascent-1 text-base font-semibold'>
-              Créez votre compte
-            </p>
-
-            <form
-                className='py-8 flex flex-col gap-5'
-                onSubmit={handleSubmit(onSubmit)}
-            >
-              <div className='w-full flex flex-col lg:flex-row gap-1 md:gap-2'>
-                <TextInput
-                    name='firstName'
-                    label='Prénom'
-                    placeholder='Prénom'
-                    type='text'
-                    styles='w-full'
-                    register={register("firstName", {
-                      required: "Le prénom est requis!",
-                    })}
-                    error={errors.firstName ? errors.firstName?.message : ""}
-                />
-
-                <TextInput
-                    name='lastName'
-                    label='Nom'
-                    placeholder='Nom'
-                    type='text'
-                    styles='w-full'
-                    register={register("lastName", {
-                      required: "Le nom est requis!",
-                    })}
-                    error={errors.lastName ? errors.lastName?.message : ""}
-                />
-              </div>
-
-              <TextInput
-                  name='email'
-                  placeholder='email@example.com'
-                  label='Adresse Email'
-                  type='email'
-                  register={register("email", {
-                    required: "L'adresse email est requise",
-                    pattern: {
-                      value: /^\S+@\S+$/i,
-                      message: "Adresse email invalide",
-                    },
-                  })}
-                  styles='w-full rounded-full'
-                  error={errors.email ? errors.email.message : ""}
-              />
-
-              <div className='w-full flex flex-col lg:flex-row gap-1 md:gap-2'>
-                <TextInput
-                    name='password'
-                    label='Mot de Passe'
-                    placeholder='Mot de Passe'
-                    type='password'
-                    styles='w-full'
-                    register={register("password", {
-                      required: "Le mot de passe est requis!",
-                      minLength: {
-                        value: 6,
-                        message:
-                            "Le mot de passe doit comporter au moins 6 caractères",
-                      },
-                    })}
-                    error={errors.password ? errors.password?.message : ""}
-                />
-
-                <TextInput
-                    name='cPassword'
-                    label='Confirmez le Mot de Passe'
-                    placeholder='Confirmez le Mot de Passe'
-                    type='password'
-                    styles='w-full'
-                    register={register("cPassword", {
-                      validate: (value) => {
-                        const { password } = getValues();
-                        return (
-                            password === value || "Les mots de passe ne correspondent pas"
-                        );
-                      },
-                    })}
-                    error={
-                      errors.cPassword && errors.cPassword.type === "validate"
-                          ? errors.cPassword?.message
-                          : ""
-                    }
-                />
-              </div>
-
-              {errMsg && (
-                  <span
-                      className={`text-sm ${
-                          errMsg !== "success"
-                              ? "text-[#f64949fe]"
-                              : "text-[#2ba150fe]"
-                      } mt-0.5`}
-                  >
-                {errMsg}
-              </span>
-              )}
-
-              {isSubmitting ? (
-                  <Loading />
-              ) : (
-                  <CustomButton
-                      type='submit'
-                      containerStyles={`inline-flex justify-center rounded-md bg-blue px-8 py-3 text-sm font-medium text-white outline-none`}
-                      title='Créer un Compte'
-                  />
-              )}
-            </form>
-
-            <p className='text-ascent-2 text-sm text-center'>
-              Vous avez déjà un compte?{" "}
-              <Link
-                  to='/login'
-                  className='text-[#065ad8] font-semibold ml-2 cursor-pointer'
-              >
-                Connectez-vous
-              </Link>
-            </p>
-          </div>
-          {/* RIGHT */}
-          <div className='hidden w-1/2 h-full lg:flex flex-col items-center justify-center bg-blue'>
-            <div className='relative w-full flex items-center justify-center'>
-              <img
-                  src={BgImage}
-                  alt='Bg Image'
-                  className='w-48 2xl:w-64 h-48 2xl:h-64 rounded-full object-cover'
-              />
-
-              <div className='absolute flex items-center gap-1 bg-white right-10 top-10 py-2 px-5 rounded-full'>
-                <BsShare size={14} />
-                <span className='text-xs font-medium'>Partager</span>
-              </div>
-
-              <div className='absolute flex items-center gap-1 bg-white left-10 top-6 py-2 px-5 rounded-full'>
-                <ImConnection />
-                <span className='text-xs font-medium'>Connecter</span>
-              </div>
-
-              <div className='absolute flex items-center gap-1 bg-white left-12 bottom-6 py-2 px-5 rounded-full'>
-                <AiOutlineInteraction />
-                <span className='text-xs font-medium'>Interagir</span>
-              </div>
-            </div>
-
-            <div className='mt-16 text-center'>
-              <p className='text-white text-base'>
-                Connectez-vous avec des amis & partagez pour vous amuser
-              </p>
-              <span className='text-sm text-white/80'>
-              Partagez des souvenirs avec des amis et le monde entier.
-            </span>
-            </div>
-          </div>
+    <div
+      className="m-0 p-0 font-sans bg-cover h-screen flex items-center"
+      style={{
+        backgroundImage: `url(${BackgroundImage})`,
+      }}
+    >
+      
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -50 }}
+        transition={{ duration: 0.5 }}
+        className="absolute right-[0] top-[40%] transform -translate-y-1/2 w-[30vw] h-[30vh] bg-no-repeat bg-contain"
+        style={{
+          backgroundImage: `url(${LogoImage})`,
+        }}
+      ></motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -50 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="form-container rounded-2xl p-12 w-2/5 max-w-[37vw] shadow-md mx-auto mt-4 bg-white"
+        
+      >
+        <div className="form-title text-2xl font-bold mb-6 text-center">
+          Créez votre compte
         </div>
-      </div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex gap-4 mb-4">
+            <div className="w-1/2">
+              <label htmlFor="firstName" className="block text-lg font-medium">
+                Prénom
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                placeholder="Prénom"
+                className="input-field w-full p-4 mb-2 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
+                {...register("firstName", {
+                  required: "Le prénom est requis!",
+                })}
+              />
+              {errors.firstName && (
+                <span className="text-red-500 text-sm block">
+                  {errors.firstName.message}
+                </span>
+              )}
+            </div>
+            <div className="w-1/2">
+              <label htmlFor="lastName" className="block text-lg font-medium">
+                Nom
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                placeholder="Nom"
+                className="input-field w-full p-4 mb-2 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
+                {...register("lastName", {
+                  required: "Le nom est requis!",
+                })}
+              />
+              {errors.lastName && (
+                <span className="text-red-500 text-sm block">
+                  {errors.lastName.message}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <label htmlFor="email" className="block text-lg font-medium">
+            Adresse Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            placeholder="email@example.com"
+            className="input-field w-full p-4 mb-4 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
+            {...register("email", {
+              required: "L'adresse email est requise",
+              pattern: {
+                value: /^\S+@\S+$/i,
+                message: "Adresse email invalide",
+              },
+            })}
+          />
+          {errors.email && (
+            <span className="text-red-500 text-sm mb-4 block">
+              {errors.email.message}
+            </span>
+          )}
+
+          <label htmlFor="password" className="block text-lg font-medium">
+            Mot de Passe
+          </label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Mot de Passe"
+            className="input-field w-full p-4 mb-4 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
+            {...register("password", {
+              required: "Le mot de passe est requis!",
+              minLength: {
+                value: 6,
+                message: "Le mot de passe doit comporter au moins 6 caractères",
+              },
+            })}
+          />
+          {errors.password && (
+            <span className="text-red-500 text-sm mb-4 block">
+              {errors.password.message}
+            </span>
+          )}
+
+          <label htmlFor="cPassword" className="block text-lg font-medium">
+            Confirmez le Mot de Passe
+          </label>
+          <input
+            type="password"
+            id="cPassword"
+            placeholder="Confirmez le Mot de Passe"
+            className="input-field w-full p-4 mb-4 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
+            {...register("cPassword", {
+              validate: (value) => {
+                const { password } = getValues();
+                return password === value || "Les mots de passe ne correspondent pas";
+              },
+            })}
+          />
+          {errors.cPassword && (
+            <span className="text-red-500 text-sm mb-4 block">
+              {errors.cPassword.message}
+            </span>
+          )}
+
+          {errMsg && (
+            <span
+              className={`text-sm ${
+                errMsg !== "success" ? "text-red-500" : "text-green-500"
+              } mt-0.5 block`}
+            >
+              {errMsg}
+            </span>
+          )}
+
+          <button
+            type="submit"
+            className="button w-full py-3 bg-[#9a00d7] text-white text-lg border-none rounded-full cursor-pointer mt-8"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Création du compte..." : "Créer un Compte"}
+          </button>
+        </form>
+
+        <div className="login-link-container text-center mt-6">
+          <span>
+            Vous avez déjà un compte ?{" "}
+            <Link to="/login" className="login-link text-[#9a00d7]">
+              Connectez-vous
+            </Link>
+          </span>
+        </div>
+      </motion.div>
+    </div>
   );
 };
 

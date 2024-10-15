@@ -1,5 +1,5 @@
 import Notification from "../models/notificationModel.js";
-import { io } from "../index.js";
+// import { io } from "../index.js";
 
 export const createNotification = async (
   recipientId,
@@ -15,8 +15,7 @@ export const createNotification = async (
       post: postId,
     });
 
-    // Émettre la notification nouvellement créée à tous les clients
-    io.emit("new_notification", notification); // Assurez-vous que `io` est importé correctement
+    // io.emit("new_notification", notification);
 
     return notification;
   } catch (error) {

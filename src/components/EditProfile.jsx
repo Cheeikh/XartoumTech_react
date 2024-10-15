@@ -41,11 +41,15 @@ const EditProfile = () => {
         formData.append("profileUrl", picture);
       }
 
+      console.log("FormData content:", Object.fromEntries(formData));
+
       const response = await makeRequest.put("/users/update-user", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+
+      console.log("Server response:", response.data);
 
       if (response.data.success) {
         dispatch(UpdateUser(response.data.user));
@@ -56,7 +60,7 @@ const EditProfile = () => {
         toast.error(response.data.message || "Échec de la mise à jour du profil.");
       }
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du profil :", error);
+      console.error("Erreur détaillée lors de la mise à jour du profil :", error);
       setErrMsg(error.response?.data?.message || "Échec de la mise à jour du profil.");
       toast.error(error.response?.data?.message || "Échec de la mise à jour du profil.");
     } finally {

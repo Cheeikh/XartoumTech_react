@@ -1,181 +1,440 @@
-// Importation des modèles nécessaires pour les conversations, messages, utilisateurs
-import Conversation from '../models/conversationModel.js';
-import Message from '../models/messageModel.js';
-import User from '../models/userModel.js';
-// Importation de la configuration Cloudinary pour gérer les fichiers média (audio, images, etc.)
-import cloudinary from '../utils/cloudinaryConfig.js';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, MoreVertical, Paperclip, Smile, Mic, Send, UserPlus, X, Home, Play, Square, Pause } from 'lucide-react';
+import { makeRequest } from "../axios";
+import { NoProfile } from "../assets";
+import { useNavigate } from 'react-router-dom';
+import EmojiPicker from 'emoji-picker-react';
 
-// Fonction pour récupérer toutes les conversations où l'utilisateur connecté est un participant
-export const getConversations = async (req, res) => {
-  try {
-    // Recherche des conversations où l'utilisateur est un participant
-    const conversations = await Conversation.find({
-      participants: { $in: [req.user._id] }
-    }).populate('participants', 'firstName lastName profileUrl'); // Remplissage des détails des participants (nom, URL de profil)
+const MessagerieView = () => {
+  const navigate = useNavigate();
+  const [conversations, setConversations] = useState([]);
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [user, setUser] = useState(null);
+  const [showNewChat, setShowNewChat] = useState(false);
+  const [contacts, setContacts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const messagesEndRef = useRef(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState(null);
 
-    // Réponse avec succès contenant les conversations trouvées
-    res.status(200).json(conversations);
-  } catch (error) {
-    // Réponse d'erreur si la récupération échoue
-    res.status(500).json({ message: "Erreur lors de la récupération des conversations" });
-  }
-};
-
-// Fonction pour récupérer les messages d'une conversation spécifique
-export const getMessages = async (req, res) => {
-  try {
-    // Recherche des messages liés à une conversation spécifique
-    const messages = await Message.find({
-      conversation: req.params.conversationId
-    }).populate('sender', 'firstName lastName profileUrl'); // Remplissage des détails de l'expéditeur du message
-
-    // Réponse avec succès contenant les messages trouvés
-    res.status(200).json(messages);
-  } catch (error) {
-    // Réponse d'erreur si la récupération échoue
-    res.status(500).json({ message: "Erreur lors de la récupération des messages" });
-  }
-};
-
-// Fonction pour envoyer un nouveau message dans une conversation
-export const sendMessage = async (req, res) => {
-  const { conversationId, content } = req.body; // Extraction de l'ID de la conversation et du contenu du message
-
-  try {
-    // Création d'un nouvel objet Message
-    const newMessage = new Message({
-      conversation: conversationId, // Référence à la conversation en cours
-      sender: req.user._id,         // L'expéditeur est l'utilisateur connecté
-      content                       // Le contenu du message
-    });
-
-    // Sauvegarde du nouveau message dans la base de données
-    await newMessage.save();
-
-    // Recherche du message avec les détails de l'expéditeur peuplés
-    const populatedMessage = await Message.findById(newMessage._id)
-      .populate('sender', 'firstName lastName profileUrl');
-
-    // Réponse avec succès contenant le message créé
-    res.status(201).json(populatedMessage);
-  } catch (error) {
-    // Réponse d'erreur si l'envoi échoue
-    res.status(500).json({ message: "Erreur lors de l'envoi du message" });
-  }
-};
-
-// Fonction pour créer une nouvelle conversation entre l'utilisateur et un autre participant
-export const createConversation = async (req, res) => {
-  const { participantId } = req.body; // Extraction de l'ID du participant
-
-  try {
-    // Vérification si une conversation existe déjà entre les deux utilisateurs
-    const existingConversation = await Conversation.findOne({
-      participants: { $all: [req.user._id, participantId] }
-    });
-
-    if (existingConversation) {
-      // Si la conversation existe déjà, la renvoyer
-      return res.status(200).json(existingConversation);
+  useEffect(() => {
+    if (audioBlob) {
+      console.log('Audio Blob mis à jour:', audioBlob);
+      // Vous pouvez effectuer des actions supplémentaires ici
     }
+  }, [audioBlob]);
+  
 
-    // Création d'une nouvelle conversation si elle n'existe pas
-    const newConversation = new Conversation({
-      participants: [req.user._id, participantId] // Les participants sont l'utilisateur connecté et le participant
-    });
+  useEffect(() => {
+    fetchUser();
+    fetchConversations();
+    fetchContacts();
+  }, []);
 
-    // Sauvegarde de la nouvelle conversation
-    await newConversation.save();
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-    // Recherche de la conversation avec les détails des participants peuplés
-    const populatedConversation = await Conversation.findById(newConversation._id)
-      .populate('participants', 'firstName lastName profileUrl');
+  const fetchUser = async () => {
+    try {
+      const response = await makeRequest.get('/users/get-user');
+      setUser(response.data.user);
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+    }
+  };
 
-    // Réponse avec succès contenant la conversation créée
-    res.status(201).json(populatedConversation);
-  } catch (error) {
-    // Réponse d'erreur si la création échoue
-    res.status(500).json({ message: "Erreur lors de la création de la conversation" });
-  }
+  const fetchConversations = async () => {
+    try {
+      const response = await makeRequest.get('/messages/conversations');
+      setConversations(response.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des conversations:', error);
+    }
+  };
+
+  const fetchContacts = async () => {
+    try {
+      const response = await makeRequest.get('/users/friends');
+      setContacts(response.data.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des contacts:', error);
+    }
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSelectConversation = async (conversation) => {
+    setSelectedConversation(conversation);
+    try {
+      const response = await makeRequest.get(/messages/messages/${conversation._id});
+      setMessages(response.data);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des messages:', error);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation) return;
+
+    try {
+      const response = await makeRequest.post('/messages/messages', {
+        conversationId: selectedConversation._id,
+        content: newMessage
+      });
+
+      setMessages([...messages, response.data]);
+      setNewMessage('');
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du message:', error);
+    }
+  };
+
+  const handleCreateConversation = async (contact) => {
+    try {
+      const response = await makeRequest.post('/messages/conversations', {
+        participantId: contact._id
+      });
+      setConversations([response.data, ...conversations]);
+      setSelectedConversation(response.data);
+      setShowNewChat(false);
+    } catch (error) {
+      console.error('Erreur lors de la création de la conversation:', error);
+    }
+  };
+
+  const handleSearch = async (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+
+    if (term.length > 0) {
+      try {
+       const response = await makeRequest.get(`/messages/messages/${conversation._id}`);
+;
+        setSearchResults(response.data);
+      } catch (error) {
+        console.error('Erreur lors de la recherche d\'utilisateurs:', error);
+      }
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleHomeClick = () => {
+    navigate('/'); // Redirige vers la page d'accueil
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const options = { mimeType: 'audio/webm' };
+      mediaRecorderRef.current = new MediaRecorder(stream, options);
+  
+      const chunks = [];
+      mediaRecorderRef.current.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+      mediaRecorderRef.current.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        console.log('Audio Blob:', blob);
+        setAudioBlob(blob);
+      };
+  
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error("Erreur lors de l'accès au microphone:", error);
+    }
+  };
+  
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+  
+
+  const sendAudioMessage = async () => {
+    if (!audioBlob || !selectedConversation) return;
+  
+    const formData = new FormData();
+    const audioFile = new File([audioBlob], 'audio.webm', { type: audioBlob.type });
+    formData.append('audio', audioFile);
+    formData.append('conversationId', selectedConversation._id);
+  
+    // Loggez le contenu de formData
+    for (let pair of formData.entries()) {
+      if (pair[0] === 'audio') {
+        console.log(${pair[0]}:, pair[1], 'Size:', pair[1].size);
+      } else {
+      
+      }
+    }
+  
+    try {
+      const response = await makeRequest.post('/messages/audio', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setMessages([...messages, response.data]);
+      setAudioBlob(null);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message audio:", error);
+    }
+  };
+  
+
+  const handleEmojiClick = (emojiObject) => {
+    setNewMessage(prevMessage => prevMessage + emojiObject.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file || !selectedConversation) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('conversationId', selectedConversation._id);
+
+    try {
+      const response = await makeRequest.post('/messages/file', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setMessages([...messages, response.data]);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du fichier:", error);
+    }
+  };
+
+  const playAudio = (audioUrl) => {
+    if (currentAudio) {
+      currentAudio.pause();
+    }
+    const audio = new Audio(audioUrl);
+    audio.play();
+    setCurrentAudio(audio);
+    setIsPlaying(true);
+    audio.onended = () => {
+      setIsPlaying(false);
+      setCurrentAudio(null);
+    };
+  };
+
+  const pauseAudio = () => {
+    if (currentAudio) {
+      currentAudio.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      {/* Liste des conversations */}
+      <div className="w-1/3 bg-white border-r overflow-hidden flex flex-col">
+        {/* En-tête */}
+        <div className="bg-gray-200 p-4 flex justify-between items-center">
+          <img src={user?.profileUrl || NoProfile} alt="Profile" className="w-10 h-10 rounded-full" />
+          <div className="flex space-x-4">
+            <Home onClick={handleHomeClick} className="text-gray-500 cursor-pointer" />
+            <UserPlus onClick={() => setShowNewChat(true)} className="text-gray-500 cursor-pointer" />
+            <MoreVertical className="text-gray-500 cursor-pointer" />
+          </div>
+        </div>
+        {/* Barre de recherche */}
+        <div className="bg-white p-2">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Rechercher ou démarrer une nouvelle discussion"
+              className="w-full p-2 pl-10 bg-gray-100 rounded-lg"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <Search className="absolute left-2 top-2 text-gray-500" />
+          </div>
+        </div>
+        {/* Liste des conversations ou résultats de recherche */}
+        <div className="flex-1 overflow-y-auto">
+          {searchTerm ? (
+            searchResults.map((user) => (
+              <div 
+                key={user._id} 
+                className="p-4 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
+                onClick={() => handleCreateConversation(user)}
+              >
+                <img src={user.profileUrl || NoProfile} alt="Profile" className="w-12 h-12 rounded-full" />
+                <p className="font-semibold">{user.firstName} {user.lastName}</p>
+              </div>
+            ))
+          ) : (
+            conversations.map((conv) => {
+              const participant = conv.participants?.find(p => p._id !== user?._id);
+              if (!participant) return null;
+              return (
+                <div 
+                  key={conv._id} 
+                  className="p-4 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
+                  onClick={() => handleSelectConversation(conv)}
+                >
+                  <img src={participant.profileUrl || NoProfile} alt="Profile" className="w-12 h-12 rounded-full" />
+                  <div>
+                    <p className="font-semibold">{participant.firstName} {participant.lastName}</p>
+                    <p className="text-sm text-gray-500 truncate">{conv.lastMessage?.content}</p>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Nouvelle discussion */}
+      {showNewChat && (
+        <div className="absolute left-1/3 top-0 w-1/3 h-full bg-white z-10 flex flex-col">
+          <div className="bg-gray-200 p-4 flex items-center">
+            <X onClick={() => setShowNewChat(false)} className="text-gray-500 cursor-pointer mr-4" />
+            <h2 className="text-lg font-semibold">Nouvelle discussion</h2>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {contacts.map((contact) => (
+              <div 
+                key={contact._id} 
+                className="p-4 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
+                onClick={() => handleCreateConversation(contact)}
+              >
+                <img src={contact.profileUrl || NoProfile} alt="Profile" className="w-12 h-12 rounded-full" />
+                <p className="font-semibold">{contact.firstName} {contact.lastName}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Zone de chat */}
+      <div className="w-2/3 flex flex-col">
+        {selectedConversation ? (
+          <>
+            {/* En-tête du chat */}
+            <div className="bg-gray-200 p-4 flex items-center space-x-4">
+              {(() => {
+                const participant = selectedConversation.participants?.find(p => p._id !== user?._id);
+                return (
+                  <>
+                    <img src={participant?.profileUrl || NoProfile} alt="Profile" className="w-10 h-10 rounded-full" />
+                    <div>
+                      <p className="font-semibold">{participant?.firstName}</p>
+                      <p className="text-sm text-gray-500">En ligne</p>
+                    </div>
+                  </>
+                );
+              })()}
+              <div className="ml-auto">
+                <Search className="text-gray-500 cursor-pointer" />
+                <MoreVertical className="text-gray-500 cursor-pointer ml-4" />
+              </div>
+            </div>
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 bg-[#e5ded8]">
+              {messages.map((msg) => (
+                <div 
+                  key={msg._id} 
+                  className={mb-4 flex ${msg.sender?._id === user?._id ? 'justify-end' : 'justify-start'}}
+                >
+                  <div className={max-w-[70%] p-3 rounded-lg ${msg.sender?._id === user?._id ? 'bg-[#dcf8c6]' : 'bg-white'}}>
+                    {msg.messageType === 'text' && <p>{msg.content}</p>}
+                    {msg.messageType === 'audio' && (
+                      <div className="flex items-center space-x-2">
+                        {isPlaying && currentAudio?.src === msg.content ? (
+                          <Pause onClick={pauseAudio} className="cursor-pointer text-[#9a00d7]-500" />
+                        ) : (
+                          <Play onClick={() => playAudio(msg.content)} className="cursor-pointer text-[#9a00d7]-500" />
+                        )}
+                        <span>Message audio</span>
+                      </div>
+                    )}
+                    {msg.messageType === 'file' && (
+                      <a href={msg.content} target="_blank" rel="noopener noreferrer" className="text-[#9a00d7]-500 underline">
+                        Fichier joint
+                      </a>
+                    )}
+                    <p className="text-xs text-gray-500 text-right mt-1">{formatDate(msg.createdAt)}</p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+            {/* Zone de saisie */}
+            <div className="p-4 bg-gray-200 flex items-center space-x-2">
+              <div className="relative">
+                <Smile onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-gray-500 cursor-pointer" />
+                {showEmojiPicker && (
+                  <div className="absolute bottom-10 left-0">
+                    <EmojiPicker onEmojiClick={handleEmojiClick} />
+                  </div>
+                )}
+              </div>
+              <label htmlFor="file-upload" className="cursor-pointer">
+                <Paperclip className="text-gray-500" />
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              {!isRecording && !audioBlob && (
+                <input 
+                  type="text" 
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  className="flex-1 p-2 rounded-full"
+                  placeholder="Tapez un message"
+                />
+              )}
+              {isRecording && (
+                <div className="flex-1 p-2 rounded-full bg-red-100 text-red-500 text-center">
+                  Enregistrement en cours...
+                </div>
+              )}
+              {audioBlob && !isRecording && (
+                <div className="flex-1 p-2 rounded-full bg-green-100 text-green-500 text-center">
+                  Audio enregistré
+                </div>
+              )}
+              {newMessage || audioBlob ? (
+                <Send onClick={audioBlob ? sendAudioMessage : handleSendMessage} className="text-[#9a00d7]-500 cursor-pointer" />
+              ) : isRecording ? (
+                <Square onClick={stopRecording} className="text-red-500 cursor-pointer" />
+              ) : (
+                <Mic onClick={startRecording} className="text-gray-500 cursor-pointer" />
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-full bg-[#f8f9fa]">
+            <p className="text-xl text-gray-500">Sélectionnez une conversation pour commencer à chatter</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
-// Fonction pour envoyer un message audio
-export const sendAudioMessage = async (req, res) => {
-  const { conversationId } = req.body; // Extraction de l'ID de la conversation
-  const audioFile = req.file;          // Le fichier audio est récupéré depuis la requête
-
-  // Vérification si un fichier audio a été fourni
-  if (!audioFile) {
-    return res.status(400).json({ message: "Aucun fichier audio n'a été fourni" });
-  }
-
-  try {
-    // Téléchargement du fichier audio sur Cloudinary
-    const result = await cloudinary.uploader.upload(audioFile.path, {
-      resource_type: "auto", // Le type de fichier est automatiquement détecté
-      folder: "chat_audio"   // Le fichier est sauvegardé dans le dossier "chat_audio"
-    });
-
-    // Création d'un nouvel objet Message avec l'URL du fichier audio
-    const newMessage = new Message({
-      conversation: conversationId,
-      sender: req.user._id,
-      content: result.secure_url, // L'URL sécurisée du fichier audio
-      messageType: 'audio'        // Indique que le type de message est "audio"
-    });
-
-    // Sauvegarde du message audio dans la base de données
-    await newMessage.save();
-
-    // Recherche du message avec les détails de l'expéditeur peuplés
-    const populatedMessage = await Message.findById(newMessage._id)
-      .populate('sender', 'firstName lastName profileUrl');
-
-    // Réponse avec succès contenant le message audio créé
-    res.status(201).json(populatedMessage);
-  } catch (error) {
-    // Réponse d'erreur si l'envoi échoue
-    console.error("Erreur lors de l'envoi du message audio:", error);
-    res.status(500).json({ message: "Erreur lors de l'envoi du message audio" });
-  }
-};
-
-// Fonction pour envoyer un message avec un fichier
-export const sendFileMessage = async (req, res) => {
-  const { conversationId } = req.body; // Extraction de l'ID de la conversation
-  const file = req.file;               // Le fichier est récupéré depuis la requête
-
-  // Vérification si un fichier a été fourni
-  if (!file) {
-    return res.status(400).json({ message: "Aucun fichier n'a été fourni" });
-  }
-
-  try {
-    // Téléchargement du fichier sur Cloudinary
-    const result = await cloudinary.uploader.upload(file.path, {
-      resource_type: "auto", // Le type de fichier est automatiquement détecté
-      folder: "chat_files"   // Le fichier est sauvegardé dans le dossier "chat_files"
-    });
-
-    // Création d'un nouvel objet Message avec l'URL du fichier
-    const newMessage = new Message({
-      conversation: conversationId,
-      sender: req.user._id,
-      content: result.secure_url, // L'URL sécurisée du fichier
-      messageType: 'file'         // Indique que le type de message est "fichier"
-    });
-
-    // Sauvegarde du message fichier dans la base de données
-    await newMessage.save();
-
-    // Recherche du message avec les détails de l'expéditeur peuplés
-    const populatedMessage = await Message.findById(newMessage._id)
-      .populate('sender', 'firstName lastName profileUrl');
-
-    // Réponse avec succès contenant le message fichier créé
-    res.status(201).json(populatedMessage);
-  } catch (error) {
-    // Réponse d'erreur si l'envoi échoue
-    res.status(500).json({ message: "Erreur lors de l'envoi du fichier" });
-  }
-};
+export default MessagerieView;
