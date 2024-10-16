@@ -21,8 +21,9 @@ import NotificationDropdown from './NotificationDropdown'; // Import ajouté
 
 const TopBar = ({ user }) => {
   const { theme } = useSelector((state) => state.theme);
-  const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm();
+  const dispatch = useDispatch(); // Initialisation du dispatch pour envoyer des actions
+  const { register, handleSubmit } = useForm(); // Initialisation du hook de gestion de formulaire
+
 
   // États pour gérer les dropdowns
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -33,9 +34,11 @@ const TopBar = ({ user }) => {
   const notificationRef = useRef(null);
 
   const handleTheme = () => {
+    // Inverse le thème actuel
     const themeValue = theme === "light" ? "dark" : "light";
-    dispatch(SetTheme(themeValue));
+    dispatch(SetTheme(themeValue)); // Envoi de l'action pour changer le thème
   };
+
 
   const handleSearch = async (data) => {
     // Votre logique de recherche ici
@@ -187,4 +190,4 @@ const TopBar = ({ user }) => {
   );
 };
 
-export default TopBar;
+export default TopBar; // Exportation du composant TopBar
