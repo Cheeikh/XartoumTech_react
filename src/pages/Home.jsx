@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-
 import { makeRequest } from "../axios";
 import {
   EditProfile,
@@ -21,8 +20,9 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState([]);
+  const [successMsg, setSuccessMsg] = useState("");
   const [stories, setStories] = useState([]);
+  const [userCredits, setUserCredits] = useState(user?.dailyPostCredits || 0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +49,7 @@ const Home = () => {
 
     if (user) {
       fetchData();
+      setUserCredits(user.dailyPostCredits || 0);
     }
   }, [user]);
 
@@ -56,15 +57,15 @@ const Home = () => {
     setPosts([newPost, ...posts]);
   };
 
-  const handlePurchase = async (amount) => {
+  const handlePurchase = async (newCreditBalance) => {
     try {
-      // Appel à l'API pour effectuer l'achat
-      const response = await makeRequest.post('/credits/purchase', { amount });
-      
+      // Mise à jour du state local des crédits
+      setUserCredits(newCreditBalance);
+
       // Mise à jour du state global de l'utilisateur avec les nouveaux crédits
-      dispatch({ type: 'UPDATE_USER_CREDITS', payload: response.data.newCreditBalance });
-      
-      setSuccessMsg(`Achat de ${amount} crédit(s) réussi !`);
+      dispatch({ type: 'UPDATE_USER_CREDITS', payload: newCreditBalance });
+
+      setSuccessMsg(`Achat de crédits réussi ! Nouveau solde : ${newCreditBalance} crédit(s)`);
     } catch (error) {
       console.error("Erreur lors de l'achat de crédits:", error);
       setErrMsg("Échec de l'achat de crédits.");
@@ -77,10 +78,9 @@ const Home = () => {
       <div className="w-full flex gap-2 lg:gap-4 pt-5 flex-grow overflow-hidden h-full">
         {/* LEFT */}
         <div className="hidden md:flex flex-col w-1/3 lg:w-1/4 gap-6 overflow-y-auto">
-        <CreditPurchase currentCredits={user.credits} onPurchase={handlePurchase} />
+          <CreditPurchase currentCredits={userCredits} onPurchase={handlePurchase} />
           <ProfileCard user={user} />
           <FriendsCard />
-        
         </div>
 
         {/* CENTER */}
@@ -102,18 +102,14 @@ const Home = () => {
         </div>
 
         {/* RIGHT */}
-       
         <FriendsManager/>
-        
       </div>
       
-
       {edit && <EditProfile/>}
-      
+
       {/* Affichage des messages de succès ou d'erreur */}
       {successMsg && <div className="text-green-500">{successMsg}</div>}
       {errMsg && <div className="text-red-500">{errMsg}</div>}
-      
     </div>
   );
 };

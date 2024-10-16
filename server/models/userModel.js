@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    purchasedCredits: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
@@ -72,7 +76,13 @@ userSchema.methods.usePostCredit = function() {
   }
   return false; // Pas assez de crédits
 };
-
+//methode pour utiliser un crédit
+// Nouvelle méthode pour ajouter des crédits achetés
+userSchema.methods.addPurchasedCredits = async function(amount) {
+  this.dailyPostCredits += amount;
+  await this.save();
+  return this;
+};
 const Users = mongoose.model("Users", userSchema);
 
 export default Users;
