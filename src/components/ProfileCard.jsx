@@ -60,12 +60,12 @@ const ProfileCard = ({ user }) => {
 
         <div className='w-full flex flex-col gap-2 py-4 border-b border-[#9a00d7]'>
           <div className='flex gap-2 items-center text-ascent-2'>
-            <CiLocationOn className='text-xl text-ascent-1' />
+            <CiLocationOn className='text-xl text-[#7e22ce]' />
             <span>{user?.user.location ?? "Add Location"}</span>
           </div>
 
           <div className='flex gap-2 items-center text-ascent-2'>
-            <BsBriefcase className=' text-lg text-ascent-1' />
+            <BsBriefcase className=' text-lg text-[#7e22ce]' />
             <span>{user.user?.profession ?? "Add Profession"}</span>
           </div>
         </div>
@@ -96,15 +96,15 @@ const ProfileCard = ({ user }) => {
           <p className='text-ascent-1 text-lg font-semibold'>Social Profile</p>
 
           <div className='flex gap-2 items-center text-ascent-2'>
-            <BsInstagram className=' text-xl text-ascent-1' />
+            <BsInstagram className=' text-xl  text-[#7e22ce]' />
             <span>Instagram</span>
           </div>
           <div className='flex gap-2 items-center text-ascent-2'>
-            <FaTwitterSquare className=' text-xl text-ascent-1' />
+            <FaTwitterSquare className=' text-xl text-[#7e22ce]' />
             <span>Twitter</span>
           </div>
           <div className='flex gap-2 items-center text-ascent-2'>
-            <BsFacebook className=' text-xl text-ascent-1' />
+            <BsFacebook className=' text-xl text-[#7e22ce]' />
             <span>Facebook</span>
           </div>
         </div>
