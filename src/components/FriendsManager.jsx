@@ -133,7 +133,7 @@ const FriendsManager = () => {
 
   // Rendu du composant : deux sections (demandes d'amis et amis suggérés)
   return (
-    <div className="hidden lg:flex flex-col w-1/4 gap-8 overflow-y-auto">
+    <div className="hidden lg:flex flex-col w-1/4 gap-8 overflow-y-auto w-auto">
       {loading ? (
         <Loading /> // Si les données sont en cours de chargement, on affiche le composant de chargement
       ) : (

@@ -26,15 +26,15 @@ dbConnection();
 
 app.use(helmet());
 
-// Configuration CORS avec des options spécifiques
 const corsOptions = {
-  origin: "http://localhost:3000", // Remplacez par l'origine de votre frontend
+  origin: ["http://localhost:3000", "https://frontend-app-rz13.onrender.com"], // Autoriser plusieurs origines
   credentials: true, // Autoriser les credentials (cookies, headers d'authentification, etc.)
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Méthodes HTTP autorisées
   allowedHeaders: "Content-Type, Authorization", // En-têtes autorisés
 };
 
 app.use(cors(corsOptions));
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -1,85 +1,192 @@
-import React from "react"; // Importation de la bibliothèque React
-import { TbSocial } from "react-icons/tb"; // Importation d'une icône de social media
-import { useDispatch, useSelector } from "react-redux"; // Importation des hooks Redux pour gérer l'état global
-import { Link } from "react-router-dom"; // Importation de Link pour la navigation entre les pages
-import TextInput from "./TextInput"; // Importation du composant TextInput pour le champ de recherche
-import CustomButton from "./CustomButton"; // Importation du composant CustomButton pour les boutons
-import { useForm } from "react-hook-form"; // Importation du hook useForm pour gérer les formulaires
-import { BsMoon, BsSunFill } from "react-icons/bs"; // Importation d'icônes pour le changement de thème
-import { SetTheme } from "../redux/theme"; // Importation de l'action SetTheme pour changer le thème
-import { Logout } from "../redux/userSlice"; // Importation de l'action Logout pour déconnexion
-import { IoChatbubbleEllipsesOutline } from "react-icons/io5"; // Importation d'une icône de chat
-import NotificationDropdown from "./NotificationDropdown"; // Importation du composant NotificationDropdown pour les notifications
+import React, { useState, useRef, useEffect } from "react";
+import { TbSocial } from "react-icons/tb";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import TextInput from "./TextInput";
+import CustomButton from "./CustomButton";
+import { useForm } from "react-hook-form";
+import { BsMoon, BsSunFill } from "react-icons/bs";
+import { SetTheme } from "../redux/theme";
+import { Logout } from "../redux/userSlice";
+import { IoChatbubbleEllipsesOutline, IoNotifications } from "react-icons/io5";
+import { AiOutlineMessage } from "react-icons/ai";
+import { FaCoins } from "react-icons/fa6";
+import { IoMdLogOut } from "react-icons/io";
 
-import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png"; // Importation de l'image du logo
+import { makeRequest } from "../axios";
+import { NoProfile } from "../assets";
+import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
+import { ChevronDown, Settings } from 'lucide-react';
+import NotificationDropdown from './NotificationDropdown'; // Import ajouté
 
-const TopBar = () => {
-  // Récupération de l'état du thème depuis Redux
+const TopBar = ({ user }) => {
   const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch(); // Initialisation du dispatch pour envoyer des actions
   const { register, handleSubmit } = useForm(); // Initialisation du hook de gestion de formulaire
 
-  // Fonction pour changer le thème
+
+  // États pour gérer les dropdowns
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  // Références pour détecter les clics en dehors
+  const profileRef = useRef(null);
+  const notificationRef = useRef(null);
+
   const handleTheme = () => {
     // Inverse le thème actuel
     const themeValue = theme === "light" ? "dark" : "light";
     dispatch(SetTheme(themeValue)); // Envoi de l'action pour changer le thème
   };
 
-  // Fonction pour gérer la soumission du formulaire de recherche
+
   const handleSearch = async (data) => {
-    // Traitement des données de recherche
+    // Votre logique de recherche ici
   };
 
+  const toggleProfileDropdown = () => {
+    setIsProfileOpen(!isProfileOpen);
+  };
+
+  const toggleNotificationDropdown = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+  };
+
+  // Fermer les dropdowns lorsqu'un clic est détecté en dehors
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className='topbar w-full flex items-center justify-between py-3 px-4 bg-primary rounded-xl'>
-      {/* Logo et lien vers la page d'accueil */}
-      <Link to='/' className='flex gap-2 items-center'>
-        <img src={LogoImage} alt="XartoumTech" className='h-10 md:h-16' />
-      </Link>
-
-      {/* Formulaire de recherche, caché sur mobile */}
-      <form
-        className='items-center justify-center hidden md:flex'
-        onSubmit={handleSubmit(handleSearch)} // Gestion de la soumission du formulaire
-      >
-        <TextInput
-          placeholder='Search...' // Placeholder du champ de recherche
-          styles='w-[18rem] lg:w-[38rem] rounded-full py-3 ' // Styles du champ de recherche
-          register={register("search")} // Enregistrement du champ avec react-hook-form
-        />
-        <CustomButton
-          title='Search' // Titre du bouton de recherche
-          type='submit' // Type du bouton
-          containerStyles='bg-[#9a00d7] text-white px-6 py-2.5 mt-2 rounded-full ml-[-3rem]' // Styles du bouton
-        />
-      </form>
-
-      {/* ICÔNES */}
-      <div className='flex items-center gap-4 text-ascent-1 text-md md:text-xl'>
-        {/* Bouton pour changer le thème */}
-        <button onClick={() => handleTheme()}>
-          {theme ? <BsMoon /> : <BsSunFill />} {/* Affichage de l'icône en fonction du thème */}
-        </button>
-
-        {/* Lien vers la messagerie */}
-        <Link to='/messagerie' className='relative'>
-          <IoChatbubbleEllipsesOutline className='cursor-pointer' /> {/* Icône de chat */}
+      <div className='topbar w-full flex items-center justify-between py-3 px-4 bg-primary rounded-xl'>
+        {/* Logo */}
+        <Link to='/' className='flex gap-2 items-center'>
+          <img src={LogoImage} alt="XartoumTech" className='h-10 md:h-16' />
         </Link>
-        
-        {/* Composant de notifications */}
-        <NotificationDropdown />
 
-        <div>
-          {/* Bouton de déconnexion */}
-          <CustomButton
-            onClick={() => dispatch(Logout())} // Déconnexion via l'action Redux
-            title='Log Out' // Titre du bouton
-            containerStyles='text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#9a00d7] rounded-full' // Styles du bouton
+        {/* Formulaire de recherche */}
+        <form
+            className='items-center justify-center hidden md:flex'
+            onSubmit={handleSubmit(handleSearch)}
+        >
+          <TextInput
+              placeholder='Search...'
+              styles='w-[18rem] lg:w-[38rem] rounded-full py-3'
+              register={register("search")}
           />
+        </form>
+
+        {/* Section Profil */}
+        <div className='flex items-center gap-4 text-ascent-1 text-md md:text-xl'>
+          {/* Bouton de thème */}
+          <div>
+            <button
+                className='flex items-center focus:outline-none'
+            >
+              <NotificationDropdown/>
+            </button>
+          </div>
+          <div className='flex items-center gap-1 text-ascent-1 text-md md:text-xl'>
+            <button
+                onClick={handleTheme}
+                className='flex items-center focus:outline-none'
+            >
+              {theme === "light" ? <BsMoon size={20}/> : <BsSunFill size={20}/>}
+            </button>
+
+          </div>
+
+          {/* Message de bienvenue */}
+          <h2 className='text-xl text-[#71717a] '>Hello,</h2>
+          {/* Nom de l'utilisateur */}
+          <h2 className='text-xl text-[#7e22ce] font-bold'>
+            {user?.user.firstName}
+          </h2>
+
+          {/* Dropdown Profil */}
+          <div className='relative' ref={profileRef}>
+            <button
+                onClick={toggleProfileDropdown}
+                className='flex items-center focus:outline-none'
+            >
+              <img
+                  src={user?.user.profileUrl ?? NoProfile}
+                  alt="Photo de profil"
+                  className='w-10 h-10 object-cover rounded-full'
+              />
+              <ChevronDown className='ml-1' size={20}/>
+            </button>
+
+            {/* Menu Dropdown */}
+            {isProfileOpen && (
+                <div className='absolute right-0 mt-2 w-48 bg-primary rounded-md shadow-xl z-10'>
+                  {/* Lien vers le profil */}
+                  <Link to='/profile' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+                    <div className='flex items-center border-b-2 hover:bg-[#e4e0e7]'>
+                      <img
+                          src={user?.user.profileUrl ?? NoProfile}
+                          alt="Photo de profil"
+                          className='w-10 h-10 object-cover rounded-full'
+                      />
+                      <p className='ml-2'>{user?.user.firstName}</p>
+                    </div>
+                  </Link>
+
+                  {/* Dropdown Notifications */}
+
+
+                  {/* Lien vers Messages */}
+                  <Link to='/messagerie'
+                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                    <div className='flex items-center'>
+                      <AiOutlineMessage size={20} className="text-[#7e22ce]"/>
+                      <p className='ml-2'>Messages</p>
+                    </div>
+                  </Link>
+
+                  {/* Lien vers Get Coins */}
+                  <Link to='/getCoins'
+                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                    <div className='flex items-center'>
+                      <FaCoins size={20} className="text-[#7e22ce]"/>
+                      <p className='ml-2'>Get Coins</p>
+                    </div>
+                  </Link>
+
+                  {/* Lien vers Settings */}
+                  <Link to='/settings'
+                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                    <div className='flex items-center'>
+                      <Settings size={20} className="text-[#7e22ce]"/>
+                      <p className='ml-2'>Settings</p>
+                    </div>
+                  </Link>
+
+                  {/* Lien pour se déconnecter */}
+                  <Link to='/' className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                    <div className='flex items-center'>
+                      <IoMdLogOut size={20} className="text-[#7e22ce]"/>
+                      <p className='ml-2' onClick={() => dispatch(Logout())}>Déconnexion</p>
+                    </div>
+                  </Link>
+                </div>
+            )}
+          </div>
         </div>
+
       </div>
-    </div>
   );
 };
 

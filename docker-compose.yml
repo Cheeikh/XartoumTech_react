@@ -1,0 +1,17 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile # Dockerfile du frontend
+    ports:
+      - "3000:3000" # Frontend React sur le port 3000
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile # Dockerfile du backend
+    ports:
+      - "8800:8800" # Backend Node.js sur le port 8800
+    environment:
+      - NODE_ENV=production
