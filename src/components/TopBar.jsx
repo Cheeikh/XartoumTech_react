@@ -85,7 +85,7 @@ const TopBar = () => {
             <div className='absolute right-0 mt-2 w-48 bg-primary rounded-md overflow-hidden shadow-xl z-10'>
               <Link to='/profile' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
                 {/* Profile picture  and name */}
-                <div className='flex items-center border-b-2 border-'>
+                <div className='flex items-center border-b-2 focus:opacity-40 hover:bg-[#e4e0e7]'>
                   <img
                     src={NoProfile} 
                     alt="Photo de profil"
@@ -94,37 +94,37 @@ const TopBar = () => {
                   <p className='ml-2'>idrissa</p>
                 </div>
               </Link>
-              <Link to='/notifications' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+              <Link to='/notifications' className='block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:opacity-40 hover:bg-[#e4e0e7]'>
                {/* Notifications */}
-                <div className='flex items-center'>
+                <div className='flex items-center focus:opacity-40 hover:bg-[#e4e0e7]'>
                   <IoNotifications size={20} className="text-[#7e22ce]" />
                   <p className='ml-2'>Notifications</p>
                 </div>
               </Link>
-              <Link to='/messages' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+              <Link to='/messages' className='block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 ocus:opacity-40 hover:bg-[#e4e0e7]'>
                 {/* Messages */}
-                <div className='flex items-center'>
+                <div className='flex items-center focus:opacity-40 hover:bg-[#e4e0e7]'>
                   <AiOutlineMessage size={20} className="text-[#7e22ce]" />
                   <p className='ml-2'>Messages</p>
                 </div>
               </Link>
-              <Link to='/getCoins' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+              <Link to='/getCoins' className='block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 ocus:opacity-40 hover:bg-[#e4e0e7]'>
                 {/* Coins */}
-                <div className='flex items-center'>
+                <div className='flex items-center focus:opacity-40 hover:bg-[#e4e0e7]'>
                   <FaCoins size={20} className="text-[#7e22ce]"/>
                   <p className='ml-2'>Get Coins</p>
                 </div>
               </Link>
-              <Link to='/settings' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+              <Link to='/settings' className='block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 ocus:opacity-40 hover:bg-[#e4e0e7]'>
                 {/* Settings */}
-                <div className='flex items-center'>
+                <div className='flex items-center focus:opacity-40 hover:bg-[#e4e0e7]'>
                   <Settings size={20} className="text-[#7e22ce]"/>
                   <p className='ml-2'>Settings</p>
                 </div>
               </Link>
-              <Link to='/' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+              <Link to='/' className='block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 ocus:opacity-40 hover:bg-[#e4e0e7]'>
                 {/* Logout */}
-                <div className='flex items-center'>
+                <div className='flex items-center focus:opacity-40 hover:bg-[#e4e0e7]'>
                   < IoMdLogOut size={20} className="text-[#7e22ce]" />
                   <p className='ml-2' onClick={() => dispatch(Logout())}>Deconnexion</p>
                 </div>
