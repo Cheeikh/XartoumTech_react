@@ -56,7 +56,7 @@ const Home = () => {
       <div className="w-full h-screen flex flex-col px-0 lg:px-10 2xl:px-40 bg-bgColor lg:rounded-lg">
         {/* TopBar pour les écrans moyens et plus grands */}
         <div className="hidden md:block">
-          <TopBar />
+          <TopBar user={user}/>
         </div>
 
         {/* MobileNavbar pour les écrans mobiles */}

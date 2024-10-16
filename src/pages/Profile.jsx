@@ -182,6 +182,7 @@ const Profile = () => {
         return null;
     }
   };
+  console.log()
 
   return (
       <div className="w-full min-h-screen bg-bgColor">
