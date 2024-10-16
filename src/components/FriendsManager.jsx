@@ -118,7 +118,7 @@ const FriendsManager = () => {
   };
 
   return (
-    <div className="hidden lg:flex flex-col w-1/4 gap-8 overflow-y-auto">
+    <div className="hidden lg:flex flex-col w-1/4 gap-8 overflow-y-auto w-auto">
       {loading ? (
         <Loading />
       ) : (

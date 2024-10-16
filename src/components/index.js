@@ -9,6 +9,7 @@ import PostCreator from "./PostCreator";
 import EditProfile from "./EditProfile";
 import FriendsManager from "./FriendsManager";
 import Stories from "./Stories";
+import MobileNavbar from "./MobileNavbar";
 
 export {
   Loading,
@@ -21,5 +22,6 @@ export {
   EditProfile,
   PostCreator,
   FriendsManager,
-  Stories
+  Stories,
+  MobileNavbar
 };

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { store } from "./redux/store";
 
 export const makeRequest = axios.create({
-    baseURL: "http://localhost:8800/" // Assurez-vous que c'est l'URL correcte de votre backend
+    baseURL: "https://backend-app-pgo4.onrender.com/" // Assurez-vous que c'est l'URL correcte de votre backend
 });
 
 export const getToken = () => {
