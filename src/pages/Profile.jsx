@@ -32,26 +32,31 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("publications");
   const [selectedPostIndex, setSelectedPostIndex] = useState(null);
 
+  // Hook pour récupérer les données de l'utilisateur
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        setLoading(true);
+        setLoading(true); // Début du chargement
+        // Requête pour obtenir les informations de l'utilisateur
         const userResponse = await makeRequest.get(`/users/get-user/${id}`);
-        setUserInfo(userResponse.data.user);
+        setUserInfo(userResponse.data.user); // Mise à jour des informations de l'utilisateur
 
+        // Requête pour obtenir les publications de l'utilisateur
         const postsResponse = await makeRequest.get(`/posts/user/${id}`);
+
         setPosts(postsResponse.data.data.filter((post) => post.media));
 
-        setLoading(false);
+        setLoading(false); // Fin du chargement
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
-        setErrMsg("Échec du chargement des données du profil.");
-        setLoading(false);
+        setErrMsg("Échec du chargement des données du profil."); // Message d'erreur
+        setLoading(false); // Fin du chargement en cas d'erreur
       }
     };
 
-    fetchUserData();
-  }, [id]);
+    fetchUserData(); // Appel de la fonction pour récupérer les données de l'utilisateur
+  }, [id]); // Dépendance pour réexécuter le useEffect si l'ID change
+
 
   const handleFollow = async () => {
     try {
@@ -59,9 +64,10 @@ const Profile = () => {
       setUserInfo((prev) => ({ ...prev, isFollowing: true }));
     } catch (error) {
       console.error("Erreur lors de l'envoi de la demande d'ami:", error);
-      setErrMsg("Échec de l'envoi de la demande d'ami.");
+      setErrMsg("Échec de l'envoi de la demande d'ami."); // Message d'erreur
     }
   };
+
 
   const handleUnfollow = async () => {
     try {
@@ -134,7 +140,9 @@ const Profile = () => {
                   {new Date(post.createdAt).toLocaleDateString()}
                 </p>
               </div>
+              <p className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p> // Date de création de la publication
             </div>
+
             <button
                 onClick={onClose}
                 className="absolute top-4 right-4 bg-gray-800 rounded-full p-2 shadow-lg hover:bg-gray-700 transition-colors"
@@ -142,7 +150,14 @@ const Profile = () => {
               <X size={24} />
             </button>
           </div>
+          <button 
+            onClick={onClose} // Action de fermeture du modal
+            className="absolute top-4 right-4  bg-gray-800 rounded-full p-2 shadow-lg hover:bg-gray-700 transition-colors"
+          >
+            <X size={24} /> // Icône de fermeture
+          </button>
         </div>
+
     );
   };
 
@@ -182,6 +197,7 @@ const Profile = () => {
         return null;
     }
   };
+  console.log()
 
   return (
       <div className="w-full min-h-screen bg-bgColor">
@@ -316,4 +332,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Profile; // Exportation du composant Profile
