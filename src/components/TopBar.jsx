@@ -10,8 +10,10 @@ import { SetTheme } from "../redux/theme";
 import { Logout } from "../redux/userSlice";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import NotificationDropdown from "./NotificationDropdown"; // Import du nouveau composant
+import { ShoppingCart } from 'lucide-react'; // Import de l'icône sac de courses
 
 import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
+
 const TopBar = () => {
   const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
@@ -25,8 +27,7 @@ const TopBar = () => {
   const handleSearch = async (data) => {};
 
   return (
-
-    <div className='topbar w-full flex items-center justify-between py-3  px-4 bg-primary rounded-xl'>
+    <div className='topbar w-full flex items-center justify-between py-3 px-4 bg-primary rounded-xl'>
       <Link to='/' className='flex gap-2 items-center'>
         <img src={LogoImage} alt="XartoumTech" className='h-10 md:h-16' />
       </Link>
@@ -37,7 +38,7 @@ const TopBar = () => {
       >
         <TextInput
           placeholder='Search...'
-          styles='w-[18rem] lg:w-[38rem]  rounded-full py-3 '
+          styles='w-[18rem] lg:w-[38rem] rounded-full py-3 '
           register={register("search")}
         />
         <CustomButton
@@ -55,7 +56,12 @@ const TopBar = () => {
         <Link to='/messagerie' className='relative'>
           <IoChatbubbleEllipsesOutline className='cursor-pointer' />
         </Link>
-        
+
+        {/* Icône de sac de courses */}
+        <Link to='/achat' className='relative'>
+          <ShoppingCart className='cursor-pointer' />
+        </Link>
+
         {/* Notifications */}
         <NotificationDropdown />
 

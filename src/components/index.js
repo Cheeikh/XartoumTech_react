@@ -11,6 +11,11 @@ import FriendsManager from "./FriendsManager";
 import Stories from "./Stories";
 import FollowSuggestedUsers from "./FollowSuggestedUsers";
 import FollowButton from "./FollowButton";
+import { Card, CardHeader, CardContent, CardFooter } from '../components/Card'; 
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/Select'; 
+import Button from '../components/Button'; 
+import {Dialog , DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/Dialog'; 
+
 
 export {
   Loading,
@@ -26,5 +31,10 @@ export {
   Stories,
   FollowSuggestedUsers,
   FollowButton,
+  Card,
+  Select,
+  Button,
+  Dialog
+  
   
 };
