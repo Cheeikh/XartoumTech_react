@@ -9,7 +9,6 @@ import { UpdateFriends } from "../redux/userSlice";
 const FriendsCard = () => {
   const dispatch = useDispatch();
   const { friends } = useSelector((state) => state.user);
-
   const fetchFriends = async () => {
     try {
       const response = await makeRequest.get("/users/friends");

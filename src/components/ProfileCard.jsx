@@ -25,11 +25,10 @@ const ProfileCard = ({ user }) => {
         <div className='w-full flex items-center justify-between border-b pb-5 border-[#9a00d7]'>
           <Link to={"/profile/" + user.user?._id} className='flex gap-2'>
             <img
-              src={user.user?.profileUrl ?? NoProfile}
-              alt={user.user?.email}
-              className='w-14 h-14 object-cover rounded-full'
+                src={user.user?.profileUrl ?? NoProfile}
+                alt={user.user?.email}
+                className='w-14 h-14 object-cover rounded-full'
             />
-
             <div className='flex flex-col justify-center'>
               <p className='text-lg font-medium text-ascent-1'>
                 {user.user?.firstName} {user.user?.lastName}
@@ -42,30 +41,31 @@ const ProfileCard = ({ user }) => {
 
           <div className=''>
             {user?._id === data?._id ? (
-              <LiaEditSolid
-                size={22}
-                className='text-[#9a00d7] cursor-pointer'
-                onClick={() => dispatch(UpdateProfile(true))}
-              />
+                <LiaEditSolid
+                    size={22}
+                    className='text-[#9a00d7] cursor-pointer'
+                    onClick={() => dispatch(UpdateProfile(true))}
+                />
             ) : (
-              <button
-                className='bg-[#0444a430] text-sm text-white p-1 rounded'
-                onClick={() => {}}
-              >
-                <BsPersonFillAdd size={20} className='text-[#0f52b6]' />
-              </button>
+                <button
+                    className='bg-[#0444a430] text-sm text-white p-1 rounded'
+                    onClick={() => {
+                    }}
+                >
+                  <BsPersonFillAdd size={20} className='text-[#0f52b6]'/>
+                </button>
             )}
           </div>
         </div>
 
         <div className='w-full flex flex-col gap-2 py-4 border-b border-[#9a00d7]'>
           <div className='flex gap-2 items-center text-ascent-2'>
-            <CiLocationOn className='text-xl text-[#7e22ce]' />
+            <CiLocationOn className='text-xl text-[#7e22ce]'/>
             <span>{user?.user.location ?? "Add Location"}</span>
           </div>
 
           <div className='flex gap-2 items-center text-ascent-2'>
-            <BsBriefcase className=' text-lg text-[#7e22ce]' />
+            <BsBriefcase className=' text-lg text-[#7e22ce]'/>
             <span>{user.user?.profession ?? "Add Profession"}</span>
           </div>
         </div>
@@ -96,17 +96,22 @@ const ProfileCard = ({ user }) => {
           <p className='text-ascent-1 text-lg font-semibold'>Social Profile</p>
 
           <div className='flex gap-2 items-center text-ascent-2'>
-            <BsInstagram className=' text-xl  text-[#7e22ce]' />
+            <BsInstagram className=' text-xl  text-[#7e22ce]'/>
             <span>Instagram</span>
           </div>
           <div className='flex gap-2 items-center text-ascent-2'>
-            <FaTwitterSquare className=' text-xl text-[#7e22ce]' />
+            <FaTwitterSquare className=' text-xl text-[#7e22ce]'/>
             <span>Twitter</span>
           </div>
           <div className='flex gap-2 items-center text-ascent-2'>
-            <BsFacebook className=' text-xl text-[#7e22ce]' />
+            <BsFacebook className=' text-xl text-[#7e22ce]'/>
             <span>Facebook</span>
           </div>
+        </div>
+        <div className='w-full flex flex-col gap-4 py-4 pb-6'>
+          <Link to='/mesventes' className='flex gap-2 items-center'>
+             <p className='text-ascent-1 text-lg font-semibold'>Mes ventes</p>
+          </Link>
         </div>
       </div>
     </div>
