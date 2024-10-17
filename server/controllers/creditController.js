@@ -28,5 +28,3 @@ export const purchaseCredits = async (req, res) => {
       res.status(500).json({ message: "Erreur lors de l'achat de crédits", error: error.message });
     }
   };
-
-

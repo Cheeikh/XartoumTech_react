@@ -77,6 +77,14 @@ userSchema.methods.usePostCredit = function() {
   return false; // Pas assez de crédits
 };
 //methode pour utiliser un crédit
+userSchema.methods.checkAndResetDailyCredits = function() {
+/*   const now = new Date();
+  const lastReset = this.lastCreditReset;
+  if (now.getDate() !== lastReset.getDate() || now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear()) {
+    this.dailyPostCredits = 5;
+    this.lastCreditReset = now;
+  } */
+};
 // Nouvelle méthode pour ajouter des crédits achetés
 userSchema.methods.addPurchasedCredits = async function(amount) {
   this.dailyPostCredits += amount;
