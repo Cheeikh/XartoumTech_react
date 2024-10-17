@@ -1,6 +1,5 @@
-// Frontend - Home.jsx
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { makeRequest } from "../axios";
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -15,12 +14,17 @@ import {
   Stories,
   MobileNavbar
 } from "../components";
+import CreditPurchase from "../components/CreditPurchase";
 
 const Home = () => {
+  const dispatch = useDispatch();
   const { user, edit } = useSelector((state) => state.user);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [stories, setStories] = useState([]);
+  const [userCredits, setUserCredits] = useState(user?.dailyPostCredits || 0);
   const [isMenuOpen, setIsMenuOpen] = useState(false); // État pour le menu
 
   useEffect(() => {
@@ -45,6 +49,7 @@ const Home = () => {
 
     if (user) {
       fetchData();
+      setUserCredits(user.dailyPostCredits || 0);
     }
   }, [user]);
 
@@ -52,11 +57,27 @@ const Home = () => {
     setPosts([newPost, ...posts]);
   };
 
+  const handlePurchase = async (newCreditBalance) => {
+    try {
+      // Mise à jour du state local des crédits
+      setUserCredits(newCreditBalance);
+
+      // Mise à jour du state global de l'utilisateur avec les nouveaux crédits
+      dispatch({ type: 'UPDATE_USER_CREDITS', payload: newCreditBalance });
+
+      setSuccessMsg(`Achat de crédits réussi ! Nouveau solde : ${newCreditBalance} crédit(s)`);
+    } catch (error) {
+      console.error("Erreur lors de l'achat de crédits:", error);
+      setErrMsg("Échec de l'achat de crédits.");
+    }
+  };
+
   return (
+
       <div className="w-full h-screen flex flex-col px-0 lg:px-10 2xl:px-40 bg-bgColor lg:rounded-lg">
         {/* TopBar pour les écrans moyens et plus grands */}
         <div className="hidden md:block">
-          <TopBar />
+          <TopBar user={user}/>
         </div>
 
         {/* MobileNavbar pour les écrans mobiles */}
@@ -67,12 +88,14 @@ const Home = () => {
           />
         </div>
 
+
         {/* Suppression du bouton du menu hamburger dans Home.jsx */}
         {/* Ce bouton est maintenant géré par MobileNavbar */}
 
         <div className="w-full flex gap-2 lg:gap-4 pt-5 flex-grow overflow-hidden h-full">
           {/* LEFT */}
           <div className="hidden md:flex flex-col w-1/4 lg:w-1/5 gap-6 overflow-y-auto">
+            <CreditPurchase currentCredits={userCredits} onPurchase={handlePurchase} />
             <ProfileCard user={user} />
             <FriendsCard />
           </div>
