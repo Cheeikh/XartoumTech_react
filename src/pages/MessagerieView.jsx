@@ -4,6 +4,10 @@ import { makeRequest } from "../axios";
 import { NoProfile } from "../assets";
 import { useNavigate } from 'react-router-dom';
 import EmojiPicker from 'emoji-picker-react';
+import { 
+   Image as ImageIcon 
+} from 'lucide-react';
+
 
 const MessagerieView = () => {
   const navigate = useNavigate();
@@ -23,6 +27,7 @@ const MessagerieView = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState(null);
+
 
   useEffect(() => {
     if (audioBlob) {
@@ -242,6 +247,24 @@ const MessagerieView = () => {
       setIsPlaying(false);
     }
   };
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file || !selectedConversation) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('conversationId', selectedConversation._id);
+
+    try {
+      const response = await makeRequest.post('/messages/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setMessages([...messages, response.data]);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi de l'image:", error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -373,31 +396,43 @@ const MessagerieView = () => {
                         Fichier joint
                       </a>
                     )}
+                     {msg.messageType === 'image' && (
+            <img src={msg.content} alt="Image envoyée" className="max-w-full h-auto rounded" />
+          )}
                     <p className="text-xs text-gray-500 text-right mt-1">{formatDate(msg.createdAt)}</p>
                   </div>
                 </div>
               ))}
               <div ref={messagesEndRef} />
             </div>
-            {/* Zone de saisie */}
             <div className="p-4 bg-gray-200 flex items-center space-x-2">
-              <div className="relative">
-                <Smile onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-gray-500 cursor-pointer" />
-                {showEmojiPicker && (
-                  <div className="absolute bottom-10 left-0">
-                    <EmojiPicker onEmojiClick={handleEmojiClick} />
-                  </div>
-                )}
-              </div>
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <Paperclip className="text-gray-500" />
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
+    <div className="relative">
+      <Smile onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-gray-500 cursor-pointer" />
+      {showEmojiPicker && (
+        <div className="absolute bottom-10 left-0">
+          <EmojiPicker onEmojiClick={handleEmojiClick} />
+        </div>
+      )}
+    </div>
+    <label htmlFor="file-upload" className="cursor-pointer">
+      <Paperclip className="text-gray-500" />
+    </label>
+    <input
+      id="file-upload"
+      type="file"
+      className="hidden"
+      onChange={handleFileUpload}
+    />
+    <label htmlFor="image-upload" className="cursor-pointer">
+      <ImageIcon className="text-gray-500" />
+    </label>
+    <input
+      id="image-upload"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={handleImageUpload}
+    />
               {!isRecording && !audioBlob && (
                 <input 
                   type="text" 

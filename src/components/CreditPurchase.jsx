@@ -54,7 +54,7 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               control={<Radio />} 
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src="/api/placeholder/24/24" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
+                  <img src="" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Wave
                 </div>
               }

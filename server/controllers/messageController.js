@@ -3,6 +3,8 @@ import Message from '../models/messageModel.js';
 import User from '../models/userModel.js';
 import cloudinary from '../utils/cloudinaryConfig.js';
 import streamifier from 'streamifier';
+import { Image as ImageIcon } from 'lucide-react';
+
 
 
 export const getConversations = async (req, res) => {
@@ -14,6 +16,64 @@ export const getConversations = async (req, res) => {
     res.status(200).json(conversations);
   } catch (error) {
     res.status(500).json({ message: "Erreur lors de la récupération des conversations" });
+  }
+};
+export const sendImageMessage = async (req, res) => {
+  const { conversationId } = req.body;
+  const imageFile = req.file;
+
+  if (!imageFile) {
+    return res.status(400).json({ message: "Aucune image n'a été fournie" });
+  }
+
+  try {
+    // Vérifier que le buffer est disponible
+    if (!imageFile.buffer) {
+      return res.status(400).json({ message: "L'image n'a pas été correctement téléchargée." });
+    }
+
+    // Fonction pour télécharger l'image vers Cloudinary en utilisant un flux
+    const streamUpload = (buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "image",
+            folder: "chat_images",
+            transformation: [
+              { width: 800, crop: "limit" }, // Redimensionne l'image si elle est trop grande
+              { quality: "auto" } // Optimisation automatique de la qualité
+            ]
+          },
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
+    };
+
+    const result = await streamUpload(imageFile.buffer);
+
+    const newMessage = new Message({
+      conversation: conversationId,
+      sender: req.user._id,
+      content: result.secure_url,
+      messageType: 'image'
+    });
+
+    await newMessage.save();
+
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate('sender', 'firstName lastName profileUrl');
+
+    res.status(201).json(populatedMessage);
+  } catch (error) {
+    console.error("Erreur lors de l'envoi de l'image:", error);
+    res.status(500).json({ message: "Erreur lors de l'envoi de l'image" });
   }
 };
 
@@ -189,4 +249,5 @@ export const sendFileMessage = async (req, res) => {
     console.error("Erreur lors de l'envoi du fichier:", error);
     res.status(500).json({ message: "Erreur lors de l'envoi du fichier" });
   }
+  
 };
