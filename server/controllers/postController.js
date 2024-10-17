@@ -3,6 +3,7 @@ import Comments from "../models/commentModel.js";
 import Posts from "../models/postModel.js";
 import cloudinary from "../utils/cloudinaryConfig.js";
 import streamifier from "streamifier";
+import User from "../models/userModel.js";
 import { createNotification } from "./notificationController.js";
 
 export const createPost = async (req, res, next) => {
@@ -19,13 +20,20 @@ export const createPost = async (req, res, next) => {
     }
 
     // Vérifier et réinitialiser les crédits de l'utilisateur si nécessaire
-    const user = await Users.findById(userId);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
     user.checkAndResetDailyCredits();
 
-    // Vérifier si l'utilisateur a suffisamment de crédits
-    if (!user.usePostCredit()) {
-      return res.status(403).json({ message: "Limite de publications quotidiennes atteinte" });
+     // Vérifier si l'utilisateur a suffisamment de crédits
+     if (user.dailyPostCredits < 5) {
+      return res.status(403).json({ message: "Crédits insuffisants pour créer un post" });
     }
+
+     // Décrémenter les crédits de l'utilisateur
+     user.dailyPostCredits -= 5;
+     await user.save();
 
     // Si un fichier est téléchargé, téléchargez-le sur Cloudinary
     if (req.file) {
@@ -61,7 +69,7 @@ export const createPost = async (req, res, next) => {
     });
 
     // Créer une notification pour le post créé
-    await createNotification(userId, userId, "new_post", post._id); // Correction ici
+    await createNotification(userId, userId, "new_post", post._id);
 
     // Populer le post avec les données de l'utilisateur
     const populatedPost = await Posts.findById(post._id).populate({
@@ -73,8 +81,9 @@ export const createPost = async (req, res, next) => {
       success: true,
       message: "Post créé avec succès",
       data: populatedPost,
+      remainingCredits: user.dailyPostCredits,
     });
-  } catch (error) {
+  }  catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
   }
