@@ -149,13 +149,13 @@ const TopBar = ({ user, onSearch }) => {
                   {/* Lien vers Get Coins */}
                  
 
-                  <button onClick={openModal} className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
-                  <div className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                  <div onClick={openModal} className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                  <button>
                     <div className='flex items-center'>
                       <FaCoins size={20} className="text-[#7e22ce]"/>
                       <p className='ml-2'>Get Coins</p>
-                    </div>
                   </div> </button>
+                    </div>
                     <PaymentModeModal 
                       isOpen={isModalOpen} 
                       onClose={closeModal}
