@@ -17,7 +17,9 @@ import { makeRequest } from "../axios";
 import { NoProfile } from "../assets";
 import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
 import { ChevronDown, Settings } from 'lucide-react';
-import NotificationDropdown from './NotificationDropdown';
+
+import NotificationDropdown from './NotificationDropdown'; // Import ajouté
+import PaymentModeModal from "./PaymentModeModal";
 
 const TopBar = ({ user, onSearch }) => {
   const { theme } = useSelector((state) => state.theme);
@@ -25,6 +27,11 @@ const TopBar = ({ user, onSearch }) => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  // États pour gérer les dropdowns
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
@@ -86,40 +93,127 @@ const TopBar = ({ user, onSearch }) => {
   }, []);
 
   return (
-    <div className='topbar w-full flex items-center justify-between py-3 px-4 bg-primary rounded-xl'>
-      {/* Logo */}
-      <Link to='/' className='flex gap-2 items-center'>
-        <img src={LogoImage} alt="XartoumTech" className='h-10 md:h-16' />
-      </Link>
 
-      {/* Formulaire de recherche */}
-      <form
-        className='items-center justify-center hidden md:flex'
-        onSubmit={handleSubmit(handleSearch)}
-      >
-        <TextInput
-          placeholder='Rechercher des posts, utilisateurs ou professions...'
-          styles='w-[18rem] lg:w-[38rem] rounded-full py-3'
-          register={register("search")}
-          value={searchQuery} // Utiliser la valeur de searchQuery
-          onChange={(e) => setSearchQuery(e.target.value)} // Mettre à jour searchQuery
-        />
-        <CustomButton
-          type='submit'
-          containerStyles='bg-[#9a00d7] text-white px-6 py-2.5 mt-2 rounded-full'
-          title='Rechercher'
-        />
-      </form>
+      <div className='topbar w-full flex items-center justify-between py-3 px-4 bg-primary rounded-xl'>
+        {/* Logo */}
+        <Link to='/' className='flex gap-2 items-center'>
+          <img src={LogoImage} alt="XartoumTech" className='h-10 md:h-16' />
+        </Link>
 
-      {/* Section Profil */}
-      <div className='flex items-center gap-4 text-ascent-1 text-md md:text-xl'>
-        {/* Bouton de thème */}
-        <div>
-          <button
-            className='flex items-center focus:outline-none'
-          >
-            <NotificationDropdown/>
-          </button>
+        {/* Formulaire de recherche */}
+        <form
+            className='items-center justify-center hidden md:flex'
+            onSubmit={handleSubmit(handleSearch)}
+        >
+          <TextInput
+              placeholder='Search...'
+              styles='w-[18rem] lg:w-[38rem] rounded-full py-3'
+              register={register("search")}
+          />
+        </form>
+
+        {/* Section Profil */}
+        <div className='flex items-center gap-4 text-ascent-1 text-md md:text-xl'>
+          {/* Bouton de thème */}
+          <div>
+            <button
+                className='flex items-center focus:outline-none'
+            >
+              <NotificationDropdown/>
+            </button>
+          </div>
+          <div className='flex items-center gap-1 text-ascent-1 text-md md:text-xl'>
+            <button
+                onClick={handleTheme}
+                className='flex items-center focus:outline-none'
+            >
+              {theme === "light" ? <BsMoon size={20}/> : <BsSunFill size={20}/>}
+            </button>
+
+          </div>
+
+          {/* Message de bienvenue */}
+          <h2 className='text-xl text-[#71717a] '>Hello,</h2>
+          {/* Nom de l'utilisateur */}
+          <h2 className='text-xl text-[#7e22ce] font-bold'>
+            {user?.user.firstName} {user?.user.lastName}
+          </h2>
+
+          {/* Dropdown Profil */}
+          <div className='relative' ref={profileRef}>
+            <button
+                onClick={toggleProfileDropdown}
+                className='flex items-center focus:outline-none'
+            >
+              <img
+                  src={user?.user.profileUrl ?? NoProfile}
+                  alt="Photo de profil"
+                  className='w-10 h-10 object-cover rounded-full'
+              />
+              <ChevronDown className='ml-1' size={20}/>
+            </button>
+
+            {/* Menu Dropdown */}
+            {isProfileOpen && (
+                <div className='absolute right-0 mt-2 w-48 bg-primary rounded-md shadow-xl z-10'>
+                  {/* Lien vers le profil */}
+                  <Link to='/profile' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+                    <div className='flex items-center border-b-2 hover:bg-[#e4e0e7]'>
+                      <img
+                          src={user?.user.profileUrl ?? NoProfile}
+                          alt="Photo de profil"
+                          className='w-10 h-10 object-cover rounded-full'
+                      />
+                      <p className='ml-2'>{user?.user.firstName} {user?.user.lastName}</p>
+                    </div>
+                  </Link>
+
+                  {/* Dropdown Notifications */}
+
+
+                  {/* Lien vers Messages */}
+                  <Link to='/messagerie'
+                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                    <div className='flex items-center'>
+                      <AiOutlineMessage size={20} className="text-[#7e22ce]"/>
+                      <p className='ml-2'>Messages</p>
+                    </div>
+                  </Link>
+
+                  {/* Lien vers Get Coins */}
+                 
+
+                  <button onClick={openModal} className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                  <div className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                    <div className='flex items-center'>
+                      <FaCoins size={20} className="text-[#7e22ce]"/>
+                      <p className='ml-2'>Get Coins</p>
+                    </div>
+                  </div> </button>
+                    <PaymentModeModal 
+                      isOpen={isModalOpen} 
+                      onClose={closeModal}
+                    />
+
+                  {/* Lien vers Settings */}
+                  <Link to='/settings'
+                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                    <div className='flex items-center'>
+                      <Settings size={20} className="text-[#7e22ce]"/>
+                      <p className='ml-2'>Settings</p>
+                    </div>
+                  </Link>
+
+                  {/* Lien pour se déconnecter */}
+                  <Link to='/' className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                    <div className='flex items-center'>
+                      <IoMdLogOut size={20} className="text-[#7e22ce]"/>
+                      <p className='ml-2' onClick={() => dispatch(Logout())}>Déconnexion</p>
+                    </div>
+                  </Link>
+                </div>
+            )}
+          </div>
         </div>
         <div className='flex items-center gap-1 text-ascent-1 text-md md:text-xl'>
           <button
