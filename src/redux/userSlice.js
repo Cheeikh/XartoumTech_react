@@ -31,10 +31,25 @@ const userSlice = createSlice({
     setFriends(state, action) {
       state.friends = action.payload;
     },
+    updateUserCredits(state, action) {
+      if (state.user && state.user.user) {
+        state.user.user.dailyPostCredits = action.payload;
+        localStorage.setItem("user", JSON.stringify(state.user));
+      }
+    },
   },
 });
 
-export const { login, logout, updateProfile, updateUser, updateProfileModal, setFriends } = userSlice.actions;
+export const { 
+  login, 
+  logout, 
+  updateProfile, 
+  updateUser, 
+  updateProfileModal, 
+  setFriends,
+  updateUserCredits 
+} = userSlice.actions;
+
 export default userSlice.reducer;
 
 // Actions Thunk
@@ -49,13 +64,19 @@ export const Logout = () => (dispatch) => {
 export const UpdateProfile = (val) => (dispatch) => {
   dispatch(updateProfile(val));
 };
+
 export const UpdateUser = (user) => (dispatch) => {
   dispatch(updateUser(user));
 };
+
 export const UpdateProfileModal = (val) => (dispatch) => {
   dispatch(updateProfileModal(val));
 };
+
 export const UpdateFriends = (friends) => (dispatch) => {
   dispatch(setFriends(friends));
 };
 
+export const UpdateUserCredits = (credits) => (dispatch) => {
+  dispatch(updateUserCredits(credits));
+};
