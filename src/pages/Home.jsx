@@ -104,7 +104,7 @@ const Home = () => {
           <div className="flex-1 flex flex-col px-4 gap-6 overflow-y-auto rounded-lg">
             <Stories stories={stories} />
             <PostCreator onPostCreated={handlePostCreated} />
-
+            
             {loading ? (
                 <Loading />
             ) : posts?.length > 0 ? (
