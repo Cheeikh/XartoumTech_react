@@ -57,6 +57,7 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               control={<Radio />} 
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
+
                   <img src="https://www.banque.sn/wp-content/uploads/2021/09/wave-1024x1024.png" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Wave
                 </div>
