@@ -3,6 +3,9 @@ import { makeRequest } from '../axios';
 import { Button, Card, CardContent, CardHeader, Dialog, DialogTitle, DialogContent, DialogActions, Radio, RadioGroup, FormControlLabel, FormControl, TextField, Snackbar } from '@mui/material';
 import { CreditCard, PlusCircle, MinusCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSelector, useDispatch } from "react-redux";
+import { updateUserCredits } from "../redux/userSlice";
+
 
 const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, totalCost }) => {
   const [selectedMethod, setSelectedMethod] = useState('');
@@ -44,7 +47,7 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               control={<Radio />} 
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src="/api/placeholder/24/24" alt="Orange Money Logo" style={{ width: '24px', marginRight: '10px' }} />
+                  <img src="https://seeklogo.com/images/O/orange-money-logo-8F2AED308D-seeklogo.com.png" alt="Orange Money Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Orange Money
                 </div>
               }
@@ -54,7 +57,8 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               control={<Radio />} 
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src="" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
+
+                  <img src="https://www.banque.sn/wp-content/uploads/2021/09/wave-1024x1024.png" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Wave
                 </div>
               }
@@ -126,7 +130,9 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
 };
 
 const CreditPurchase = () => {
-  const [currentCredits, setCurrentCredits] = useState(0);
+  const dispatch = useDispatch();
+  const { user: currentUser } = useSelector((state) => state.user);
+  const [currentCredits, setCurrentCredits] = useState(currentUser?.user.dailyPostCredits || 0);
   const [creditsToBuy, setCreditsToBuy] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -134,21 +140,18 @@ const CreditPurchase = () => {
   const creditCost = 100; // Coût par crédit en FCFA
 
   useEffect(() => {
-    const storedCredits = localStorage.getItem('userCredits');
-    if (storedCredits) {
-      setCurrentCredits(parseInt(storedCredits, 10));
-    } else {
+    if (currentUser?.user._id) {
       fetchCurrentCredits();
     }
-  }, []);
+  }, [currentUser]);
 
   const fetchCurrentCredits = async () => {
     try {
-      const userId = "670403731568646bfb22ee81";
+      const userId = currentUser?.user._id;
       const response = await makeRequest.get(`/credits/${userId}`);
       const credits = response.data.credits;
       setCurrentCredits(credits);
-      localStorage.setItem('userCredits', credits.toString());
+      dispatch(updateUserCredits(credits));
     } catch (error) {
       console.error('Erreur lors de la récupération des crédits:', error);
       setErrorMessage('Impossible de récupérer le solde de crédits.');
@@ -172,12 +175,12 @@ const CreditPurchase = () => {
   };
 
   const handleSelectPaymentMethod = async (method, phoneNumber, code) => {
-    const userId = "670403731568646bfb22ee81";
+    const userId = currentUser?.user._id;
   
     try {
       console.log(`Paiement sélectionné : ${method}, Numéro : ${phoneNumber}, Code : ${code}`);
       
-      const response = await makeRequest.post('credits', {
+      const response = await makeRequest.post('/credits', {
         userId,
         creditAmount: creditsToBuy
       });
@@ -185,7 +188,7 @@ const CreditPurchase = () => {
       if (response.status === 200) {
         const newCreditBalance = response.data.newCreditBalance;
         setCurrentCredits(newCreditBalance);
-        localStorage.setItem('userCredits', newCreditBalance.toString());
+        dispatch(updateUserCredits(newCreditBalance));
         setShowSuccessMessage(true);
         setCreditsToBuy(1);
       } else {
