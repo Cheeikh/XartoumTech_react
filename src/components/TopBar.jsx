@@ -112,7 +112,7 @@ const TopBar = ({ user }) => {
           <h2 className='text-xl text-[#71717a] '>Hello,</h2>
           {/* Nom de l'utilisateur */}
           <h2 className='text-xl text-[#7e22ce] font-bold'>
-            {user?.user.firstName}
+            {user?.user.firstName} {user?.user.lastName}
           </h2>
 
           {/* Dropdown Profil */}
@@ -140,7 +140,7 @@ const TopBar = ({ user }) => {
                           alt="Photo de profil"
                           className='w-10 h-10 object-cover rounded-full'
                       />
-                      <p className='ml-2'>{user?.user.firstName}</p>
+                      <p className='ml-2'>{user?.user.firstName} {user?.user.lastName}</p>
                     </div>
                   </Link>
 

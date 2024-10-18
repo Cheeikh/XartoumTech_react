@@ -27,7 +27,7 @@ const PaymentMethodDialog = ({ isOpen, onClose, onSelectMethod, creditsToBuy, to
             className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white rounded-lg" // Adding rounded-lg class for radius
           >
             <img 
-              src="/path-to-wave-logo.png" // Remplacez par le chemin de votre image
+              src="src/assets/photo/wave-1024x1024.png" // Remplacez par le chemin de votre image
               alt="Wave" 
               className="mr-2 h-5 w-5" 
             />
