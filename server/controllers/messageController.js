@@ -18,6 +18,68 @@ export const getConversations = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la récupération des conversations" });
   }
 };
+// Ajoutez cette fonction dans votre fichier de contrôleur
+export const sendVideoMessage = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Utilisateur non authentifié" });
+  }
+
+  const { conversationId } = req.body;
+  const videoFile = req.file;
+  if (!videoFile) {
+    return res.status(400).json({ message: "Aucune vidéo n'a été fournie" });
+  }
+
+  try {
+    if (!videoFile.buffer) {
+      return res.status(400).json({ message: "La vidéo n'a pas été correctement téléchargée." });
+    }
+
+    const streamUpload = (buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "video",
+            folder: "chat_videos",
+            chunk_size: 6000000, // Taille de chunk optimale pour les vidéos
+            eager: [
+              { width: 720, crop: "scale" }, // Redimensionnement vidéo HD
+              { quality: "auto" } // Optimisation automatique de la qualité
+            ]
+          },
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
+    };
+
+    const result = await streamUpload(videoFile.buffer);
+
+    const newMessage = new Message({
+      conversation: conversationId,
+      sender: req.user._id,
+      content: result.secure_url,
+      messageType: 'video',
+      thumbnail: result.secure_url.replace(/\.[^/.]+$/, ".jpg") // Cloudinary génère automatiquement une thumbnail
+    });
+
+    await newMessage.save();
+
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate('sender', 'firstName lastName profileUrl');
+
+    res.status(201).json(populatedMessage);
+  } catch (error) {
+    console.error("Erreur lors de l'envoi de la vidéo:", error);
+    res.status(500).json({ message: "Erreur lors de l'envoi de la vidéo" });
+  }
+};
 export const sendImageMessage = async (req, res) => {
   const { conversationId } = req.body;
   const imageFile = req.file;
