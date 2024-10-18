@@ -31,9 +31,9 @@ const ProfileCard = ({ user }) => {
           <Link to={"/profile/" + user.user?._id} className='flex gap-2'>
             {/* Affichage de l'image de profil, avec une image par défaut si aucune image n'est disponible */}
             <img
-              src={user.user?.profileUrl ?? NoProfile}
-              alt={user.user?.email}
-              className='w-14 h-14 object-cover rounded-full'
+                src={user.user?.profileUrl ?? NoProfile}
+                alt={user.user?.email}
+                className='w-14 h-14 object-cover rounded-full'
             />
 
             {/* Affichage du nom complet de l'utilisateur et de sa profession */}
@@ -50,20 +50,21 @@ const ProfileCard = ({ user }) => {
           {/* Icône d'édition ou bouton d'ajout d'ami */}
           <div className=''>
             {user?._id === data?._id ? (
-              // Si l'utilisateur est le même que celui dans le store, afficher l'icône d'édition
-              <LiaEditSolid
-                size={22}
-                className='text-[#9a00d7] cursor-pointer'
-                onClick={() => dispatch(UpdateProfile(true))} // Dispatch de l'action pour activer l'édition
-              />
+                // Si l'utilisateur est le même que celui dans le store, afficher l'icône d'édition
+                <LiaEditSolid
+                    size={22}
+                    className='text-[#9a00d7] cursor-pointer'
+                    onClick={() => dispatch(UpdateProfile(true))} // Dispatch de l'action pour activer l'édition
+                />
             ) : (
-              // Sinon, afficher un bouton pour ajouter comme ami
-              <button
-                className='bg-[#0444a430] text-sm text-white p-1 rounded'
-                onClick={() => {}} // Fonctionnalité d'ajout d'ami à implémenter
-              >
-                <BsPersonFillAdd size={20} className='text-[#0f52b6]' />
-              </button>
+                // Sinon, afficher un bouton pour ajouter comme ami
+                <button
+                    className='bg-[#0444a430] text-sm text-white p-1 rounded'
+                    onClick={() => {
+                    }} // Fonctionnalité d'ajout d'ami à implémenter
+                >
+                  <BsPersonFillAdd size={20} className='text-[#0f52b6]'/>
+                </button>
             )}
           </div>
         </div>
@@ -72,13 +73,13 @@ const ProfileCard = ({ user }) => {
         <div className='w-full flex flex-col gap-2 py-4 border-b border-[#9a00d7]'>
           <div className='flex gap-2 items-center text-ascent-2'>
 
-            <CiLocationOn className='text-xl text-[#7e22ce]' />
+            <CiLocationOn className='text-xl text-[#7e22ce]'/>
             <span>{user?.user.location ?? "Add Location"}</span>
           </div>
 
           <div className='flex gap-2 items-center text-ascent-2'>
 
-            <BsBriefcase className=' text-lg text-[#7e22ce]' />
+            <BsBriefcase className=' text-lg text-[#7e22ce]'/>
             <span>{user.user?.profession ?? "Add Profession"}</span>
           </div>
         </div>
@@ -113,17 +114,20 @@ const ProfileCard = ({ user }) => {
 
           {/* Liens vers les profils sociaux */}
           <div className='flex gap-2 items-center text-ascent-2'>
-            <BsInstagram className=' text-xl  text-[#7e22ce]' />
+            <BsInstagram className=' text-xl  text-[#7e22ce]'/>
             <span>Instagram</span>
           </div>
           <div className='flex gap-2 items-center text-ascent-2'>
-            <FaTwitterSquare className=' text-xl text-[#7e22ce]' />
+            <FaTwitterSquare className=' text-xl text-[#7e22ce]'/>
             <span>Twitter</span>
           </div>
           <div className='flex gap-2 items-center text-ascent-2'>
-            <BsFacebook className=' text-xl text-[#7e22ce]' />
+            <BsFacebook className=' text-xl text-[#7e22ce]'/>
             <span>Facebook</span>
           </div>
+        </div>
+        <div className='w-full flex flex-col gap-4 py-4 pb-6'>
+          <p className='text-ascent-1 text-lg font-semibold'>Mes ventes</p>
         </div>
       </div>
     </div>

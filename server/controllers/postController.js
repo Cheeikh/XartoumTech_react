@@ -4,422 +4,523 @@ import Posts from "../models/postModel.js";
 import cloudinary from "../utils/cloudinaryConfig.js";
 import streamifier from "streamifier";
 import User from "../models/userModel.js";
-import { createNotification } from "./notificationController.js";
+import {createNotification} from "./notificationController.js";
+import mongoose from "mongoose";
 
 export const createPost = async (req, res, next) => {
-  try {
-    const { description } = req.body;
-    const userId = req.user._id;
-    let mediaUrl = null;
-    let mediaType = null;
+    try {
+        const {description} = req.body;
+        const userId = req.user._id;
+        let mediaUrl = null;
+        let mediaType = null;
 
-    if (!description) {
-      return res
-        .status(400)
-        .json({ message: "Vous devez fournir une description" });
-    }
+        if (!description) {
+            return res
+                .status(400)
+                .json({message: "Vous devez fournir une description"});
+        }
 
-    // Vérifier et réinitialiser les crédits de l'utilisateur si nécessaire
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-    user.checkAndResetDailyCredits();
+        // Vérifier et réinitialiser les crédits de l'utilisateur si nécessaire
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({message: "Utilisateur non trouvé"});
+        }
+        user.checkAndResetDailyCredits();
 
-     // Vérifier si l'utilisateur a suffisamment de crédits
-     if (user.dailyPostCredits < 5) {
-      return res.status(403).json({ message: "Crédits insuffisants pour créer un post" });
-    }
+        // Vérifier si l'utilisateur a suffisamment de crédits
+        if (user.dailyPostCredits < 5) {
+            return res.status(403).json({message: "Crédits insuffisants pour créer un post"});
+        }
 
-     // Décrémenter les crédits de l'utilisateur
-     user.dailyPostCredits -= 5;
-     await user.save();
+        // Décrémenter les crédits de l'utilisateur
+        user.dailyPostCredits -= 5;
+        await user.save();
 
-    // Si un fichier est téléchargé, téléchargez-le sur Cloudinary
-    if (req.file) {
-      const streamUpload = (buffer) => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            {
-              folder: "posts",
-              resource_type: "auto",
-            },
-            (error, result) => {
-              if (result) {
-                resolve(result);
-              } else {
-                reject(error);
-              }
-            }
-          );
-          streamifier.createReadStream(buffer).pipe(stream);
+        // Si un fichier est téléchargé, téléchargez-le sur Cloudinary
+        if (req.file) {
+            const streamUpload = (buffer) => {
+                return new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: "posts",
+                            resource_type: "auto",
+                        },
+                        (error, result) => {
+                            if (result) {
+                                resolve(result);
+                            } else {
+                                reject(error);
+                            }
+                        }
+                    );
+                    streamifier.createReadStream(buffer).pipe(stream);
+                });
+            };
+
+            const result = await streamUpload(req.file.buffer);
+            mediaUrl = result.secure_url;
+            mediaType = result.resource_type;
+        }
+
+        const post = await Posts.create({
+            userId,
+            description,
+            media: mediaUrl,
+            mediaType: mediaType,
         });
-      };
 
-      const result = await streamUpload(req.file.buffer);
-      mediaUrl = result.secure_url;
-      mediaType = result.resource_type;
+        // Créer une notification pour le post créé
+        await createNotification(userId, userId, "new_post", post._id);
+
+        // Populer le post avec les données de l'utilisateur
+        const populatedPost = await Posts.findById(post._id).populate({
+            path: "userId",
+            select: "firstName lastName location profileUrl -password",
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Post créé avec succès",
+            data: populatedPost,
+            remainingCredits: user.dailyPostCredits,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: error.message});
     }
-
-    const post = await Posts.create({
-      userId,
-      description,
-      media: mediaUrl,
-      mediaType: mediaType,
-    });
-
-    // Créer une notification pour le post créé
-    await createNotification(userId, userId, "new_post", post._id);
-
-    // Populer le post avec les données de l'utilisateur
-    const populatedPost = await Posts.findById(post._id).populate({
-      path: "userId",
-      select: "firstName lastName location profileUrl -password",
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Post créé avec succès",
-      data: populatedPost,
-      remainingCredits: user.dailyPostCredits,
-    });
-  }  catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
 };
 
 export const getPosts = async (req, res, next) => {
-  try {
-    const { search, limit = 10, page = 1 } = req.query;
-    const skip = (page - 1) * limit;
+    try {
+        const {search, limit = 10, page = 1} = req.query;
+        const skip = (page - 1) * limit;
 
-    // Construire la requête de recherche
-    let query = {};
-    if (search) {
-      query = {
-        $or: [{ description: { $regex: search, $options: "i" } }],
-      };
+        // Construire la requête de recherche
+        let query = {};
+        if (search) {
+            query = {
+                $or: [{description: {$regex: search, $options: "i"}}],
+            };
+        }
+
+        // Récupérer les posts correspondant à la requête avec pagination
+        const posts = await Posts.find(query)
+            .populate({
+                path: "userId",
+                select: "firstName lastName location profileUrl -password",
+            })
+            .sort({createdAt: -1})
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        // Compter le nombre total de posts pour la pagination
+        const totalPosts = await Posts.countDocuments(query);
+
+        // Répondre avec les posts et les informations de pagination
+        res.status(200).json({
+            success: true,
+            message: "Posts récupérés avec succès",
+            data: posts,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(totalPosts / limit),
+                totalPosts,
+                postsPerPage: parseInt(limit),
+            },
+        });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des posts:", error);
+        res
+            .status(500)
+            .json({message: "Erreur serveur lors de la récupération des posts"});
     }
-
-    // Récupérer les posts correspondant à la requête avec pagination
-    const posts = await Posts.find(query)
-      .populate({
-        path: "userId",
-        select: "firstName lastName location profileUrl -password",
-      })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    // Compter le nombre total de posts pour la pagination
-    const totalPosts = await Posts.countDocuments(query);
-
-    // Répondre avec les posts et les informations de pagination
-    res.status(200).json({
-      success: true,
-      message: "Posts récupérés avec succès",
-      data: posts,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalPosts / limit),
-        totalPosts,
-        postsPerPage: parseInt(limit),
-      },
-    });
-  } catch (error) {
-    console.error("Erreur lors de la récupération des posts:", error);
-    res
-      .status(500)
-      .json({ message: "Erreur serveur lors de la récupération des posts" });
-  }
 };
 
 export const getPost = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+    try {
+        const {id} = req.params;
 
-    const post = await Posts.findById(id)
-      .populate({
-        path: "userId",
-        select: "firstName lastName location profileUrl -password",
-      })
-      .populate({
-        path: "comments",
-        populate: {
-          path: "userId",
-          select: "firstName lastName location profileUrl -password",
-        },
-        options: {
-          sort: { createdAt: -1 },
-        },
-      });
+        const post = await Posts.findById(id)
+            .populate({
+                path: "userId",
+                select: "firstName lastName location profileUrl -password",
+            })
+            .populate({
+                path: "comments",
+                populate: {
+                    path: "userId",
+                    select: "firstName lastName location profileUrl -password",
+                },
+                options: {
+                    sort: {createdAt: -1},
+                },
+            });
 
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+        if (!post) {
+            return res.status(404).json({message: "Post not found"});
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Post fetched successfully",
+            data: post,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: error.message});
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Post fetched successfully",
-      data: post,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
 };
 
 export const getUserPost = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+    try {
+        const {id} = req.params;
 
-    const post = await Posts.find({ userId: id })
-      .populate({
-        path: "userId",
-        select: "firstName lastName location profileUrl -password",
-      })
-      .sort({ _id: -1 });
+        const post = await Posts.find({userId: id})
+            .populate({
+                path: "userId",
+                select: "firstName lastName location profileUrl -password",
+            })
+            .sort({_id: -1});
 
-    res.status(200).json({
-      success: true,
-      message: "Posts fetched successfully",
-      data: post,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(404).json({ message: error.message });
-  }
+        res.status(200).json({
+            success: true,
+            message: "Posts fetched successfully",
+            data: post,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({message: error.message});
+    }
 };
 
 export const getComments = async (req, res, next) => {
-  try {
-    const { postId } = req.params;
+    try {
+        const {postId} = req.params;
 
-    const postComments = await Comments.find({ postId })
-      .populate({
-        path: "userId",
-        select: "firstName lastName location profileUrl -password",
-      })
-      .populate({
-        path: "replies.userId",
-        select: "firstName lastName location profileUrl -password",
-      })
-      .sort({ createdAt: -1 });
+        const postComments = await Comments.find({postId})
+            .populate({
+                path: "userId",
+                select: "firstName lastName location profileUrl -password",
+            })
+            .populate({
+                path: "replies.userId",
+                select: "firstName lastName location profileUrl -password",
+            })
+            .sort({createdAt: -1});
 
-    res.status(200).json({
-      success: true,
-      message: "Comments fetched successfully",
-      data: postComments,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
+        res.status(200).json({
+            success: true,
+            message: "Comments fetched successfully",
+            data: postComments,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: error.message});
+    }
 };
 
 export const likePost = async (req, res, next) => {
-  try {
-    const userId = req.user._id;
-    const { id } = req.params;
+    try {
+        const userId = req.user._id;
+        const {id} = req.params;
 
-    const post = await Posts.findById(id);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+        const post = await Posts.findById(id);
+        if (!post) {
+            return res.status(404).json({message: "Post not found"});
+        }
+
+        const hasLiked = post.likes.includes(userId);
+
+        if (hasLiked) {
+            post.likes.pull(userId);
+        } else {
+            post.likes.push(userId);
+            // Créer une notification pour le like
+            await createNotification(post.userId, userId, "like", id);
+        }
+
+        await post.save();
+
+        res.status(200).json({
+            success: true,
+            message: hasLiked
+                ? "Post unliked successfully"
+                : "Post liked successfully",
+            data: post,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: error.message});
     }
-
-    const hasLiked = post.likes.includes(userId);
-
-    if (hasLiked) {
-      post.likes.pull(userId);
-    } else {
-      post.likes.push(userId);
-      // Créer une notification pour le like
-      await createNotification(post.userId, userId, "like", id);
-    }
-
-    await post.save();
-
-    res.status(200).json({
-      success: true,
-      message: hasLiked
-        ? "Post unliked successfully"
-        : "Post liked successfully",
-      data: post,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
 };
 
 export const likePostComment = async (req, res, next) => {
-  const { id, rid } = req.params; // id: ID du commentaire, rid: ID de la réponse (facultatif)
-  const userId = req.user._id; // Récupération de l'ID de l'utilisateur à partir de la requête
+    const {id, rid} = req.params; // id: ID du commentaire, rid: ID de la réponse (facultatif)
+    const userId = req.user._id; // Récupération de l'ID de l'utilisateur à partir de la requête
 
-  try {
-    if (!rid) {
-      // Si rid est absent, on like un commentaire
-      const comment = await Comments.findById(id);
-      if (!comment) {
-        return res.status(404).json({ message: "Commentaire non trouvé" });
-      }
+    try {
+        if (!rid) {
+            // Si rid est absent, on like un commentaire
+            const comment = await Comments.findById(id);
+            if (!comment) {
+                return res.status(404).json({message: "Commentaire non trouvé"});
+            }
 
-      const hasLiked = comment.likes.includes(userId);
+            const hasLiked = comment.likes.includes(userId);
 
-      if (hasLiked) {
-        // Si l'utilisateur a déjà liké, on retire son like
-        comment.likes.pull(userId);
-      } else {
-        // Sinon, on ajoute le like de l'utilisateur
-        comment.likes.push(userId);
-      }
+            if (hasLiked) {
+                // Si l'utilisateur a déjà liké, on retire son like
+                comment.likes.pull(userId);
+            } else {
+                // Sinon, on ajoute le like de l'utilisateur
+                comment.likes.push(userId);
+            }
 
-      await comment.save();
+            await comment.save();
 
-      res.status(200).json({
-        success: true,
-        message: hasLiked
-          ? "Commentaire déliké avec succès"
-          : "Commentaire liké avec succès",
-        data: comment,
-      });
-    } else {
-      // Si rid est présent, on like une réponse
-      const comment = await Comments.findById(id);
-      if (!comment) {
-        return res.status(404).json({ message: "Commentaire non trouvé" });
-      }
+            res.status(200).json({
+                success: true,
+                message: hasLiked
+                    ? "Commentaire déliké avec succès"
+                    : "Commentaire liké avec succès",
+                data: comment,
+            });
+        } else {
+            // Si rid est présent, on like une réponse
+            const comment = await Comments.findById(id);
+            if (!comment) {
+                return res.status(404).json({message: "Commentaire non trouvé"});
+            }
 
-      const reply = comment.replies.id(rid);
-      if (!reply) {
-        return res.status(404).json({ message: "Réponse non trouvée" });
-      }
+            const reply = comment.replies.id(rid);
+            if (!reply) {
+                return res.status(404).json({message: "Réponse non trouvée"});
+            }
 
-      const hasLiked = reply.likes.includes(userId);
+            const hasLiked = reply.likes.includes(userId);
 
-      if (hasLiked) {
-        // Retirer le like de la réponse
-        reply.likes.pull(userId);
-      } else {
-        // Ajouter un like à la réponse
-        reply.likes.push(userId);
-      }
+            if (hasLiked) {
+                // Retirer le like de la réponse
+                reply.likes.pull(userId);
+            } else {
+                // Ajouter un like à la réponse
+                reply.likes.push(userId);
+            }
 
-      await comment.save();
+            await comment.save();
 
-      res.status(200).json({
-        success: true,
-        message: hasLiked
-          ? "Réponse délikée avec succès"
-          : "Réponse likée avec succès",
-        data: comment,
-      });
+            res.status(200).json({
+                success: true,
+                message: hasLiked
+                    ? "Réponse délikée avec succès"
+                    : "Réponse likée avec succès",
+                data: comment,
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: error.message});
     }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
 };
 
 export const commentPost = async (req, res, next) => {
-  try {
-    const { comment } = req.body;
-    const userId = req.user._id;
-    const { postId } = req.params; // id: post ID
+    try {
+        const {comment} = req.body;
+        const userId = req.user._id;
+        const {postId} = req.params; // id: post ID
 
-    if (!comment || comment.trim() === "") {
-      return res.status(400).json({ message: "Comment is required." });
+        if (!comment || comment.trim() === "") {
+            return res.status(400).json({message: "Comment is required."});
+        }
+
+        const newComment = await Comments.create({
+            comment,
+            userId,
+            postId: postId,
+        });
+
+        await Posts.findByIdAndUpdate(
+            postId,
+            {$push: {comments: newComment._id}},
+            {new: true}
+        );
+
+        // Créer une notification pour le commentaire
+        const postOwnerId = (await Posts.findById(postId)).userId; // Récupérer l'ID de l'utilisateur qui a créé le post
+        await createNotification(postOwnerId, userId, "new_comment", postId);
+
+        res.status(201).json({
+            success: true,
+            message: "Comment added successfully",
+            data: newComment,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: error.message});
     }
-
-    const newComment = await Comments.create({
-      comment,
-      userId,
-      postId: postId,
-    });
-
-    await Posts.findByIdAndUpdate(
-      postId,
-      { $push: { comments: newComment._id } },
-      { new: true }
-    );
-
-    // Créer une notification pour le commentaire
-    const postOwnerId = (await Posts.findById(postId)).userId; // Récupérer l'ID de l'utilisateur qui a créé le post
-    await createNotification(postOwnerId, userId, "new_comment", postId);
-
-    res.status(201).json({
-      success: true,
-      message: "Comment added successfully",
-      data: newComment,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
 };
 
 export const replyPostComment = async (req, res, next) => {
-  const { comment } = req.body;
-  const { commentId } = req.params; // id: comment ID
-  const userId = req.user._id;
+    const {comment} = req.body;
+    const {commentId} = req.params; // id: comment ID
+    const userId = req.user._id;
 
-  if (!comment || comment.trim() === "") {
-    return res.status(400).json({ message: "Reply is required." });
-  }
-
-  try {
-    const commentDoc = await Comments.findById(commentId);
-    if (!commentDoc) {
-      return res.status(404).json({ message: "Comment not found" });
+    if (!comment || comment.trim() === "") {
+        return res.status(400).json({message: "Reply is required."});
     }
 
-    commentDoc.replies.push({
-      comment,
-      userId,
-      replyAt: new Date(),
-    });
+    try {
+        const commentDoc = await Comments.findById(commentId);
+        if (!commentDoc) {
+            return res.status(404).json({message: "Comment not found"});
+        }
 
-    await commentDoc.save();
+        commentDoc.replies.push({
+            comment,
+            userId,
+            replyAt: new Date(),
+        });
 
-    res.status(201).json({
-      success: true,
-      message: "Reply added successfully",
-      data: commentDoc,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-  }
+        await commentDoc.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Reply added successfully",
+            data: commentDoc,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: error.message});
+    }
 };
 
 export const deletePost = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user._id;
+    try {
+        const {id} = req.params;
+        const userId = req.user._id;
 
-    const post = await Posts.findById(id);
-    if (!post) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Post not found" });
+        const post = await Posts.findById(id);
+        if (!post) {
+            return res
+                .status(404)
+                .json({success: false, message: "Post not found"});
+        }
+
+        // Vérifier si l'utilisateur est le propriétaire du post
+        if (post.userId.toString() !== userId.toString()) {
+            return res
+                .status(403)
+                .json({success: false, message: "Unauthorized to delete this post"});
+        }
+
+        await Posts.findByIdAndDelete(id);
+
+        res.status(200).json({
+            success: true,
+            message: "Post deleted successfully",
+        });
+    } catch (error) {
+        console.error("Error deleting post:", error);
+        res.status(500).json({success: false, message: error.message});
     }
+};
+export const deleteComment = async (req, res, next) => {
+    try {
+        const {postId, commentId} = req.params;
+        const userId = req.user._id;
 
-    // Vérifier si l'utilisateur est le propriétaire du post
-    if (post.userId.toString() !== userId.toString()) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Unauthorized to delete this post" });
+        // Validation des ObjectId
+        if (!mongoose.Types.ObjectId.isValid(postId) || !mongoose.Types.ObjectId.isValid(commentId)) {
+            return res.status(400).json({message: "ID de post ou de commentaire invalide"});
+        }
+
+        // Récupérer le post et vérifier son existence
+        const post = await Posts.findById(postId);
+        if (!post) {
+            return res.status(404).json({message: "Post non trouvé"});
+        }
+
+        // Récupérer le commentaire et vérifier son existence
+        const comment = await Comments.findById(commentId);
+        if (!comment) {
+            return res.status(404).json({message: "Commentaire non trouvé"});
+        }
+
+        // Vérifier que l'utilisateur est soit l'auteur du commentaire, soit l'auteur du post
+        const isCommentOwner = comment.userId.toString() === userId.toString();
+        const isPostOwner = post.userId.toString() === userId.toString();
+
+        if (!isCommentOwner && !isPostOwner) {
+            return res.status(403).json({message: "Non autorisé à supprimer ce commentaire"});
+        }
+
+        // Supprimer le commentaire
+        await Comments.findByIdAndRemove(commentId);
+
+        // Mettre à jour le post pour retirer l'ID du commentaire supprimé
+        post.comments = post.comments.filter((id) => id.toString() !== commentId);
+        await post.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Commentaire supprimé avec succès",
+        });
+    } catch (error) {
+        console.error("Erreur lors de la suppression du commentaire:", error);
+        res.status(500).json({message: error.message});
     }
+};
 
-    await Posts.findByIdAndDelete(id);
+export const updateComment = async (req, res, next) => {
+    try {
+        const { postId, commentId } = req.params;
+        const { comment } = req.body;
 
-    res.status(200).json({
-      success: true,
-      message: "Post deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    res.status(500).json({ success: false, message: error.message });
-  }
+
+        // Assure-toi que req.user est bien défini
+        const userId = req.user?._id; // Utilise l'opérateur de coalescence nulle pour éviter une erreur si req.user est undefined
+
+        if (!userId) {
+            return res.status(401).json({ message: "Utilisateur non authentifié." });
+        }
+
+        // Valider si le commentaire n'est pas vide
+        if (!comment || comment.trim() === "") {
+            return res.status(400).json({ message: "Le commentaire ne peut pas être vide." });
+        }
+
+        // Récupérer le post et vérifier son existence
+        const post = await Posts.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: "Post non trouvé." });
+        }
+
+        // Récupérer le commentaire et vérifier son existence
+        const commentDoc = await Comments.findById(commentId);
+        if (!commentDoc) {
+            return res.status(404).json({ message: "Commentaire non trouvé." });
+        }
+
+        // Vérifier si l'utilisateur est soit l'auteur du commentaire, soit l'auteur du post
+        const isCommentOwner = commentDoc.userId.toString() === userId.toString();
+        const isPostOwner = post.userId.toString() === userId.toString();
+
+        if (!isCommentOwner && !isPostOwner) {
+            return res.status(403).json({ message: "Vous n'êtes pas autorisé à modifier ce commentaire." });
+        }
+
+        // Mettre à jour le commentaire
+        commentDoc.comment = comment;
+        commentDoc.updatedAt = new Date(); // Mettre à jour la date de modification
+        await commentDoc.save(); // Vérifie que commentDoc est bien une instance de Mongoose
+
+        res.status(200).json({
+            success: true,
+            message: "Commentaire modifié avec succès.",
+            data: commentDoc,
+        });
+    } catch (error) {
+        console.error("Erreur lors de la modification du commentaire :", error);
+        res.status(500).json({ message: error.message });
+    }
 };
