@@ -85,12 +85,14 @@ const TopBar = ({ user }) => {
             className='items-center justify-center hidden md:flex'
             onSubmit={handleSubmit(handleSearch)}
         >
+          
           <TextInput
               placeholder='Search...'
               styles='w-[18rem] lg:w-[38rem] rounded-full py-3'
               register={register("search")}
           />
         </form>
+        
 
         {/* Section Profil */}
         <div className='flex items-center gap-4 text-ascent-1 text-md md:text-xl'>
@@ -163,13 +165,13 @@ const TopBar = ({ user }) => {
                   {/* Lien vers Get Coins */}
                  
 
-                  <button onClick={openModal} className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
-                  <div className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                  <div onClick={openModal} className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                  <button  className='block focus:opacity-40'>
                     <div className='flex items-center'>
                       <FaCoins size={20} className="text-[#7e22ce]"/>
                       <p className='ml-2'>Get Coins</p>
-                    </div>
                   </div> </button>
+                    </div>
                     <PaymentModeModal 
                       isOpen={isModalOpen} 
                       onClose={closeModal}

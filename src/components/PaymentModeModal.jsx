@@ -9,7 +9,7 @@ const PaymentModeModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg p-6 w-[50vw] h-[75vh] ">
+      <div className="bg-primary rounded-lg p-6 w-[50vw] h-[75vh] ">
         <div className="flex justify-end items-center mb-4 ">
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X size={24} />
