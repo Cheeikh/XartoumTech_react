@@ -15,12 +15,13 @@ import {
   MobileNavbar
 } from "../components";
 import CreditPurchase from "../components/CreditPurchase";
-import { updateUserCredits } from "../redux/userSlice"; // Importez l'action
+import { updateUserCredits } from "../redux/userSlice";
 
 const Home = () => {
   const dispatch = useDispatch();
   const { user, edit } = useSelector((state) => state.user);
   const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -33,6 +34,7 @@ const Home = () => {
         setLoading(true);
         const postsResponse = await makeRequest.get(`/posts/get-posts`);
         setPosts(postsResponse.data.data || []);
+        setFilteredPosts(postsResponse.data.data || []);
         const storiesResponse = await makeRequest.get(`/stories`);
         setStories(storiesResponse.data.data || []);
         setLoading(false);
@@ -49,7 +51,8 @@ const Home = () => {
 
   const handlePostCreated = (newPost, remainingCredits) => {
     setPosts([newPost, ...posts]);
-    dispatch(updateUserCredits(remainingCredits)); // Mise à jour des crédits dans le state global
+    setFilteredPosts([newPost, ...filteredPosts]);
+    dispatch(updateUserCredits(remainingCredits));
   };
 
   const handlePurchase = (newCreditBalance) => {
@@ -57,24 +60,27 @@ const Home = () => {
     setSuccessMsg(`Achat de crédits réussi ! Nouveau solde : ${newCreditBalance} crédit(s)`);
   };
 
+  const handleSearch = (searchResults) => {
+    console.log("Résultats de recherche reçus:", searchResults);
+    setFilteredPosts(searchResults);
+  };
+
   return (
     <div className="w-full h-screen flex flex-col px-0 lg:px-10 2xl:px-40 bg-bgColor lg:rounded-lg">
       {/* TopBar pour les écrans moyens et plus grands */}
       <div className="hidden md:block">
-        <TopBar user={user}/>
+        <TopBar user={user} onSearch={handleSearch} />
       </div>
 
       {/* MobileNavbar pour les écrans mobiles */}
       <div className="md:hidden">
         <MobileNavbar
-            isMenuOpen={isMenuOpen}
-            setIsMenuOpen={setIsMenuOpen}
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
         />
       </div>
 
 
-      {/* Suppression du bouton du menu hamburger dans Home.jsx */}
-      {/* Ce bouton est maintenant géré par MobileNavbar */}
 
 
       <div className="w-full flex gap-2 lg:gap-4 pt-5 flex-grow overflow-hidden h-full">
@@ -91,13 +97,13 @@ const Home = () => {
           <PostCreator onPostCreated={handlePostCreated} />
 
           {loading ? (
-              <Loading />
-          ) : posts?.length > 0 ? (
-              posts.map((post) => <PostCard key={post._id} post={post} />)
+            <Loading />
+          ) : filteredPosts?.length > 0 ? (
+            filteredPosts.map((post) => <PostCard key={post._id} post={post} />)
           ) : (
-              <div className="flex w-full h-full items-center justify-center">
-                <p className="text-lg text-ascent-2">Aucun post disponible</p>
-              </div>
+            <div className="flex w-full h-full items-center justify-center">
+              <p className="text-lg text-ascent-2">Aucun post disponible</p>
+            </div>
           )}
         </div>
 
@@ -110,36 +116,34 @@ const Home = () => {
       {/* Menu latéral pour mobile */}
       <AnimatePresence>
         {isMenuOpen && (
-            <div className="fixed inset-0 z-50 flex">
-              {/* Overlay */}
-              <div
-                  className="fixed inset-0 bg-black opacity-50"
-                  onClick={() => setIsMenuOpen(false)}
-              ></div>
+          <div className="fixed inset-0 z-50 flex">
+            {/* Overlay */}
+            <div
+              className="fixed inset-0 bg-black opacity-50"
+              onClick={() => setIsMenuOpen(false)}
+            ></div>
 
-              {/* Menu latéral avec effet de glissement */}
-              <motion.div
-                  key="mobile-menu"
-                  initial={{ x: '-100%' }}
-                  animate={{ x: 0 }}
-                  exit={{ x: '-100%' }}
-                  transition={{ duration: 0.3 }}
-                  className="relative w-auto bg-primary p-4 overflow-y-auto"
-              >
-                {/* Contenu du menu */}
-                <MobileNavbar
-                    isMenuOpen={isMenuOpen}
-                    setIsMenuOpen={setIsMenuOpen}
-                />
-                <ProfileCard user={user} />
-                <FriendsCard />
-                <FriendsManager />
-              </motion.div>
-            </div>
+            {/* Menu latéral avec effet de glissement */}
+            <motion.div
+              key="mobile-menu"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.3 }}
+              className="relative w-auto bg-primary p-4 overflow-y-auto"
+            >
+              {/* Contenu du menu */}
+              <MobileNavbar
+                isMenuOpen={isMenuOpen}
+                setIsMenuOpen={setIsMenuOpen}
+              />
+              <ProfileCard user={user} />
+              <FriendsCard />
+              <FriendsManager />
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
-
-
 
       {edit && <EditProfile />}
     </div>
