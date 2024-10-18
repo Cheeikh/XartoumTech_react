@@ -76,6 +76,7 @@ const Home = () => {
       {/* Suppression du bouton du menu hamburger dans Home.jsx */}
       {/* Ce bouton est maintenant géré par MobileNavbar */}
 
+
       <div className="w-full flex gap-2 lg:gap-4 pt-5 flex-grow overflow-hidden h-full">
         {/* LEFT */}
         <div className="hidden md:flex flex-col w-1/4 lg:w-1/5 gap-6 overflow-y-auto">

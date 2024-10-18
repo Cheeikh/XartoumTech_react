@@ -18,12 +18,16 @@ import { NoProfile } from "../assets";
 import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
 import { ChevronDown, Settings } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown'; // Import ajouté
+import PaymentModeModal from "./PaymentModeModal";
 
 const TopBar = ({ user }) => {
   const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch(); // Initialisation du dispatch pour envoyer des actions
   const { register, handleSubmit } = useForm(); // Initialisation du hook de gestion de formulaire
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   // États pour gérer les dropdowns
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -112,7 +116,7 @@ const TopBar = ({ user }) => {
           <h2 className='text-xl text-[#71717a] '>Hello,</h2>
           {/* Nom de l'utilisateur */}
           <h2 className='text-xl text-[#7e22ce] font-bold'>
-            {user?.user.firstName}
+            {user?.user.firstName} {user?.user.lastName}
           </h2>
 
           {/* Dropdown Profil */}
@@ -140,7 +144,7 @@ const TopBar = ({ user }) => {
                           alt="Photo de profil"
                           className='w-10 h-10 object-cover rounded-full'
                       />
-                      <p className='ml-2'>{user?.user.firstName}</p>
+                      <p className='ml-2'>{user?.user.firstName} {user?.user.lastName}</p>
                     </div>
                   </Link>
 
@@ -157,13 +161,19 @@ const TopBar = ({ user }) => {
                   </Link>
 
                   {/* Lien vers Get Coins */}
-                  <Link to='/getCoins'
-                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                 
+
+                  <button onClick={openModal} className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
+                  <div className='block px-4 py-2 text-sm text-gray-700 hover:bg-[#e4e0e7] focus:opacity-40'>
                     <div className='flex items-center'>
                       <FaCoins size={20} className="text-[#7e22ce]"/>
                       <p className='ml-2'>Get Coins</p>
                     </div>
-                  </Link>
+                  </div> </button>
+                    <PaymentModeModal 
+                      isOpen={isModalOpen} 
+                      onClose={closeModal}
+                    />
 
                   {/* Lien vers Settings */}
                   <Link to='/settings'
