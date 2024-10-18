@@ -423,3 +423,49 @@ export const deletePost = async (req, res, next) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const searchPosts = async (req, res, next) => {
+  console.log("Recherche en cours avec la requête:", req.query);
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ message: "Une requête de recherche est requise" });
+    }
+
+    // Recherche des utilisateurs correspondants
+    const users = await User.find({
+      $or: [
+        { firstName: { $regex: query, $options: "i" } },
+        { lastName: { $regex: query, $options: "i" } },
+        { profession: { $regex: query, $options: "i" } }
+      ]
+    });
+
+    const userIds = users.map(user => user._id);
+
+    // Recherche des posts correspondants
+    const posts = await Posts.find({
+      $or: [
+        { description: { $regex: query, $options: "i" } },
+        { userId: { $in: userIds } }
+      ]
+    }).populate({
+      path: "userId",
+      select: "firstName lastName location profileUrl -password",
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Recherche effectuée avec succès",
+      data: posts
+    });
+  } catch (error) {
+    console.error("Erreur lors de la recherche:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de la recherche",
+      error: error.message
+    });
+  }
+};
