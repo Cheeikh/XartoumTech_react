@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import Register from './pages/Register';
 import Login from './pages/Login';
-import { PageAchat } from './pages';
 // ... autres imports
 
 function AnimatedRoutes() {
@@ -26,22 +25,5 @@ function App() {
     </Router>
   );
 }
-
-
-const App = () => {
-  return (
-    <Router>
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 p-4">
-          <Routes>
-            <Route path="/achat" element={<PageAchat />} />
-            {/* Ajoutez d'autres routes ici si nécessaire */}
-          </Routes>
-        </div>
-      </div>
-    </Router>
-  );
-};
 
 export default App;

@@ -124,14 +124,14 @@ const NotificationDropdown = () => {
   // Générer le contenu de la notification
   const getNotificationContent = (notif) => {
     const notifTypes = {
-      like: `${notif.sender.firstName} a aimé votre publication`,
-      post: `${notif.sender.firstName} a publié une nouvelle publication`,
-      new_post: `${notif.sender.firstName} a publié un nouveau post`,
-      friend_request: `${notif.sender.firstName} vous a envoyé une demande d'ami`,
-      friend_accept: `${notif.sender.firstName} a accepté votre demande d'ami`,
-      group_invite: `${notif.sender.firstName} vous a invité à rejoindre un groupe`,
-      event_invite: `${notif.sender.firstName} vous a invité à un événement`,
-      new_comment: `${notif.sender.firstName} a commenté votre publication`,
+      like: `${notif.sender?.firstName} a aimé votre publication`,
+      post: `${notif.sender?.firstName} a publié une nouvelle publication`,
+      new_post: `${notif.sender?.firstName} a publié un nouveau post`,
+      friend_request: `${notif.sender?.firstName} vous a envoyé une demande d'ami`,
+      friend_accept: `${notif.sender?.firstName} a accepté votre demande d'ami`,
+      group_invite: `${notif.sender?.firstName} vous a invité à rejoindre un groupe`,
+      event_invite: `${notif.sender?.firstName} vous a invité à un événement`,
+      new_comment: `${notif.sender?.firstName} a commenté votre publication`,
     };
 
     let content = notifTypes[notif.type] || "Nouvelle notification";
@@ -210,7 +210,7 @@ const NotificationDropdown = () => {
         onClick={() => handleNotificationClick(notif)} // Ajout du gestionnaire de clic
       >
         <img
-          src={notif.sender.profileUrl ?? NoProfile}
+          src={notif.sender?.profileUrl ?? NoProfile}
           alt="User Image"
           className="object-cover w-10 h-10 rounded-full"
         />
