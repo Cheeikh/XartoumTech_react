@@ -110,7 +110,7 @@ const TopBar = ({ onSearch }) => {
           {theme === "light" ? <BsMoon size={20}/> : <BsSunFill size={20}/>}
         </button>
 
-        <h2 className='text-xl text-[#71717a]'>Hello,</h2>
+        <h2 className='text-xl text-[#71717a]'>Bonjour,</h2>
         <h2 className='text-xl text-[#7e22ce] font-bold'>
           {user?.firstName} {user?.lastName}
         </h2>
