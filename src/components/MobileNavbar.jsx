@@ -183,7 +183,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                         <input
                             type="text"
                             placeholder="Rechercher ou démarrer une nouvelle discussion"
-                            className="w-full p-2 pl-10 bg-gray-100 rounded-lg"
+                            className="w-full p-2 pl-10 bg-bgColor rounded-lg"
                             value={searchTerm}
                             onChange={handleSearch}
                         />
@@ -197,7 +197,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                 searchResults.map((user) => (
                                     <div
                                         key={user._id}
-                                        className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
+                                        className="p-2 hover:bg-bgColor cursor-pointer flex items-center space-x-3"
                                         onClick={() => handleSelectConversation({ participants: [user], _id: user._id })}
                                     >
                                         <img src={user.profileUrl || NoProfile} alt="Profile" className="w-8 h-8 rounded-full" />
@@ -211,7 +211,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                     return (
                                         <div
                                             key={conv._id}
-                                            className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
+                                            className="p-2 hover:bg-bgColor cursor-pointer flex items-center space-x-3"
                                             onClick={() => handleSelectConversation(conv)}
                                         >
                                             <img src={participant.profileUrl || NoProfile} alt="Profile" className="w-8 h-8 rounded-full" />

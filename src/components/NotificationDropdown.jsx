@@ -204,7 +204,7 @@ const NotificationDropdown = () => {
     return (
       <li
         key={notif._id}
-        className={`p-2 mb-2 rounded hover:bg-gray-100 flex items-center space-x-2 ${
+        className={`p-2 mb-2 rounded hover:bg-bgColor flex items-center space-x-2 ${
           !notif.read ? "bg-blue-100" : ""
         }`}
         onClick={() => handleNotificationClick(notif)} // Ajout du gestionnaire de clic

@@ -72,18 +72,7 @@ const Home = () => {
         <TopBar user={user} onSearch={handleSearch} />
       </div>
 
-      {/* MobileNavbar pour les écrans mobiles */}
-      <div className="md:hidden">
-        <MobileNavbar
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
-        />
-      </div>
-
-
-
-
-      <div className="w-full flex gap-2 lg:gap-4 pt-5 flex-grow overflow-hidden h-full">
+      <div className="w-full flex gap-2 lg:gap-4 pt-5 flex-grow overflow-hidden h-full pb-16 md:pb-0">
         {/* LEFT */}
         <div className="hidden md:flex flex-col w-1/4 lg:w-1/5 gap-6 overflow-y-auto">
           <CreditPurchase currentCredits={user.dailyPostCredits || 0} onPurchase={handlePurchase} />
@@ -116,7 +105,7 @@ const Home = () => {
       {/* Menu latéral pour mobile */}
       <AnimatePresence>
         {isMenuOpen && (
-          <div className="fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 z-40 flex">
             {/* Overlay */}
             <div
               className="fixed inset-0 bg-black opacity-50"
@@ -130,13 +119,9 @@ const Home = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ duration: 0.3 }}
-              className="relative w-auto bg-primary p-4 overflow-y-auto"
+              className="relative w-3/4 bg-primary p-4 overflow-y-auto"
             >
               {/* Contenu du menu */}
-              <MobileNavbar
-                isMenuOpen={isMenuOpen}
-                setIsMenuOpen={setIsMenuOpen}
-              />
               <ProfileCard user={user} />
               <FriendsCard />
               <FriendsManager />
@@ -144,6 +129,14 @@ const Home = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* MobileNavbar pour les écrans mobiles */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+        <MobileNavbar
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+        />
+      </div>
 
       {edit && <EditProfile />}
     </div>

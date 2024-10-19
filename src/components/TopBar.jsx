@@ -18,7 +18,10 @@ import { ChevronDown, Settings } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
 import PaymentModeModal from "./PaymentModeModal";
 
-const TopBar = ({ user, onSearch }) => {
+const TopBar = ({ onSearch }) => {
+  var { user } = useSelector((state) => state.user);
+  user=user.user;
+  
   const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -109,7 +112,7 @@ const TopBar = ({ user, onSearch }) => {
 
         <h2 className='text-xl text-[#71717a]'>Hello,</h2>
         <h2 className='text-xl text-[#7e22ce] font-bold'>
-          {user?.user.firstName} {user?.user.lastName}
+          {user?.firstName} {user?.lastName}
         </h2>
 
         <div className='relative' ref={profileRef}>
@@ -118,7 +121,7 @@ const TopBar = ({ user, onSearch }) => {
             className='flex items-center focus:outline-none'
           >
             <img
-              src={user?.user.profileUrl ?? NoProfile}
+              src={user?.profileUrl ?? NoProfile}
               alt="Photo de profil"
               className='w-10 h-10 object-cover rounded-full'
             />
@@ -127,14 +130,14 @@ const TopBar = ({ user, onSearch }) => {
 
           {isProfileOpen && (
             <div className='absolute right-0 mt-2 w-48 bg-primary rounded-md shadow-xl z-10'>
-              <Link to='/profile' className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'>
+              <Link to='/profile' className='block px-4 py-2 text-sm text-gray-700 hover:bg-bgColor'>
                 <div className='flex items-center border-b-2 hover:bg-[#e4e0e7]'>
                   <img
-                    src={user?.user.profileUrl ?? NoProfile}
+                    src={user?.profileUrl ?? NoProfile}
                     alt="Photo de profil"
                     className='w-10 h-10 object-cover rounded-full'
                   />
-                  <p className='ml-2'>{user?.user.firstName} {user?.user.lastName}</p>
+                  <p className='ml-2'>{user?.firstName} {user?.lastName}</p>
                 </div>
               </Link>
 
