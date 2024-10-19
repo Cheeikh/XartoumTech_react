@@ -319,7 +319,7 @@ function Stories() {
     <div className="relative">
       <button 
         onClick={handleScrollLeft} 
-        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md z-10"
+        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-primary rounded-full p-1 shadow-md z-10"
         style={{ display: scrollPosition > 0 ? 'block' : 'none' }}
       >
         <ChevronLeft size={24} />
@@ -330,7 +330,7 @@ function Stories() {
         className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth" 
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div className="flex-shrink-0 flex flex-col items-center cursor-pointer" onClick={handleCreateStory}>
+        <div className="flex-shrink-0 flex flex-col items-center cursor-pointer text-ascent-1" onClick={handleCreateStory}>
           <div className="w-20 h-20 rounded-full border-4 border-[#9a00d7] flex items-center justify-center bg-gray-200">
             <Plus size={32} color="#9a00d7" />
           </div>
@@ -339,14 +339,14 @@ function Stories() {
         {stories.map((story) => (
           <div key={story._id} className="flex-shrink-0 flex flex-col items-center cursor-pointer" onClick={() => handleStoryClick(story)}>
             <img src={story.user.profileUrl} alt={story.user.firstName} className="w-20 h-20 rounded-full border-4 border-[#9a00d7]" />
-            <p className="mt-2 text-sm">{story.user.firstName}</p>
+            <p className="mt-2 text-sm text-ascent-1">{story.user.firstName}</p>
           </div>
         ))}
       </div>
   
       <button 
         onClick={handleScrollRight} 
-        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md z-10"
+        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-primary rounded-full p-1 shadow-md z-10"
         style={{ display: storiesContainerRef.current && scrollPosition < storiesContainerRef.current.scrollWidth - storiesContainerRef.current.clientWidth ? 'block' : 'none' }}
       >
         <ChevronRight size={24} />
@@ -361,7 +361,7 @@ function Stories() {
               {selectedStory.content.map((_, index) => (
                 <div key={index} className="flex-1 h-1 bg-gray-400 mx-1">
                   <div 
-                    className="h-full bg-white" 
+                    className="h-full bg-primary" 
                     style={{ 
                       width: `${index === currentContentIndex ? progress : index < currentContentIndex ? 100 : 0}%`,
                       transition: 'width 0.1s linear'
@@ -379,7 +379,7 @@ function Stories() {
               />
             ) : (
               videoError ? (
-                <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white">
+                <div className="w-full h-full flex items-center justify-center bg-gray-800 text-ascent-1">
                   Impossible de charger la vidéo
                 </div>
               ) : (
@@ -396,21 +396,21 @@ function Stories() {
             {/* Informations de l'utilisateur */}
             <div className="absolute top-4 left-4 flex items-center">
               <img src={selectedStory.user.profileUrl} alt={selectedStory.user.firstName} className="w-8 h-8 rounded-full mr-2" />
-              <p className="text-white font-semibold">{selectedStory.user.firstName}</p>
+              <p className="text-ascent-1 font-semibold">{selectedStory.user.firstName}</p>
             </div>
             {/* Bouton de fermeture */}
-            <button onClick={closeStory} className="absolute top-4 right-4 text-white">
+            <button onClick={closeStory} className="absolute top-4 right-4 text-ascent-1">
               <X size={24} />
             </button>
             {/* Boutons de navigation */}
-            <button onClick={handlePrevContent} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white">
+            <button onClick={handlePrevContent} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-ascent-1">
               <ChevronLeft size={32} />
             </button>
-            <button onClick={handleNextContent} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white">
+            <button onClick={handleNextContent} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-ascent-1">
               <ChevronRight size={32} />
             </button>
             {/* Description et actions */}
-            <div className="absolute bottom-4 left-4 right-4 text-white">
+            <div className="absolute bottom-4 left-4 right-4 text-ascent-1">
               <p className={`${isDescriptionExpanded ? '' : 'line-clamp-2'} mb-2`}>
                 {selectedStory.content[currentContentIndex].description}
               </p>
@@ -446,7 +446,7 @@ function Stories() {
           {/* Modal des commentaires à l'intérieur du modal des stories */}
           {showComments && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+              <div className="bg-primary rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
                 <h3 className="text-xl font-bold mb-4">Commentaires</h3>
                 <div className="space-y-4 mb-4">
                   {comments[selectedStory._id]?.[currentContentIndex]?.map((comment, index) => (
@@ -469,7 +469,7 @@ function Stories() {
                   />
                   <button
                     onClick={() => handleComment(selectedStory._id, currentContentIndex)}
-                    className="bg-[#9a00d7] text-white px-4 py-2 rounded-full"
+                    className="bg-[#9a00d7] text-ascent-1 px-4 py-2 rounded-full"
                   >
                     Envoyer
                   </button>
@@ -488,7 +488,7 @@ function Stories() {
   
       {showCreateStoryPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-primary rounded-lg p-6 w-full max-w-md">
             <h2 className="text-2xl font-bold mb-4">Créer une story</h2>
             <form onSubmit={handleSubmit(handleStorySubmit)}>
               <TextInput
@@ -561,7 +561,7 @@ function Stories() {
                 <CustomButton
                   type="submit"
                   title={creating ? "Création..." : "Créer"}
-                  containerStyles="bg-[#9a00d7] text-white py-1 px-2 rounded-md"
+                  containerStyles="bg-[#9a00d7] text-ascent-1 py-1 px-2 rounded-md"
                   disabled={creating || !file}
                 />
               </div>

@@ -135,7 +135,7 @@ const CommentForm = ({ user, postId, parentId = null, refreshComments }) => {
           <CustomButton
             title="Soumettre"
             type="submit"
-            containerStyles="bg-[#9a00d7] text-white py-1 px-3 rounded-full font-semibold text-sm"
+            containerStyles="bg-[#9a00d7] text-ascent-1 py-1 px-3 rounded-full font-semibold text-sm"
           />
         )}
       </div>
