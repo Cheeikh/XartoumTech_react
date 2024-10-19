@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { makeRequest } from "../axios";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -46,13 +46,26 @@ const MessagerieView = () => {
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [socket, setSocket] = useState(null);
 
-  useEffect(() => {
-    const newSocket = io("http://localhost:8000"); // Assurez-vous que cette URL est correcte
-    setSocket(newSocket);
+  // Fonction pour récupérer les messages
+  const fetchMessages = useCallback(async () => {
+    if (selectedConversation) {
+      try {
+        const response = await makeRequest.get(`/messages/messages/${selectedConversation._id}`);
+        setMessages(response.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des messages:', error);
+      }
+    }
+  }, [selectedConversation]);
 
+  // Effet pour initialiser la connexion socket
+  useEffect(() => {
+    const newSocket = io("http://localhost:8000");
+    setSocket(newSocket);
     return () => newSocket.close();
   }, []);
 
+  // Effet pour écouter les nouveaux messages via socket
   useEffect(() => {
     if (socket === null) return;
 
@@ -66,6 +79,15 @@ const MessagerieView = () => {
       socket.off('receiveMessage');
     };
   }, [socket, selectedConversation]);
+
+  // Effet pour actualiser les messages toutes les 2 secondes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [fetchMessages]);
 
   useEffect(() => {
     if (audioBlob) {
@@ -102,15 +124,6 @@ const MessagerieView = () => {
     }
   };
 
-  const fetchMessages = async () => {
-    try {
-      const response = await makeRequest.get(`/messages/messages/${selectedConversation._id}`);
-      setMessages(response.data);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des messages:', error);
-    }
-  };
-
   const fetchContacts = async () => {
     try {
       const response = await makeRequest.get('/users/friends');
@@ -130,12 +143,7 @@ const MessagerieView = () => {
     }
     setSelectedConversation(conversation);
     socket.emit('joinRoom', conversation._id);
-    try {
-      const response = await makeRequest.get(`/messages/messages/${conversation._id}`);
-      setMessages(response.data);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des messages:', error);
-    }
+    await fetchMessages();
   };
 
   const handleSendMessage = async () => {
