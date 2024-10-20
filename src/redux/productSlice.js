@@ -10,6 +10,29 @@ export const fetchProducts = createAsyncThunk(
   }
 );
 
+export const addProduct = createAsyncThunk(
+  'product/addProduct',
+  async (productData, { getState }) => {
+    const { user } = getState().user;
+    if (!user || !['styliste', 'tailleur', 'vendeur'].includes(user.role.toLowerCase())) {
+      throw new Error("Vous n'avez pas l'autorisation d'ajouter un produit.");
+    }
+    // Remplacez ceci par votre véritable appel API
+    const response = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.token}`,
+      },
+      body: JSON.stringify(productData),
+    });
+    if (!response.ok) {
+      throw new Error("Erreur lors de l'ajout du produit");
+    }
+    return await response.json();
+  }
+);
+
 const initialState = {
   products: [],
   favorites: [],
@@ -71,6 +94,17 @@ const productSlice = createSlice({
         state.products = action.payload;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(addProduct.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(addProduct.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.products.push(action.payload);
+      })
+      .addCase(addProduct.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });

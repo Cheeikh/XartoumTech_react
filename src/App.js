@@ -5,6 +5,8 @@ import FavoritesPage from './pages/FavoritesPage';
 import PinnedPage from './pages/PinnedPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from "./pages/CheckoutPage";
+import AjouterArticle from "./components/AjouterArticle";
+
 // import CustomOrderForm from './components/CustomOrderForm'; 
 
 
@@ -42,6 +44,8 @@ function App() {
           <Route path="/pinned" element={<PinnedPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/ajouter-article" element={<AjouterArticle />} />
+
           {/* <Route path="/custom-order" element={<CustomOrderForm />} /> */}
           
         </Routes>

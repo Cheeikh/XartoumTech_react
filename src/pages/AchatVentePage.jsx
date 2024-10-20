@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Layout from '../components/Layout';
+import { canAddProducts } from '../redux/userSlice';
+import { addProduct } from '../redux/productSlice';
 
 const AchatVentePage = () => {
   const [produitsVedettes, setProduitsVedettes] = useState([]);
@@ -11,9 +13,18 @@ const AchatVentePage = () => {
   const [tousLesProduits, setTousLesProduits] = useState([]);
   const [categorieSelectionnee, setCategorieSelectionnee] = useState(null);
   const [diapositiveCourante, setDiapositiveCourante] = useState(0);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    nom: '',
+    categorie: '',
+    prix: '',
+    image: ''
+  });
 
   const navigate = useNavigate();
-  const user = useSelector(state => state.user);
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user.user);
+  const userCanAddProducts = useSelector(canAddProducts);
 
   const categories = [
     "TISSUS", "MERCERIE", "MACHINES", "OUTILS", "PATRONS", "ÉQUIPEMENT", "FORMATIONS", "VENTE FLASH"
@@ -31,7 +42,7 @@ const AchatVentePage = () => {
         { id: 6, nom: "Machine à coudre portable", categorie: "MACHINES", prix: 75000, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBWCfPLtsdq4Bb23NBIOyXqKdGTEDFlgyrQ9LNOl3lrdOHAHgj85d4xkggK_U2ZTN15AA&usqp=CAU" },
         { id: 7, nom: "Ciseaux de précision", categorie: "OUTILS", prix: 8000, image: "https://i.ebayimg.com/images/g/zA0AAOSwpLle7ytz/s-l640.jpg" },
         { id: 8, nom: "Mannequin ajustable", categorie: "ÉQUIPEMENT", prix: 50000, image: "https://i.ytimg.com/vi/VHrD7_mWVKw/maxresdefault.jpg" },
-        { id: 9, nom: "Tissu soie naturelle", categorie:  "TISSUS", prix: 12000, image: "https://sunushopping.com/wp-content/uploads/2021/09/TWO-M-tourkie-ndiareme.png" },
+        { id: 9, nom: "Tissu soie naturelle", categorie: "TISSUS", prix: 12000, image: "https://sunushopping.com/wp-content/uploads/2021/09/TWO-M-tourkie-ndiareme.png" },
         { id: 10, nom: "Lot de boutons vintage", categorie: "MERCERIE", prix: 3000, image: "https://www.cdiscount.com/pdt2/7/8/5/1/300x300/mp58450785/rw/1-5-ans-bebe-enfant-fille-vetements-d-ete-robe-dos.jpg" },
         { id: 11, nom: "Fil à broder multicolore", categorie: "MERCERIE", prix: 1500, image: "https://i.pinimg.com/736x/0a/ae/55/0aae55ba49ee0cb848b627dce061c565.jpg" },
         { id: 12, nom: "Patrons de mode été", categorie: "PATRONS", prix: 5000, image: "https://m.media-amazon.com/images/I/51cK4OsKWPL._AC_SY445_.jpg" },
@@ -67,6 +78,18 @@ const AchatVentePage = () => {
     navigate(`/product/${produit.id}`, { state: { product: produit } });
   };
 
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    dispatch(addProduct(newProduct));
+    setShowAddForm(false);
+    setNewProduct({ nom: '', categorie: '', prix: '', image: '' });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewProduct(prev => ({ ...prev, [name]: value }));
+  };
+
   const produitsFiltres = categorieSelectionnee
     ? filtrerProduitsParCategorie(categorieSelectionnee)
     : tousLesProduits;
@@ -92,11 +115,69 @@ const AchatVentePage = () => {
           </ul>
         </nav>
 
+        {/* Formulaire d'ajout de produit */}
+        {userCanAddProducts && (
+          <div className="mb-8">
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="bg-purple-700 text-white px-4 py-2 rounded"
+            >
+              {showAddForm ? 'Annuler' : 'Ajouter un produit'}
+            </button>
+            {showAddForm && (
+              <form onSubmit={handleAddProduct} className="mt-4 space-y-4">
+                <input
+                  type="text"
+                  name="nom"
+                  value={newProduct.nom}
+                  onChange={handleInputChange}
+                  placeholder="Nom du produit"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+                <select
+                  name="categorie"
+                  value={newProduct.categorie}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border rounded"
+                  required
+                >
+                  <option value="">Sélectionnez une catégorie</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  name="prix"
+                  value={newProduct.prix}
+                  onChange={handleInputChange}
+                  placeholder="Prix"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+                <input
+                  type="text"
+                  name="image"
+                  value={newProduct.image}
+                  onChange={handleInputChange}
+                  placeholder="URL de l'image"
+                  className="w-full p-2 border rounded"
+                  required
+                />
+                <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">
+                  Ajouter le produit
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
         {categorieSelectionnee ? (
           // Affichage des produits filtrés par catégorie
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-4">{categorieSelectionnee}</h2>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {produitsFiltres.map(produit => (
                 <div key={produit.id} className="border p-4 cursor-pointer" onClick={() => handleProductClick(produit)}>
                   <img src={produit.image} alt={produit.nom} className="w-full h-48 object-cover mb-2" />
@@ -139,7 +220,7 @@ const AchatVentePage = () => {
                 <h2 className="text-2xl font-bold">NOS MEILLEURES VENTES</h2>
                 <a href="#" className="text-purple-700">Voir tout</a>
               </div>
-              <div className="grid grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {meilleuresVentes.map(produit => (
                   <div key={produit.id} className="border p-4 cursor-pointer" onClick={() => handleProductClick(produit)}>
                     <img src={produit.image} alt={produit.nom} className="w-full h-48 object-cover mb-2" />
@@ -157,10 +238,10 @@ const AchatVentePage = () => {
                 <h2 className="text-2xl font-bold">DERNIERS EN VENTE</h2>
                 <a href="#" className="text-purple-700">Voir tout</a>
               </div>
-              <div className="grid grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {nouveautes.map(produit => (
                   <div key={produit.id} className="border p-4 cursor-pointer" onClick={() => handleProductClick(produit)}>
-                    <img src={produit.image} alt={produit.nom} className="w-full h-64 object-cover mb-2" />
+<img src={produit.image} alt={produit.nom} className="w-full h-64 object-cover mb-2" />
                     <p className="text-sm text-gray-600">{produit.categorie}</p>
                     <h3 className="font-semibold">{produit.nom}</h3>
                     <p className="text-purple-700 font-bold">{produit.prix} FCFA</p>

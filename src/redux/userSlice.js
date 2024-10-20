@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
   edit: false,
-  friends: [], // Ajout d'un état pour les amis
+  friends: [],
 };
 
 const userSlice = createSlice({
@@ -35,6 +35,12 @@ const userSlice = createSlice({
 });
 
 export const { login, logout, updateProfile, updateUser, updateProfileModal, setFriends } = userSlice.actions;
+
+export const canAddProducts = (state) => {
+  const allowedRoles = ['styliste', 'tailleur', 'vendeur'];
+  return state.user && state.user.role && allowedRoles.includes(state.user.role.toLowerCase());
+};
+
 export default userSlice.reducer;
 
 // Actions Thunk
@@ -49,12 +55,15 @@ export const Logout = () => (dispatch) => {
 export const UpdateProfile = (val) => (dispatch) => {
   dispatch(updateProfile(val));
 };
+
 export const UpdateUser = (user) => (dispatch) => {
   dispatch(updateUser(user));
 };
+
 export const UpdateProfileModal = (val) => (dispatch) => {
   dispatch(updateProfileModal(val));
 };
+
 export const UpdateFriends = (friends) => (dispatch) => {
   dispatch(setFriends(friends));
 };
