@@ -31,10 +31,25 @@ const userSlice = createSlice({
     setFriends(state, action) {
       state.friends = action.payload;
     },
+    updateUserCredits(state, action) {
+      if (state.user && state.user.user) {
+        state.user.user.dailyPostCredits = action.payload;
+        localStorage.setItem("user", JSON.stringify(state.user));
+      }
+    },
   },
 });
 
-export const { login, logout, updateProfile, updateUser, updateProfileModal, setFriends } = userSlice.actions;
+
+export const { 
+  login, 
+  logout, 
+  updateProfile, 
+  updateUser, 
+  updateProfileModal, 
+  setFriends,
+  updateUserCredits 
+} = userSlice.actions;
 
 export const canAddProducts = (state) => {
   const allowedRoles = ['styliste', 'tailleur', 'vendeur'];
@@ -68,3 +83,6 @@ export const UpdateFriends = (friends) => (dispatch) => {
   dispatch(setFriends(friends));
 };
 
+export const UpdateUserCredits = (credits) => (dispatch) => {
+  dispatch(updateUserCredits(credits));
+};

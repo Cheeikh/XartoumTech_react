@@ -19,22 +19,30 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is Required!"],
       minlength: [6, "Password length should be greater than 6 characters"],
-      select: false, // Le mot de passe est généralement exclu par défaut
+
+      select: true,
     },
-    location: { type: String },
-    profileUrl: { type: String },
-    profession: { type: String },
+    location: {
+      type: String,
+    },
+    profileUrl: {
+      type: String,
+    },
+    profession: {
+      type: String,
+    },
     friends: [{ type: Schema.Types.ObjectId, ref: "Users" }],
     views: [{ type: Schema.Types.ObjectId, ref: "Users" }],
-    verified: { type: Boolean, default: false },
-    following: [{ type: Schema.Types.ObjectId, ref: "Users" }], // Utilisateurs suivis
-    followers: [{ type: Schema.Types.ObjectId, ref: "Users" }], // Utilisateurs qui suivent
-
-    // Champs supplémentaires
+    verified: {
+      type: Boolean,
+      default: false,
+    },
+    // Nouveau champ pour le compteur de crédits
     dailyPostCredits: {
       type: Number,
-      default: 5, // Crédits par défaut
+      default: 5, // Nombre de crédits par défaut, à ajuster selon vos besoins
     },
+    // Champ pour suivre la dernière réinitialisation des crédits
     lastCreditReset: {
       type: Date,
       default: Date.now,
@@ -47,27 +55,22 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Méthode pour vérifier et réinitialiser les crédits quotidiens
-userSchema.methods.checkAndResetDailyCredits = function () {
+
+userSchema.methods.checkAndResetDailyCredits = function() {
   const now = new Date();
   const lastReset = this.lastCreditReset;
-
-  // Comparer les dates (jour, mois, année)
-  if (
-    now.getDate() !== lastReset.getDate() ||
-    now.getMonth() !== lastReset.getMonth() ||
-    now.getFullYear() !== lastReset.getFullYear()
-  ) {
-    this.dailyPostCredits = 5; // Réinitialiser à la valeur par défaut
+  
+  if (now.getDate() !== lastReset.getDate() || now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear()) {
+    this.dailyPostCredits = 1; // Réinitialiser à la valeur par défaut
     this.lastCreditReset = now;
     return true; // Indique que les crédits ont été réinitialisés
   }
-
-  return false; // Aucun réajustement
+  
+  return false; // Indique que les crédits n'ont pas été réinitialisés
 };
 
 // Méthode pour utiliser un crédit
-userSchema.methods.usePostCredit = function () {
+userSchema.methods.usePostCredit = function() {
   if (this.dailyPostCredits > 0) {
     this.dailyPostCredits -= 1;
     return true; // Crédit utilisé avec succès
@@ -75,8 +78,17 @@ userSchema.methods.usePostCredit = function () {
   return false; // Pas assez de crédits
 };
 
+//methode pour utiliser un crédit
+userSchema.methods.checkAndResetDailyCredits = function() {
+/*   const now = new Date();
+  const lastReset = this.lastCreditReset;
+  if (now.getDate() !== lastReset.getDate() || now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear()) {
+    this.dailyPostCredits = 5;
+    this.lastCreditReset = now;
+  } */
+};
 // Nouvelle méthode pour ajouter des crédits achetés
-userSchema.methods.addPurchasedCredits = async function (amount) {
+userSchema.methods.addPurchasedCredits = async function(amount) {
   this.dailyPostCredits += amount;
   await this.save();
   return this;

@@ -10,6 +10,8 @@ import dbConnection from "./dbConfig/index.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import router from "./routes/index.js";
 import messageRoutes from './routes/messageRoutes.js';
+import http from "http";
+import { Server } from "socket.io";
 
 const __dirname = path.resolve(path.dirname(""));
 
@@ -48,6 +50,36 @@ app.use('/messages', messageRoutes);
 // Error middleware
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:3000", "https://frontend-app-rz13.onrender.com"],
+    credentials: true,
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('Nouvelle connexion socket:', socket.id);
+
+  socket.on('joinRoom', (conversationId) => {
+    socket.join(conversationId);
+  });
+
+  socket.on('leaveRoom', (conversationId) => {
+    socket.leave(conversationId);
+  });
+
+  socket.on('sendMessage', (message) => {
+    io.to(message.conversationId).emit('receiveMessage', message);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Déconnexion socket:', socket.id);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Server running on port: ${PORT}`);
 });

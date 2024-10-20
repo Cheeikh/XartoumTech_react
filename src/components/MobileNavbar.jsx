@@ -1,8 +1,11 @@
 // MobileNavbar.jsx
-import React, { useState, useRef, useEffect } from 'react';
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     Home, Menu, Moon, Sun, LogOut, X, Send, Search, MoreVertical,
     Smile, Paperclip, Mic, Play, Pause, Square, UserPlus,
+    Video,
+    Image as ImageIcon,
 } from 'lucide-react';
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,6 +14,9 @@ import { Logout } from "../redux/userSlice";
 import { makeRequest } from "../axios";
 import { NoProfile } from "../assets";
 import EmojiPicker from 'emoji-picker-react';
+
+import { MediaPreviewModal } from '../components/Messagerie';
+import { useSocket } from '../context/SocketContext';
 
 const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
     const dispatch = useDispatch();
@@ -34,6 +40,21 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
     const mediaRecorderRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentAudio, setCurrentAudio] = useState(null);
+
+    const [previewMedia, setPreviewMedia] = useState(null);
+    const [mediaType, setMediaType] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadingMedia, setUploadingMedia] = useState(null);
+    const [videoThumbnail, setVideoThumbnail] = useState(null);
+    const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+    const audioPreviewRef = useRef(null);
+    const [audioProgress, setAudioProgress] = useState({});
+    const [audioDurations, setAudioDurations] = useState({});
+    const [audioUrl, setAudioUrl] = useState(null);
+    const audioChunksRef = useRef([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const { socket } = useSocket();
+    const [showMediaUploadOptions, setShowMediaUploadOptions] = useState(false);
 
     useEffect(() => {
         fetchUser();
@@ -166,8 +187,260 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
         };
     }, []);
 
-    // Fonctions supplémentaires pour l'enregistrement audio, l'envoi de fichiers, etc.
-    // Vous pouvez réutiliser les fonctions de MessagerieView ici.
+
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file || !selectedConversation) return;
+
+        const previewUrl = URL.createObjectURL(file);
+        setPreviewMedia(previewUrl);
+        setSelectedFile(file);
+        setMediaType('image');
+    };
+
+    const handleVideoUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file || !selectedConversation) return;
+
+        const previewUrl = URL.createObjectURL(file);
+        setPreviewMedia(previewUrl);
+        setSelectedFile(file);
+        setMediaType('video');
+
+        generateVideoThumbnail(file);
+    };
+
+    const generateVideoThumbnail = (file) => {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = () => {
+            video.currentTime = 1;
+        };
+        video.oncanplay = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const thumbnailUrl = canvas.toDataURL();
+            setVideoThumbnail(thumbnailUrl);
+        };
+        video.src = URL.createObjectURL(file);
+    };
+
+    const handleConfirmMediaUpload = async () => {
+        if (!selectedFile || !selectedConversation) return;
+
+        const formData = new FormData();
+        formData.append(mediaType, selectedFile);
+        formData.append('conversationId', selectedConversation._id);
+
+        setIsUploading(true);
+
+        try {
+            const tempMessage = {
+                _id: Date.now(),
+                sender: user,
+                messageType: 'loading',
+                content: `Chargement du ${mediaType}...`,
+                createdAt: new Date(),
+                previewUrl: mediaType === 'video' ? videoThumbnail : URL.createObjectURL(selectedFile),
+            };
+            setMessages(prevMessages => [...prevMessages, tempMessage]);
+
+            const response = await makeRequest.post(`/messages/${mediaType}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            setMessages(prevMessages => prevMessages.filter(msg => msg._id !== tempMessage._id));
+            
+            const newMessage = response.data;
+            setMessages(prevMessages => [...prevMessages, newMessage]);
+            
+            // Émettre le message via socket
+            if (socket) {
+                socket.emit('sendMessage', {
+                    ...newMessage,
+                    conversationId: selectedConversation._id
+                });
+            }
+        } catch (error) {
+            console.error(`Erreur lors de l'envoi du ${mediaType}:`, error);
+        } finally {
+            setIsUploading(false);
+            setPreviewMedia(null);
+            setSelectedFile(null);
+            setMediaType(null);
+            setVideoThumbnail(null);
+        }
+    };
+
+    const handleCancelMediaUpload = () => {
+        setPreviewMedia(null);
+        setSelectedFile(null);
+        setMediaType(null);
+        URL.revokeObjectURL(previewMedia);
+    };
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                setAudioBlob(audioBlob);
+                setAudioUrl(audioUrl);
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+        } catch (error) {
+            console.error("Erreur lors de l'accès au microphone:", error);
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+        }
+    };
+
+    const sendAudioMessage = async () => {
+        if (!audioBlob || !selectedConversation) return;
+
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'audio.webm');
+        formData.append('conversationId', selectedConversation._id);
+
+        try {
+            const response = await makeRequest.post('/messages/audio', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            const newMessage = response.data;
+            setMessages(prevMessages => [...prevMessages, newMessage]);
+
+            if (socket) {
+                socket.emit('sendMessage', {
+                    ...newMessage,
+                    conversationId: selectedConversation._id
+                });
+            }
+
+            // Réinitialiser l'état de l'enregistrement audio
+            setAudioBlob(null);
+            setAudioUrl(null);
+        } catch (error) {
+            console.error("Erreur lors de l'envoi du message audio:", error);
+        }
+    };
+
+    const handleMediaUpload = (event) => {
+        const file = event.target.files[0];
+        if (!file || !selectedConversation) return;
+
+        if (file.type.startsWith('image/')) {
+            handleImageUpload({ target: { files: [file] } });
+        } else if (file.type.startsWith('video/')) {
+            handleVideoUpload({ target: { files: [file] } });
+        }
+        setShowMediaUploadOptions(false); // Ferme les options après la sélection
+    };
+
+    const playAudio = (audioUrl, messageId) => {
+        if (currentAudio) {
+            currentAudio.pause();
+        }
+        const audio = new Audio(audioUrl);
+        audio.addEventListener('loadedmetadata', () => {
+            if (isFinite(audio.duration) && !isNaN(audio.duration)) {
+                setAudioDurations(prev => ({
+                    ...prev,
+                    [messageId]: audio.duration
+                }));
+            } else {
+                console.error('Invalid audio duration:', audio.duration);
+                setAudioDurations(prev => ({
+                    ...prev,
+                    [messageId]: 0
+                }));
+            }
+        });
+        audio.addEventListener('timeupdate', () => {
+            if (isFinite(audio.duration) && !isNaN(audio.duration)) {
+                setAudioProgress(prev => ({
+                    ...prev,
+                    [messageId]: (audio.currentTime / audio.duration) * 100
+                }));
+            }
+        });
+        audio.play();
+        setCurrentAudio(audio);
+        setIsPlaying(messageId);
+        audio.onended = () => {
+            setIsPlaying(null);
+            setCurrentAudio(null);
+            setAudioProgress(prev => ({ ...prev, [messageId]: 0 }));
+        };
+    };
+
+    const pauseAudio = () => {
+        if (currentAudio) {
+            currentAudio.pause();
+            setIsPlaying(null);
+        }
+    };
+
+    const seekAudio = (messageId, event) => {
+        const progressBar = event.currentTarget;
+        const clickPosition = (event.clientX - progressBar.getBoundingClientRect().left) / progressBar.offsetWidth;
+        if (currentAudio && isPlaying === messageId) {
+            const newTime = clickPosition * currentAudio.duration;
+            currentAudio.currentTime = newTime;
+            setAudioProgress(prev => ({
+                ...prev,
+                [messageId]: clickPosition * 100
+            }));
+        }
+    };
+
+    const formatAudioDuration = (duration) => {
+        if (!duration || !isFinite(duration) || isNaN(duration)) return '0:00';
+        const minutes = Math.floor(duration / 60);
+        const seconds = Math.floor(duration % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    // Ajoutez cette fonction de rappel pour récupérer les messages
+    const fetchMessages = useCallback(async () => {
+        if (selectedConversation) {
+            try {
+                const response = await makeRequest.get(`/messages/messages/${selectedConversation._id}`);
+                setMessages(response.data);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des messages:', error);
+            }
+        }
+    }, [selectedConversation]);
+
+    // Ajoutez cet effet pour mettre à jour les messages toutes les 2 secondes
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchMessages();
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, [fetchMessages]);
 
     return (
         <nav
@@ -183,7 +456,8 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                         <input
                             type="text"
                             placeholder="Rechercher ou démarrer une nouvelle discussion"
-                            className="w-full p-2 pl-10 bg-gray-100 rounded-lg"
+
+                            className="w-full p-2 pl-10 bg-bgColor rounded-lg"
                             value={searchTerm}
                             onChange={handleSearch}
                         />
@@ -197,7 +471,8 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                 searchResults.map((user) => (
                                     <div
                                         key={user._id}
-                                        className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
+
+                                        className="p-2 hover:bg-bgColor cursor-pointer flex items-center space-x-3"
                                         onClick={() => handleSelectConversation({ participants: [user], _id: user._id })}
                                     >
                                         <img src={user.profileUrl || NoProfile} alt="Profile" className="w-8 h-8 rounded-full" />
@@ -211,7 +486,8 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                     return (
                                         <div
                                             key={conv._id}
-                                            className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-3"
+
+                                            className="p-2 hover:bg-bgColor cursor-pointer flex items-center space-x-3"
                                             onClick={() => handleSelectConversation(conv)}
                                         >
                                             <img src={participant.profileUrl || NoProfile} alt="Profile" className="w-8 h-8 rounded-full" />
@@ -254,24 +530,100 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                             }`}
                                         >
                                             {msg.messageType === 'text' && <p>{msg.content}</p>}
-                                            {/* Gérer les autres types de messages */}
+
+                                            {msg.messageType === 'image' && (
+                                                <img src={msg.content} alt="Image" className="max-w-full h-auto rounded-lg" />
+                                            )}
+                                            {msg.messageType === 'video' && (
+                                                <video controls className="max-w-full h-auto rounded-lg">
+                                                    <source src={msg.content} type="video/mp4" />
+                                                    Votre navigateur ne supporte pas la lecture de vidéos.
+                                                </video>
+                                            )}
+                                            {msg.messageType === 'audio' && (
+                                                <div className="flex items-center">
+                                                    <button onClick={() => isPlaying === msg._id ? pauseAudio() : playAudio(msg.content, msg._id)}>
+                                                        {isPlaying === msg._id ? <Pause size={20} /> : <Play size={20} />}
+                                                    </button>
+                                                    <div
+                                                        className="w-32 h-1 bg-gray-300 rounded-full mx-2 cursor-pointer"
+                                                        onClick={(e) => seekAudio(msg._id, e)}
+                                                    >
+                                                        <div
+                                                            className="h-full bg-blue-500 rounded-full"
+                                                            style={{ width: `${audioProgress[msg._id] || 0}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <span>{formatAudioDuration(audioDurations[msg._id])}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
                                 <div ref={messagesEndRef} />
                             </div>
 
-                            {/* Zone de saisie */}
-                            <div className="flex items-center space-x-2 ">
+
+                            {/* Zone de saisie modifiée */}
+                            <div className="flex items-center space-x-2 relative">
+                                <button 
+                                    onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
+                                    disabled={isUploading || isRecording}
+                                    className="absolute left-2 z-10"
+                                >
+                                    <Smile size={24} />
+                                </button>
                                 <input
                                     type="text"
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
-                                    className="flex-1 p-2 rounded-full bg-bgColor"
+
+                                    className="flex-1 p-2 pl-10 pr-10 rounded-full bg-bgColor"
                                     placeholder="Tapez un message"
+                                    disabled={isUploading || isRecording}
                                 />
-                                <Send onClick={handleSendMessage} className="text-[#9a00d7] cursor-pointer" />
+                                <div className="absolute right-2 flex items-center space-x-2">
+                                    <input
+                                        type="file"
+                                        accept="image/*,video/*"
+                                        onChange={handleMediaUpload}
+                                        style={{ display: 'none' }}
+                                        id="media-upload"
+                                        disabled={isUploading || isRecording}
+                                    />
+                                    <label htmlFor="media-upload" className={`cursor-pointer ${(isUploading || isRecording) ? 'opacity-50' : ''}`}>
+                                        <ImageIcon size={24} />
+                                    </label>
+                                    {newMessage.trim() ? (
+                                        <Send onClick={handleSendMessage} className={`text-[#9a00d7] cursor-pointer ${isUploading ? 'opacity-50' : ''}`} disabled={isUploading} />
+                                    ) : audioBlob ? (
+                                        <Send onClick={sendAudioMessage} className={`text-[#9a00d7] cursor-pointer ${isUploading ? 'opacity-50' : ''}`} disabled={isUploading} />
+                                    ) : isRecording ? (
+                                        <button onClick={stopRecording} disabled={isUploading}>
+                                            <Square size={24} fill="red" />
+                                        </button>
+                                    ) : (
+                                        <button onClick={startRecording} disabled={isUploading}>
+                                            <Mic size={24} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
+                            
+                            {isUploading && (
+                                <div className="mt-2 text-center text-sm text-gray-500">
+                                    Chargement en cours...
+                                </div>
+                            )}
+
+                            {audioUrl && (
+                                <div className="mt-2 flex items-center justify-center">
+                                    <audio src={audioUrl} controls />
+                                    <button onClick={() => { setAudioBlob(null); setAudioUrl(null); }} className="ml-2 text-red-500">
+                                        Supprimer
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -302,6 +654,30 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                     <LogOut size={24} />
                 </button>
             </div>
+
+
+            {showEmojiPicker && (
+                <div className="absolute bottom-16 left-0">
+                    <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+            )}
+
+            {previewMedia && (
+                <MediaPreviewModal 
+                    file={previewMedia}
+                    type={mediaType}
+                    onConfirm={() => {
+                        handleConfirmMediaUpload();
+                        setPreviewMedia(null);
+                        setMediaType(null);
+                    }}
+                    onCancel={handleCancelMediaUpload}
+                />
+            )}
+
+            {audioUrl && (
+                <audio ref={audioPreviewRef} src={audioUrl} onEnded={() => setIsPlayingPreview(false)} />
+            )}
         </nav>
     );
 };

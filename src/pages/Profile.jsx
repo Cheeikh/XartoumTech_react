@@ -1,6 +1,7 @@
 // Profile.jsx
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+
+import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { TopBar, Loading } from "../components";
 import { makeRequest } from "../axios";
@@ -20,6 +21,9 @@ import {
   UserPlus,
 } from "lucide-react";
 
+import EditProfile from "../components/EditProfile";
+import { UpdateProfileModal } from "../redux/userSlice";
+
 const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -31,6 +35,10 @@ const Profile = () => {
   const [errMsg, setErrMsg] = useState("");
   const [activeTab, setActiveTab] = useState("publications");
   const [selectedPostIndex, setSelectedPostIndex] = useState(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const dispatch = useDispatch();
+  const { edit } = useSelector((state) => state.user);
 
   // Hook pour récupérer les données de l'utilisateur
   useEffect(() => {
@@ -65,6 +73,7 @@ const Profile = () => {
     } catch (error) {
       console.error("Erreur lors de l'envoi de la demande d'ami:", error);
       setErrMsg("Échec de l'envoi de la demande d'ami."); // Message d'erreur
+
     }
   };
 
@@ -161,7 +170,10 @@ const Profile = () => {
     );
   };
 
-  const isCurrentUserProfile = id === currentUser?._id;
+
+  const isCurrentUserProfile = id === currentUser?.user._id;
+
+  console.log("currentUser",currentUser);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -184,7 +196,8 @@ const Profile = () => {
                         />
                     )}
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <p className="text-white text-sm text-center px-2">{post.description}</p>
+
+                      <p className="text-ascent-1 text-sm text-center px-2">{post.description}</p>
                     </div>
                   </div>
               ))}
@@ -199,9 +212,30 @@ const Profile = () => {
   };
   console.log()
 
+
+  // Ajoutez cette fonction pour gérer le suivi/désabonnement
+  const handleFollowToggle = async () => {
+    try {
+      if (isFollowing) {
+        await handleUnfollow();
+      } else {
+        await handleFollow();
+      }
+      setIsFollowing(!isFollowing);
+    } catch (error) {
+      console.error("Erreur lors de la gestion du suivi :", error);
+      setErrMsg("Échec de l'action de suivi/désabonnement.");
+    }
+  };
+
+  // Fonction pour ouvrir le modal d'édition du profil
+  const openEditProfileModal = () => {
+    dispatch(UpdateProfileModal(true));
+  };
+
   return (
       <div className="w-full min-h-screen bg-bgColor">
-        <TopBar />
+        <TopBar user={currentUser} />
         <div className="max-w-7xl mx-auto mt-4 px-4">
           {loading ? (
               <Loading />
@@ -244,24 +278,27 @@ const Profile = () => {
                     <p className="text-sm mb-4 mt-3">{userInfo?.profession}</p>
                     <div className="flex flex-col sm:flex-row sm:space-x-2">
                       {isCurrentUserProfile ? (
-                          <button className="px-3 py-1 bg-[#C124FF] text-white rounded-md text-sm mb-2 sm:mb-0">
+
+                          <button
+                            onClick={openEditProfileModal}
+                            className="px-3 py-1 bg-[#C124FF] text-ascent-1 rounded-md text-sm mb-2 sm:mb-0"
+                          >
                             Modifier le profil
                           </button>
                       ) : (
                           <button
-                              onClick={userInfo?.isFollowing ? handleUnfollow : handleFollow}
+
+                              onClick={handleFollowToggle}
                               className={`px-3 py-1 rounded-md text-sm mb-2 sm:mb-0 ${
-                                  userInfo?.isFollowing
+                                  isFollowing
                                       ? "bg-gray-300 text-black"
-                                      : "bg-[#C124FF] text-white"
+                                      : "bg-[#C124FF] text-ascent-1"
                               }`}
                           >
-                            {userInfo?.isFollowing ? "Suivi" : "Suivre"}
+                            {isFollowing ? "Suivi" : "Suivre"}
                           </button>
                       )}
-                      <button className="px-3 py-1 bg-[#C124FF] text-white rounded-md text-sm">
-                        Voir l'archive
-                      </button>
+                   
                     </div>
                   </div>
                 </div>
@@ -328,6 +365,9 @@ const Profile = () => {
               </>
           )}
         </div>
+
+        {showEditProfile && <EditProfile />}
+        {edit && <EditProfile />}
       </div>
   );
 };

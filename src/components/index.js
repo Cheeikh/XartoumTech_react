@@ -14,8 +14,6 @@ import CatalogueProduits from "./CatalogueProduits";
 
 
 
-
-
 export {
   Loading,
   TextInput,
@@ -32,3 +30,4 @@ export {
   CatalogueProduits,
   
 };
+

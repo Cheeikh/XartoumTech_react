@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { makeRequest } from '../axios';
 
+import React, { useState, useEffect } from 'react';
+import { makeRequest } from '../axios';
 import { Button, Card, CardContent, CardHeader, Dialog, DialogTitle, DialogContent, DialogActions, Radio, RadioGroup, FormControlLabel, FormControl, TextField, Snackbar } from '@mui/material';
 import { CreditCard, PlusCircle, MinusCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSelector, useDispatch } from "react-redux";
+import { updateUserCredits } from "../redux/userSlice";
+
 
 const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, totalCost }) => {
   const [selectedMethod, setSelectedMethod] = useState('');
@@ -45,7 +48,8 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               control={<Radio />} 
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjykY3ZcP7kv0RJjPwvZhDZB6M7Vggpx8P9w&s" alt="Orange Money Logo" style={{ width: '24px', marginRight: '10px' }} />
+
+                  <img src="https://seeklogo.com/images/O/orange-money-logo-8F2AED308D-seeklogo.com.png" alt="Orange Money Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Orange Money
                 </div>
               }
@@ -55,7 +59,9 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               control={<Radio />} 
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm9rYPURKIok7K0ZF22oqFgMbzIHgNCauVQA&s" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
+
+
+                  <img src="https://www.banque.sn/wp-content/uploads/2021/09/wave-1024x1024.png" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Wave
                 </div>
               }
@@ -63,25 +69,25 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
           </RadioGroup>
         </FormControl>
         {selectedMethod && (
-  <div style={{ marginTop: '20px' }}>
-    <TextField
-      label="Numéro"
-      value={phoneNumber}
-      onChange={(e) => setPhoneNumber(e.target.value)}
-      fullWidth
-      margin="normal"
-    />
-    <TextField
-      label="Code"
-      type="password" // Ajout du type password pour masquer la saisie
-      value={code}
-      onChange={(e) => setCode(e.target.value)}
-      fullWidth
-      margin="normal"
-    />
-  </div>
-)}
 
+          <div style={{ marginTop: '20px' }}>
+            <TextField
+              label="Numéro"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Code"
+              type="password"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+          </div>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Annuler</Button>
@@ -127,12 +133,35 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
   );
 };
 
-const CreditPurchase = ({ currentCredits, onPurchase }) => {
+
+const CreditPurchase = () => {
+  const dispatch = useDispatch();
+  const { user: currentUser } = useSelector((state) => state.user);
+  const [currentCredits, setCurrentCredits] = useState(currentUser?.user.dailyPostCredits || 0);
   const [creditsToBuy, setCreditsToBuy] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(''); // Add this line to define errorMessage state
+  const [errorMessage, setErrorMessage] = useState('');
   const creditCost = 100; // Coût par crédit en FCFA
+
+  useEffect(() => {
+    if (currentUser?.user._id) {
+      fetchCurrentCredits();
+    }
+  }, [currentUser]);
+
+  const fetchCurrentCredits = async () => {
+    try {
+      const userId = currentUser?.user._id;
+      const response = await makeRequest.get(`/credits/${userId}`);
+      const credits = response.data.credits;
+      setCurrentCredits(credits);
+      dispatch(updateUserCredits(credits));
+    } catch (error) {
+      console.error('Erreur lors de la récupération des crédits:', error);
+      setErrorMessage('Impossible de récupérer le solde de crédits.');
+    }
+  };
 
   const handleIncrementCredits = () => {
     setCreditsToBuy(prev => prev + 1);
@@ -151,20 +180,23 @@ const CreditPurchase = ({ currentCredits, onPurchase }) => {
   };
 
   const handleSelectPaymentMethod = async (method, phoneNumber, code) => {
-    const userId = "670403731568646bfb22ee81";
+
+    const userId = currentUser?.user._id;
   
     try {
       console.log(`Paiement sélectionné : ${method}, Numéro : ${phoneNumber}, Code : ${code}`);
       
-      const response = await makeRequest.post('credits', {
+
+      const response = await makeRequest.post('/credits', {
         userId,
         creditAmount: creditsToBuy
       });
   
       if (response.status === 200) {
-        // Mise à jour du solde de crédits avec la nouvelle valeur renvoyée par le serveur
+
         const newCreditBalance = response.data.newCreditBalance;
-        onPurchase(newCreditBalance);
+        setCurrentCredits(newCreditBalance);
+        dispatch(updateUserCredits(newCreditBalance));
         setShowSuccessMessage(true);
         setCreditsToBuy(1);
       } else {
@@ -179,15 +211,16 @@ const CreditPurchase = ({ currentCredits, onPurchase }) => {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+
+    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }} className='bg-secondary rounded-lg p-4'>
       <Card>
         <CardHeader title="Acheter des Crédits" />
         <CardContent>
-        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-  <p>
-    Solde actuel : <span style={{ fontWeight: 'bold', color: '#3f51b5' }}>{currentCredits} crédits</span>
-  </p>
-</div>
+          <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+            <p>
+              Solde actuel : <span style={{ fontWeight: 'bold', color: '#3f51b5' }}>{currentCredits} crédits</span>
+            </p>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
             <Button onClick={handleDecrementCredits} variant="outlined">
               <MinusCircle style={{ color: '#9B01D8' }} />

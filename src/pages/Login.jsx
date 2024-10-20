@@ -90,7 +90,8 @@ const Login = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="form-container rounded-2xl p-4 sm:p-8 md:p-12 w-full sm:w-3/4 md:w-2/5 max-w-[90vw] sm:max-w-[70vw] md:max-w-[37vw] shadow-md mx-auto mt-8 md:mt-36 bg-white bg-opacity-90"
+
+            className="form-container rounded-2xl p-4 sm:p-8 md:p-12 w-full sm:w-3/4 md:w-2/5 max-w-[90vw] sm:max-w-[70vw] md:max-w-[37vw] shadow-md mx-auto mt-8 md:mt-36 bg-primary bg-opacity-90"
         >
           <div className="form-title text-xl sm:text-2xl font-bold mb-6 text-center">
             Connectez-vous à votre compte
@@ -141,7 +142,8 @@ const Login = () => {
             )}
             <button
                 type="submit"
-                className="button w-full py-3 bg-[#9a00d7] text-white text-lg border-none rounded-full cursor-pointer mt-6"
+
+                className="button w-full py-3 bg-[#9a00d7] text-ascent-1 text-lg border-none rounded-full cursor-pointer mt-6"
                 disabled={isSubmitting}
             >
               {isSubmitting ? "Connexion..." : "Connexion"}

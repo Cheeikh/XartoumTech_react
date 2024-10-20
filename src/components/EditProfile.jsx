@@ -189,7 +189,7 @@ const EditProfile = () => {
                     <button
                       type="button"
                       onClick={handleRemovePicture}
-                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                      className="absolute top-0 right-0 bg-red-500 text-ascent-1 rounded-full p-1"
                     >
                       <MdDelete size={20} />
                     </button>
@@ -209,7 +209,7 @@ const EditProfile = () => {
                 ) : (
                   <CustomButton
                     type="submit"
-                    containerStyles="inline-flex justify-center rounded-md bg-blue px-8 py-3 text-sm font-medium text-white outline-none"
+                    containerStyles="inline-flex justify-center rounded-md bg-blue px-8 py-3 text-sm font-medium text-ascent-1 outline-none"
                     title="Soumettre"
                   />
                 )}

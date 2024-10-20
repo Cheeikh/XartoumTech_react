@@ -181,7 +181,8 @@ const FriendsManager = () => {
                     <CustomButton
                       title="Accepter"
                       onClick={() => handleAcceptFriend(_id)} // Accepte la demande
-                      containerStyles="bg-[#9a00d7] text-xs text-white px-1.5 py-1 rounded-full"
+
+                      containerStyles="bg-[#9a00d7] text-xs text-ascent-1 px-1.5 py-1 rounded-full"
                     />
                     <CustomButton
                       title="Refuser"

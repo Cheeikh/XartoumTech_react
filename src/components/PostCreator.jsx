@@ -144,7 +144,7 @@ const PostCreator = ({ onPostCreated }) => {
               posting
                 ? "bg-[#9a00d7] opacity-50 cursor-not-allowed"
                 : "bg-[#9a00d7]"
-            } text-white py-1 px-6 rounded-full font-semibold text-sm`}
+            } text-ascent-1 py-1 px-6 rounded-full font-semibold text-sm`}
             disabled={posting}
           />
         </div>
