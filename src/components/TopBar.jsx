@@ -14,6 +14,7 @@ import NotificationDropdown from './NotificationDropdown';
 import { NoProfile } from "../assets";
 import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
 
+
 const TopBar = ({ user }) => {
   const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
