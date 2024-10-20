@@ -570,3 +570,128 @@ export const searchUsers = async (req, res) => {
     });
   }
 };
+
+// Fonction de suivi (Follow)
+export const followUser = async (req, res) => {
+  try {
+    const userId = req.user._id; // L'utilisateur authentifié
+    const { followId } = req.params; // L'utilisateur à suivre
+
+    // Vérifier que l'utilisateur ne peut pas se suivre lui-même
+    if (userId.toString() === followId) {
+      return res.status(400).json({
+        success: false,
+        message: "Vous ne pouvez pas vous suivre vous-même.",
+      });
+    }
+
+    // Trouver l'utilisateur à suivre
+    const targetUser = await Users.findById(followId);
+
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilisateur à suivre non trouvé.",
+      });
+    }
+
+    // Vérifier si l'utilisateur suit déjà cette personne
+    if (targetUser.followers.includes(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Vous suivez déjà cet utilisateur.",
+      });
+    }
+
+    // Ajouter l'utilisateur authentifié à la liste des followers du targetUser
+    targetUser.followers.push(userId);
+
+    // Ajouter targetUser à la liste des following de l'utilisateur authentifié
+    const user = await Users.findById(userId);
+    user.following.push(followId);
+
+    // Enregistrer les modifications dans les deux documents
+    await targetUser.save();
+    await user.save();
+
+    // Créer une notification pour informer targetUser qu'il a un nouveau follower
+    await Notification.create({
+      recipient: followId,
+      sender: userId,
+      type: "follow",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Vous suivez désormais cet utilisateur.",
+    });
+  } catch (error) {
+    console.error("Erreur lors du suivi :", error);
+    return res.status(500).json({
+      success: false,
+      message: "Erreur interne du serveur lors du suivi de l'utilisateur.",
+      error: error.message,
+    });
+  }
+};
+
+// Fonction pour ne plus suivre (Unfollow)
+export const unfollowUser = async (req, res) => {
+  try {
+    const userId = req.user._id; // L'utilisateur authentifié
+    const { unfollowId } = req.params; // L'utilisateur à ne plus suivre
+
+    // Vérifier que l'utilisateur ne peut pas se désuivre lui-même
+    if (userId.toString() === unfollowId) {
+      return res.status(400).json({
+        success: false,
+        message: "Vous ne pouvez pas vous désuivre vous-même.",
+      });
+    }
+
+    // Trouver l'utilisateur à ne plus suivre
+    const targetUser = await Users.findById(unfollowId);
+
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilisateur à ne plus suivre non trouvé.",
+      });
+    }
+
+    // Vérifier si l'utilisateur suit déjà cette personne
+    if (!targetUser.followers.includes(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Vous ne suivez pas cet utilisateur.",
+      });
+    }
+
+    // Retirer l'utilisateur authentifié de la liste des followers du targetUser
+    targetUser.followers = targetUser.followers.filter(
+      (followerId) => followerId.toString() !== userId.toString()
+    );
+
+    // Retirer targetUser de la liste des following de l'utilisateur authentifié
+    const user = await Users.findById(userId);
+    user.following = user.following.filter(
+      (followingId) => followingId.toString() !== unfollowId.toString()
+    );
+
+    // Enregistrer les modifications dans les deux documents
+    await targetUser.save();
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Vous ne suivez plus cet utilisateur.",
+    });
+  } catch (error) {
+    console.error("Erreur lors du désabonnement :", error);
+    return res.status(500).json({
+      success: false,
+      message: "Erreur interne du serveur lors du désabonnement de l'utilisateur.",
+      error: error.message,
+    });
+  }
+};

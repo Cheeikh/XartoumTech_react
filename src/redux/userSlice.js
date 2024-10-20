@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
   edit: false,
-  friends: [], // Ajout d'un état pour les amis
+  friends: [],
 };
 
 const userSlice = createSlice({
@@ -40,6 +40,7 @@ const userSlice = createSlice({
   },
 });
 
+
 export const { 
   login, 
   logout, 
@@ -49,6 +50,11 @@ export const {
   setFriends,
   updateUserCredits 
 } = userSlice.actions;
+
+export const canAddProducts = (state) => {
+  const allowedRoles = ['styliste', 'tailleur', 'vendeur'];
+  return state.user && state.user.role && allowedRoles.includes(state.user.role.toLowerCase());
+};
 
 export default userSlice.reducer;
 

@@ -20,6 +20,7 @@ export const createPost = async (req, res, next) => {
     }
 
     // Vérifier et réinitialiser les crédits de l'utilisateur si nécessaire
+
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });

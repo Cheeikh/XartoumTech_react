@@ -316,7 +316,7 @@ function Stories() {
   }, [selectedStory, currentContentIndex]);
 
   return (
-    <div className="relative">
+    <div className="relative text-ascent-1">
       <button 
         onClick={handleScrollLeft} 
         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-primary rounded-full p-1 shadow-md z-10"
@@ -334,11 +334,12 @@ function Stories() {
           <div className="w-20 h-20 rounded-full border-4 border-[#9a00d7] flex items-center justify-center bg-gray-200">
             <Plus size={32} color="#9a00d7" />
           </div>
-          <p className="mt-2 text-sm">Créer</p>
+          <p className="mt-2 ">Créer</p>
         </div>
         {stories.map((story) => (
           <div key={story._id} className="flex-shrink-0 flex flex-col items-center cursor-pointer" onClick={() => handleStoryClick(story)}>
             <img src={story.user.profileUrl} alt={story.user.firstName} className="w-20 h-20 rounded-full border-4 border-[#9a00d7]" />
+
             <p className="mt-2 text-sm text-ascent-1">{story.user.firstName}</p>
           </div>
         ))}
@@ -353,14 +354,15 @@ function Stories() {
       </button>
   
       {selectedStory && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-40">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-40 ">
           {/* Contenu du modal des stories */}
           <div className="relative w-full max-w-md h-[80vh]">
             {/* Barre de progression */}
-            <div className="absolute top-0 left-0 right-0 flex">
+            <div className="absolute top-0 left-0 right-0 flex ">
               {selectedStory.content.map((_, index) => (
-                <div key={index} className="flex-1 h-1 bg-gray-400 mx-1">
+                <div key={index} className="flex-1 h-1 bg-bgColor mx-1">
                   <div 
+
                     className="h-full bg-primary" 
                     style={{ 
                       width: `${index === currentContentIndex ? progress : index < currentContentIndex ? 100 : 0}%`,
@@ -415,7 +417,7 @@ function Stories() {
                 {selectedStory.content[currentContentIndex].description}
               </p>
               {selectedStory.content[currentContentIndex].description.length > 100 && (
-                <button onClick={toggleDescriptionExpanded} className="text-gray-300 text-sm flex items-center">
+                <button onClick={toggleDescriptionExpanded} className="text-gray-300  flex items-center">
                   {isDescriptionExpanded ? 'Voir moins' : 'Voir plus'}
                   <ChevronDown size={16} className={`ml-1 transform ${isDescriptionExpanded ? 'rotate-180' : ''}`} />
                 </button>

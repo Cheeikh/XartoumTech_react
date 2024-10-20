@@ -11,6 +11,7 @@ const PaymentMethodDialog = ({ isOpen, onClose, onSelectMethod, creditsToBuy, to
           {/* Payer avec Orange Money */}
           <Button 
             onClick={() => onSelectMethod('orange')}
+
             className="flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-ascent-1 rounded-lg" // Adding rounded-lg class for radius
           >
             <img 
@@ -24,6 +25,7 @@ const PaymentMethodDialog = ({ isOpen, onClose, onSelectMethod, creditsToBuy, to
           {/* Payer avec Wave */}
           <Button 
             onClick={() => onSelectMethod('wave')}
+
             className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-ascent-1 rounded-lg" // Adding rounded-lg class for radius
           >
             <img 

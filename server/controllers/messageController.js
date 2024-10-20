@@ -311,5 +311,5 @@ export const sendFileMessage = async (req, res) => {
     console.error("Erreur lors de l'envoi du fichier:", error);
     res.status(500).json({ message: "Erreur lors de l'envoi du fichier" });
   }
-  
+
 };

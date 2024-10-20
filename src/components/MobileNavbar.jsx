@@ -1,4 +1,5 @@
 // MobileNavbar.jsx
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     Home, Menu, Moon, Sun, LogOut, X, Send, Search, MoreVertical,
@@ -13,6 +14,7 @@ import { Logout } from "../redux/userSlice";
 import { makeRequest } from "../axios";
 import { NoProfile } from "../assets";
 import EmojiPicker from 'emoji-picker-react';
+
 import { MediaPreviewModal } from '../components/Messagerie';
 import { useSocket } from '../context/SocketContext';
 
@@ -38,6 +40,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
     const mediaRecorderRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentAudio, setCurrentAudio] = useState(null);
+
     const [previewMedia, setPreviewMedia] = useState(null);
     const [mediaType, setMediaType] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
@@ -183,6 +186,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
             nav.removeEventListener('touchend', handleTouchEnd);
         };
     }, []);
+
 
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
@@ -452,6 +456,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                         <input
                             type="text"
                             placeholder="Rechercher ou démarrer une nouvelle discussion"
+
                             className="w-full p-2 pl-10 bg-bgColor rounded-lg"
                             value={searchTerm}
                             onChange={handleSearch}
@@ -466,6 +471,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                 searchResults.map((user) => (
                                     <div
                                         key={user._id}
+
                                         className="p-2 hover:bg-bgColor cursor-pointer flex items-center space-x-3"
                                         onClick={() => handleSelectConversation({ participants: [user], _id: user._id })}
                                     >
@@ -480,6 +486,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                     return (
                                         <div
                                             key={conv._id}
+
                                             className="p-2 hover:bg-bgColor cursor-pointer flex items-center space-x-3"
                                             onClick={() => handleSelectConversation(conv)}
                                         >
@@ -523,6 +530,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                             }`}
                                         >
                                             {msg.messageType === 'text' && <p>{msg.content}</p>}
+
                                             {msg.messageType === 'image' && (
                                                 <img src={msg.content} alt="Image" className="max-w-full h-auto rounded-lg" />
                                             )}
@@ -555,6 +563,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                 <div ref={messagesEndRef} />
                             </div>
 
+
                             {/* Zone de saisie modifiée */}
                             <div className="flex items-center space-x-2 relative">
                                 <button 
@@ -568,6 +577,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                     type="text"
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
+
                                     className="flex-1 p-2 pl-10 pr-10 rounded-full bg-bgColor"
                                     placeholder="Tapez un message"
                                     disabled={isUploading || isRecording}
@@ -644,6 +654,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                     <LogOut size={24} />
                 </button>
             </div>
+
 
             {showEmojiPicker && (
                 <div className="absolute bottom-16 left-0">
