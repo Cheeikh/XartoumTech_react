@@ -10,6 +10,7 @@ import { AiOutlineMessage } from "react-icons/ai";
 import { FaCoins } from "react-icons/fa6";
 import { IoMdLogOut } from "react-icons/io";
 
+
 import { makeRequest } from "../axios";
 import { NoProfile } from "../assets";
 import LogoImage from "../assets/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png";
