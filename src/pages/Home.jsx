@@ -15,6 +15,7 @@ import {
   MobileNavbar
 } from "../components";
 import CreditPurchase from "../components/CreditPurchase";
+
 import { updateUserCredits } from "../redux/userSlice";
 
 const Home = () => {
@@ -26,6 +27,7 @@ const Home = () => {
   const [errMsg, setErrMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [stories, setStories] = useState([]);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -34,6 +36,7 @@ const Home = () => {
         setLoading(true);
         const postsResponse = await makeRequest.get(`/posts/get-posts`);
         setPosts(postsResponse.data.data || []);
+
         setFilteredPosts(postsResponse.data.data || []);
         const storiesResponse = await makeRequest.get(`/stories`);
         setStories(storiesResponse.data.data || []);
@@ -46,6 +49,7 @@ const Home = () => {
 
     if (user) {
       fetchData();
+      setUserCredits(user.dailyPostCredits || 0);
     }
   }, [user]);
 
@@ -65,8 +69,20 @@ const Home = () => {
     setFilteredPosts(searchResults);
   };
 
+  const handlePurchase = async (newCreditBalance) => {
+    try {
+      setUserCredits(newCreditBalance);
+      dispatch({ type: 'UPDATE_USER_CREDITS', payload: newCreditBalance });
+      setSuccessMsg(`Achat de crédits réussi ! Nouveau solde : ${newCreditBalance} crédit(s)`);
+    } catch (error) {
+      console.error("Erreur lors de l'achat de crédits:", error);
+      setErrMsg("Échec de l'achat de crédits.");
+    }
+  };
+
   return (
     <div className="w-full h-screen flex flex-col px-0 lg:px-10 2xl:px-40 bg-bgColor lg:rounded-lg">
+
       {/* TopBar pour les écrans moyens et plus grands */}
       <div className="hidden md:block">
         <TopBar user={user} onSearch={handleSearch} />
@@ -80,13 +96,13 @@ const Home = () => {
           <FriendsCard />
         </div>
 
-        {/* CENTER */}
         <div className="flex-1 flex flex-col px-4 gap-6 overflow-y-auto rounded-lg">
           <Stories stories={stories} />
           <PostCreator onPostCreated={handlePostCreated} />
 
           {loading ? (
             <Loading />
+
           ) : filteredPosts?.length > 0 ? (
             filteredPosts.map((post) => <PostCard key={post._id} post={post} />)
           ) : (
@@ -95,6 +111,7 @@ const Home = () => {
             </div>
           )}
         </div>
+
 
         {/* RIGHT */}
         <div className="hidden md:flex flex-col w-1/4 lg:w-1/5 gap-6 overflow-y-auto">

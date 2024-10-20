@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { makeRequest } from '../axios';
 import { Button, Card, CardContent, CardHeader, Dialog, DialogTitle, DialogContent, DialogActions, Radio, RadioGroup, FormControlLabel, FormControl, TextField, Snackbar } from '@mui/material';
@@ -47,6 +48,7 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               control={<Radio />} 
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
+
                   <img src="https://seeklogo.com/images/O/orange-money-logo-8F2AED308D-seeklogo.com.png" alt="Orange Money Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Orange Money
                 </div>
@@ -58,6 +60,7 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
 
+
                   <img src="https://www.banque.sn/wp-content/uploads/2021/09/wave-1024x1024.png" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Wave
                 </div>
@@ -66,6 +69,7 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
           </RadioGroup>
         </FormControl>
         {selectedMethod && (
+
           <div style={{ marginTop: '20px' }}>
             <TextField
               label="Numéro"
@@ -129,6 +133,7 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
   );
 };
 
+
 const CreditPurchase = () => {
   const dispatch = useDispatch();
   const { user: currentUser } = useSelector((state) => state.user);
@@ -175,17 +180,20 @@ const CreditPurchase = () => {
   };
 
   const handleSelectPaymentMethod = async (method, phoneNumber, code) => {
+
     const userId = currentUser?.user._id;
   
     try {
       console.log(`Paiement sélectionné : ${method}, Numéro : ${phoneNumber}, Code : ${code}`);
       
+
       const response = await makeRequest.post('/credits', {
         userId,
         creditAmount: creditsToBuy
       });
   
       if (response.status === 200) {
+
         const newCreditBalance = response.data.newCreditBalance;
         setCurrentCredits(newCreditBalance);
         dispatch(updateUserCredits(newCreditBalance));
@@ -203,6 +211,7 @@ const CreditPurchase = () => {
   };
 
   return (
+
     <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }} className='bg-secondary rounded-lg p-4'>
       <Card>
         <CardHeader title="Acheter des Crédits" />

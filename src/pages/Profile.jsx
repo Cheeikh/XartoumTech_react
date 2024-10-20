@@ -1,5 +1,6 @@
 // Profile.jsx
 import React, { useState, useEffect } from "react";
+
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { TopBar, Loading } from "../components";
@@ -19,6 +20,7 @@ import {
   Bookmark,
   UserPlus,
 } from "lucide-react";
+
 import EditProfile from "../components/EditProfile";
 import { UpdateProfileModal } from "../redux/userSlice";
 
@@ -71,6 +73,7 @@ const Profile = () => {
     } catch (error) {
       console.error("Erreur lors de l'envoi de la demande d'ami:", error);
       setErrMsg("Échec de l'envoi de la demande d'ami."); // Message d'erreur
+
     }
   };
 
@@ -167,6 +170,7 @@ const Profile = () => {
     );
   };
 
+
   const isCurrentUserProfile = id === currentUser?.user._id;
 
   console.log("currentUser",currentUser);
@@ -192,6 +196,7 @@ const Profile = () => {
                         />
                     )}
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+
                       <p className="text-ascent-1 text-sm text-center px-2">{post.description}</p>
                     </div>
                   </div>
@@ -206,6 +211,7 @@ const Profile = () => {
     }
   };
   console.log()
+
 
   // Ajoutez cette fonction pour gérer le suivi/désabonnement
   const handleFollowToggle = async () => {
@@ -272,6 +278,7 @@ const Profile = () => {
                     <p className="text-sm mb-4 mt-3">{userInfo?.profession}</p>
                     <div className="flex flex-col sm:flex-row sm:space-x-2">
                       {isCurrentUserProfile ? (
+
                           <button
                             onClick={openEditProfileModal}
                             className="px-3 py-1 bg-[#C124FF] text-ascent-1 rounded-md text-sm mb-2 sm:mb-0"
@@ -280,6 +287,7 @@ const Profile = () => {
                           </button>
                       ) : (
                           <button
+
                               onClick={handleFollowToggle}
                               className={`px-3 py-1 rounded-md text-sm mb-2 sm:mb-0 ${
                                   isFollowing
@@ -357,6 +365,7 @@ const Profile = () => {
               </>
           )}
         </div>
+
         {showEditProfile && <EditProfile />}
         {edit && <EditProfile />}
       </div>

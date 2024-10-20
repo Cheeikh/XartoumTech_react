@@ -15,6 +15,8 @@ import {
   verifyEmail,
   getFriends,
   searchUsers,
+  followUser,
+  unfollowUser
 } from "../controllers/userController.js";
 import userAuth from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js"; 
@@ -66,5 +68,10 @@ router.get("/friends", userAuth, getFriends);
 
 // Ajoutez cette ligne avec les autres routes
 router.get("/search", userAuth, searchUsers);
+
+// follow/unfollow
+router.post('/:followId/follow', followUser);  // Pour suivre un utilisateur
+router.delete('/:unfollowId/unfollow', unfollowUser);  // Pour ne plus suivre un utilisateur
+
 
 export default router;

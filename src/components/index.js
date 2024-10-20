@@ -10,6 +10,8 @@ import EditProfile from "./EditProfile";
 import FriendsManager from "./FriendsManager";
 import Stories from "./Stories";
 import MobileNavbar from "./MobileNavbar";
+import CatalogueProduits from "./CatalogueProduits";
+
 
 
 export {
@@ -24,5 +26,8 @@ export {
   PostCreator,
   FriendsManager,
   Stories,
-  MobileNavbar
+  MobileNavbar,
+  CatalogueProduits,
+  
 };
+

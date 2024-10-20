@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installer les dépendances, en incluant les dépendances de développement si nécessaire
+
 RUN npm install --production
 
 # Copier le reste des fichiers de l'application

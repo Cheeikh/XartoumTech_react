@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is Required!"],
       minlength: [6, "Password length should be greater than 6 characters"],
+
       select: true,
     },
     location: {
@@ -54,7 +55,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Méthode pour vérifier et réinitialiser les crédits quotidiens
+
 userSchema.methods.checkAndResetDailyCredits = function() {
   const now = new Date();
   const lastReset = this.lastCreditReset;
@@ -76,6 +77,7 @@ userSchema.methods.usePostCredit = function() {
   }
   return false; // Pas assez de crédits
 };
+
 //methode pour utiliser un crédit
 userSchema.methods.checkAndResetDailyCredits = function() {
 /*   const now = new Date();
@@ -91,6 +93,7 @@ userSchema.methods.addPurchasedCredits = async function(amount) {
   await this.save();
   return this;
 };
+
 const Users = mongoose.model("Users", userSchema);
 
 export default Users;
