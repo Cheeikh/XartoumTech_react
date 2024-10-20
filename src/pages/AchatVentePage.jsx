@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Layout from '../components/Layout';
 
-const AchatVentePage = () => {
+// Assurez-vous que le composant est correctement exporté
+export default function AchatVentePage() {
   const [produitsVedettes, setProduitsVedettes] = useState([]);
   const [meilleuresVentes, setMeilleuresVentes] = useState([]);
   const [nouveautes, setNouveautes] = useState([]);
@@ -173,6 +174,9 @@ const AchatVentePage = () => {
       </div>
     </Layout>
   );
-};
+}
 
-export default AchatVentePage;
+// Ou si vous utilisez une exportation nommée :
+// export function AchatVentePage() {
+//   // Contenu du composant
+// }
