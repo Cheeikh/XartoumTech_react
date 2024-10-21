@@ -85,13 +85,13 @@ const TopBar = ({ user, onSearch }) => {
 
         {/* Formulaire de recherche */}
         <form
-            className='items-center justify-center hidden md:flex'
+            className='items-center justify-center hidden md:flex  '
             onSubmit={handleSubmit(handleSearch)}
         >
           <TextInput
               placeholder='Search...'
-              styles='w-[18rem] lg:w-[38rem] rounded-full py-3'
-              register={register("search")}
+              styles='w-[18rem] lg:w-[38rem] rounded-full py-3 ' 
+              register={register("search")} 
           />
         </form>
 

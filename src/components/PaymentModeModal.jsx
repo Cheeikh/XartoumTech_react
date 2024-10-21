@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { X , ChevronDown} from 'lucide-react';
+import { Link, useNavigate } from "react-router-dom";
+
 
 
 const PaymentModeModal = ({ isOpen, onClose }) => {
@@ -27,7 +29,10 @@ const PaymentModeModal = ({ isOpen, onClose }) => {
         <div className="border-2 border-[#7e22ce7e] rounded-lg p-5">
           <p className="mb-2 text-center text-3xl font-semibold">Mode de paiement</p>
           <div className="flex justify-between items-center mx-12 mt-20">
-            <img src="https://play-lh.googleusercontent.com/-Mp3XW7uhwn3KGQxUKGPoc4MbA5ti-3-q23TgoVi9ujBgHWW5n4IySvlG5Exwrxsjw" alt="Wave" className="w-48 h-48 rounded-full shadow-md shadow-[#969696]" />
+            <Link to="/Checkout" className="cursor-pointer">
+            <img src="https://play-lh.googleusercontent.com/-Mp3XW7uhwn3KGQxUKGPoc4MbA5ti-3-q23TgoVi9ujBgHWW5n4IySvlG5Exwrxsjw" alt="Wave" className="w-48 h-48 rounded-full shadow-md shadow-[#969696]" 
+            />
+            </Link>
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX8pijHfCS9uWoP4g1dxrAm7ac2TeK2WyYeA&s" alt="Orange Money" className="w-48 h-48 shadow-md shadow-[#969696] rounded-full " />
             <img src="https://cdn-icons-png.flaticon.com/512/6963/6963703.png" alt="Credit Card" className="w-48 h-48 rounded-full shadow-md shadow-[#969696] " />
           </div>
