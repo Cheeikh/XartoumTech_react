@@ -10,6 +10,8 @@ import EditProfile from "./EditProfile";
 import FriendsManager from "./FriendsManager";
 import Stories from "./Stories";
 import MobileNavbar from "./MobileNavbar";
+import CreditCardPayment from "./CreditCardPayment";
+import CoinHistory from "./CoinHistory";
 
 
 
@@ -25,5 +27,7 @@ export {
   PostCreator,
   FriendsManager,
   Stories,
-  MobileNavbar
+  MobileNavbar,
+  CreditCardPayment,
+  CoinHistory
 };

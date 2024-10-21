@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Home, Login, Profile, Register, ResetPassword, MessagerieView } from "./pages";
+import { Home, Login, Profile, Register, ResetPassword, MessagerieView, Checkout } from "./pages";
 import { SocketProvider } from './context/SocketContext';
 
 function Layout() {
@@ -31,6 +31,7 @@ function App() {
             <Route path='/login' element={<Login />} />
             <Route path='/reset-password' element={<ResetPassword />} />
             <Route path="/messagerie" element={<MessagerieView />} />
+            <Route path="/checkout" element={<Checkout />} />
           </Routes>
         </div>
       </SocketProvider>
