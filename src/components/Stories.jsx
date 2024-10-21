@@ -491,7 +491,7 @@ function Stories() {
   
       {showCreateStoryPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-primary rounded-lg p-6 w-full max-w-md">
+          <div className="bg-primary rounded-lg p-6 w-full max-w-md text-ascent-1">
             <h2 className="text-2xl font-bold mb-4">Créer une story</h2>
             <form onSubmit={handleSubmit(handleStorySubmit)}>
               <TextInput
@@ -558,13 +558,13 @@ function Stories() {
                 <CustomButton
                   type="button"
                   title="Annuler"
-                  containerStyles="bg-gray-300 text-black mr-2"
+                  containerStyles="bg-gray-300 text-black mr-2 py-1 px-2 rounded-md"
                   onClick={() => setShowCreateStoryPopup(false)}
                 />
                 <CustomButton
                   type="submit"
                   title={creating ? "Création..." : "Créer"}
-                  containerStyles="bg-[#9a00d7] text-ascent-1 py-1 px-2 rounded-md"
+                  containerStyles="bg-[#9a00d7] text-white py-1 px-2 rounded-md"
                   disabled={creating || !file}
                 />
               </div>

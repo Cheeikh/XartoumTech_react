@@ -332,7 +332,6 @@ const PostCard = ({ post }) => {
             onClick={handleDeletePost}
           >
             <MdOutlineDeleteOutline size={20} />
-            <span>Supprimer</span>
           </div>
         )}
       </div>
