@@ -9,7 +9,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:8000'); // Remplacez l'URL par celle de votre serveur Socket.IO
+    const newSocket = io(window.location.hostname === "localhost" ? "http://localhost:8800" : "https://backend-app-pgo4.onrender.com");
     setSocket(newSocket);
 
     return () => newSocket.close();

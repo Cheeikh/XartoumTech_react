@@ -60,7 +60,7 @@ const MessagerieView = () => {
 
   // Effet pour initialiser la connexion socket
   useEffect(() => {
-    const newSocket = io("http://localhost:8000");
+    const newSocket = io(window.location.hostname === "localhost" ? "http://localhost:8800" : "https://backend-app-pgo4.onrender.com");
     setSocket(newSocket);
     return () => newSocket.close();
   }, []);
@@ -81,13 +81,13 @@ const MessagerieView = () => {
   }, [socket, selectedConversation]);
 
   // Effet pour actualiser les messages toutes les 2 secondes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchMessages();
-    }, 2000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchMessages();
+  //   }, 2000);
 
-    return () => clearInterval(interval);
-  }, [fetchMessages]);
+  //   return () => clearInterval(interval);
+  // }, [fetchMessages]);
 
   useEffect(() => {
     if (audioBlob) {

@@ -519,7 +519,7 @@ const MobileNavbar = ({ isMenuOpen, setIsMenuOpen }) => {
                                     >
                                         <div
                                             className={`max-w-[70%] p-2 rounded-lg ${
-                                                msg.sender?._id === user?._id ? 'bg-[#9a00d7]' : 'bg-primary'
+                                                msg.sender?._id === user?._id ? 'bg-[#9a00d7] text-white' : 'bg-secondary'
                                             }`}
                                         >
                                             {msg.messageType === 'text' && <p>{msg.content}</p>}

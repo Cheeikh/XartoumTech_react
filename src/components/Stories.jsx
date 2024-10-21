@@ -403,43 +403,46 @@ function Stories() {
               <X size={24} />
             </button>
             {/* Boutons de navigation */}
-            <button onClick={handlePrevContent} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-ascent-1">
+            <button onClick={handlePrevContent} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 rounded-full p-2">
               <ChevronLeft size={32} />
             </button>
-            <button onClick={handleNextContent} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-ascent-1">
+            <button onClick={handleNextContent} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 rounded-full p-2">
               <ChevronRight size={32} />
             </button>
             {/* Description et actions */}
-            <div className="absolute bottom-4 left-4 right-4 text-ascent-1">
+            <div className="absolute bottom-4 left-4 right-4 text-white">
               <p className={`${isDescriptionExpanded ? '' : 'line-clamp-2'} mb-2`}>
                 {selectedStory.content[currentContentIndex].description}
               </p>
               {selectedStory.content[currentContentIndex].description.length > 100 && (
-                <button onClick={toggleDescriptionExpanded} className="text-gray-300 text-sm flex items-center">
+                <button onClick={toggleDescriptionExpanded} className="text-white text-sm flex items-center">
                   {isDescriptionExpanded ? 'Voir moins' : 'Voir plus'}
                   <ChevronDown size={16} className={`ml-1 transform ${isDescriptionExpanded ? 'rotate-180' : ''}`} />
                 </button>
               )}
               <div className="flex justify-between mt-4">
-              <button 
-        className="flex items-center"
-        onClick={() => handleLike(selectedStory._id, currentContentIndex)}
-      >
-        <Heart 
-          size={24} 
-          className="mr-2" 
-          fill={likes[selectedStory._id]?.[currentContentIndex] > 0 ? 'white' : 'none'} 
-        />
+                <button 
+                  className="flex items-center bg-black bg-opacity-50 rounded-full p-2"
+                  onClick={() => handleLike(selectedStory._id, currentContentIndex)}
+                >
+                  <Heart 
+                    size={24} 
+                    className="mr-2" 
+                    fill={likes[selectedStory._id]?.[currentContentIndex] > 0 ? 'white' : 'none'} 
+                    stroke="white"
+                  />
                   <span>{likes[selectedStory._id]?.[currentContentIndex] || 0}</span>
                 </button>
                 <button 
-                  className="flex items-center"
+                  className="flex items-center bg-black bg-opacity-50 rounded-full p-2"
                   onClick={toggleComments}
                 >
-                  <MessageCircle size={24} className="mr-2" />
+                  <MessageCircle size={24} className="mr-2" stroke="white" />
                   <span>{comments[selectedStory._id]?.[currentContentIndex]?.length || 0}</span>
                 </button>
-                <Share size={24} />
+                <button className="bg-black bg-opacity-50 rounded-full p-2">
+                  <Share size={24} stroke="white" />
+                </button>
               </div>
             </div>
           </div>

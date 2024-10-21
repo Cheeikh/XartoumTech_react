@@ -123,7 +123,7 @@ const PostCreator = ({ onPostCreated }) => {
       <div className="flex items-center justify-between py-4">
         <label
           htmlFor="mediaUpload"
-          className="flex items-center gap-1 text-base text-ascent-2 hover:text-ascent-1 cursor-pointer"
+          className="flex items-center gap-1 text-base text-[#9a00d7] hover:text-ascent-1 cursor-pointer"
         >
           <input
             type="file"
@@ -144,7 +144,7 @@ const PostCreator = ({ onPostCreated }) => {
               posting
                 ? "bg-[#9a00d7] opacity-50 cursor-not-allowed"
                 : "bg-[#9a00d7]"
-            } text-ascent-1 py-1 px-6 rounded-full font-semibold text-sm`}
+            } text-white py-1 px-6 rounded-full font-semibold text-sm`}
             disabled={posting}
           />
         </div>
