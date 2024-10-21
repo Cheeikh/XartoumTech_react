@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/static/css/main.687f233f.css",
+    "main.js": "/static/js/main.db2ae41d.js",
+    "static/media/top-view-fabrics-with-thread-copy-space.png": "/static/media/top-view-fabrics-with-thread-copy-space.b67489ae9979f3111702.png",
+    "static/media/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.png": "/static/media/freepik-flat-hand-drawn-long-dress-clothing-store-logo-20241012174920OUdL.977db48656b15d66cf07.png",
+    "static/media/img.jpeg": "/static/media/img.b754802b572708e16267.jpeg",
+    "static/media/userprofile.png": "/static/media/userprofile.0d14c6999b4a5c8e86a7.png",
+    "index.html": "/index.html",
+    "main.687f233f.css.map": "/static/css/main.687f233f.css.map",
+    "main.db2ae41d.js.map": "/static/js/main.db2ae41d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.687f233f.css",
+    "static/js/main.db2ae41d.js"
+  ]
+}
