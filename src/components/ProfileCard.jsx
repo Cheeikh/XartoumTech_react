@@ -59,7 +59,7 @@ const ProfileCard = ({ user }) => {
             ) : (
               // Sinon, afficher un bouton pour ajouter comme ami
               <button
-                className='bg-[#0444a430] text-sm text-white p-1 rounded'
+                className='bg-[#0444a430] text-sm text-ascent-1 p-1 rounded'
                 onClick={() => {}} // Fonctionnalité d'ajout d'ami à implémenter
               >
                 <BsPersonFillAdd size={20} className='text-[#0f52b6]' />

@@ -90,20 +90,20 @@ const Login = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="form-container rounded-2xl p-4 sm:p-8 md:p-12 w-full sm:w-3/4 md:w-2/5 max-w-[90vw] sm:max-w-[70vw] md:max-w-[37vw] shadow-md mx-auto mt-8 md:mt-36 bg-white bg-opacity-90"
+            className="form-container rounded-2xl p-4 sm:p-8 md:p-12 w-full sm:w-3/4 md:w-2/5 max-w-[90vw] sm:max-w-[70vw] md:max-w-[37vw] shadow-md mx-auto mt-8 md:mt-36 bg-primary bg-opacity-90"
         >
-          <div className="form-title text-xl sm:text-2xl font-bold mb-6 text-center">
+          <div className="form-title text-xl sm:text-2xl font-bold mb-6 text-center text-ascent-1">
             Connectez-vous à votre compte
           </div>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <label htmlFor="email" className="block text-lg font-medium">
+            <label htmlFor="email" className="block text-lg font-medium text-ascent-1">
               Adresse Email
             </label>
             <input
                 type="email"
                 id="email"
                 placeholder="Adresse Email"
-                className="input-field w-full p-4 mb-4 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
+                className="input-field w-full p-4 mb-4 border-2 border-[#9a00d7] rounded-full text-lg mt-2 text"
                 {...register("email", {
                   required: "L'adresse email est requise",
                 })}
@@ -113,7 +113,7 @@ const Login = () => {
               {errors.email.message}
             </span>
             )}
-            <label htmlFor="password" className="block text-lg font-medium">
+            <label htmlFor="password" className="block text-lg font-medium text-ascent-1">
               Mot de Passe
             </label>
             <input
@@ -153,7 +153,7 @@ const Login = () => {
           >
             Mot de passe oublié ?
           </a>
-          <div className="create-account-container text-center mt-6">
+          <div className="create-account-container text-center mt-6 text-ascent-1">
           <span>
             Vous n’avez pas de compte ?{" "}
             <Link to="/register" className="create-account text-[#9a00d7]">

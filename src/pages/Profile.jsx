@@ -192,7 +192,7 @@ const Profile = () => {
                         />
                     )}
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <p className="text-white text-sm text-center px-2">{post.description}</p>
+                      <p className="text-ascent-1 text-sm text-center px-2">{post.description}</p>
                     </div>
                   </div>
               ))}
@@ -274,7 +274,7 @@ const Profile = () => {
                       {isCurrentUserProfile ? (
                           <button
                             onClick={openEditProfileModal}
-                            className="px-3 py-1 bg-[#C124FF] text-white rounded-md text-sm mb-2 sm:mb-0"
+                            className="px-3 py-1 bg-[#C124FF] text-ascent-1 rounded-md text-sm mb-2 sm:mb-0"
                           >
                             Modifier le profil
                           </button>
@@ -284,7 +284,7 @@ const Profile = () => {
                               className={`px-3 py-1 rounded-md text-sm mb-2 sm:mb-0 ${
                                   isFollowing
                                       ? "bg-gray-300 text-black"
-                                      : "bg-[#C124FF] text-white"
+                                      : "bg-[#C124FF] text-ascent-1"
                               }`}
                           >
                             {isFollowing ? "Suivi" : "Suivre"}

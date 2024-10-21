@@ -57,6 +57,7 @@ const PaymentMethodDialog = ({ open, onClose, onSelectMethod, creditsToBuy, tota
               control={<Radio />} 
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
+
                   <img src="https://www.banque.sn/wp-content/uploads/2021/09/wave-1024x1024.png" alt="Wave Logo" style={{ width: '24px', marginRight: '10px' }} />
                   Payer avec Wave
                 </div>
@@ -202,7 +203,7 @@ const CreditPurchase = () => {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }} className='bg-secondary rounded-lg p-4'>
       <Card>
         <CardHeader title="Acheter des Crédits" />
         <CardContent>

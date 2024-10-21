@@ -11,14 +11,14 @@ const PaymentModeModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-primary rounded-lg p-6 w-[50vw] h-[75vh] ">
+      <div className="bg-white rounded-lg p-6 w-[50vw] h-[75vh] ">
         <div className="flex justify-end items-center mb-4 ">
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button onClick={onClose} >
             <X size={24} />
           </button>
         </div>
 
-        <div className="mb-10 mt-12">
+        <div className="mb-10 mt-12 ">
           <p className="text-center text-2xl font-semibold">Choisissez votre mode de paiement</p>
           <div className="border border-purple-300 rounded-md p-2 flex justify-between items-center">
             <span>{selectedPlan}</span>
