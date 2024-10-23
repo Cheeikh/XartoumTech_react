@@ -234,6 +234,7 @@ const PostCard = ({ post }) => {
     return null; // Le post a été supprimé
   }
 
+  
 
   return (
     <div className="mb-2 bg-primary p-4 rounded-xl">
@@ -335,6 +336,8 @@ const PostCard = ({ post }) => {
           </div>
         )}
       </div>
+
+      
 
       {/* Section des Commentaires */}
       {showComments && (

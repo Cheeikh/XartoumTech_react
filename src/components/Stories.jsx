@@ -387,7 +387,6 @@ function Stories() {
                   ref={videoRef}
                   src={selectedStory.content[currentContentIndex].url}
                   className="w-full h-full object-cover rounded-lg"
-                  muted
                   playsInline
                   onError={handleVideoError}
                 />
@@ -449,7 +448,7 @@ function Stories() {
           {/* Modal des commentaires à l'intérieur du modal des stories */}
           {showComments && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div className="bg-primary rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+              <div className="bg-primary rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto text-ascent-1">
                 <h3 className="text-xl font-bold mb-4">Commentaires</h3>
                 <div className="space-y-4 mb-4">
                   {comments[selectedStory._id]?.[currentContentIndex]?.map((comment, index) => (
@@ -472,7 +471,7 @@ function Stories() {
                   />
                   <button
                     onClick={() => handleComment(selectedStory._id, currentContentIndex)}
-                    className="bg-[#9a00d7] text-ascent-1 px-4 py-2 rounded-full"
+                    className="bg-[#9a00d7] text-white px-4 py-2 rounded-full"
                   >
                     Envoyer
                   </button>
@@ -491,7 +490,7 @@ function Stories() {
   
       {showCreateStoryPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-primary rounded-lg p-6 w-full max-w-md text-ascent-1">
+          <div className="bg-primary rounded-lg p-6 w-full max-w-md text-ascent-1 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4">Créer une story</h2>
             <form onSubmit={handleSubmit(handleStorySubmit)}>
               <TextInput
@@ -515,7 +514,7 @@ function Stories() {
                     className="hidden"
                     accept="image/,video/"
                   />
-                  <div className="bg-gray-200 rounded-full p-2">
+                  <div className="bg-bgColor rounded-full p-2">
                     {file?.type?.startsWith("image/") ? (
                       <Image size={24} />
                     ) : file?.type?.startsWith("video/") ? (
@@ -534,12 +533,12 @@ function Stories() {
                     <img
                       src={imagePreview}
                       alt="Aperçu"
-                      className="rounded-lg max-h-[500px] w-auto mx-auto"
+                      className="rounded-lg max-h-[50vh] w-auto mx-auto"
                     />
                   ) : file?.type?.startsWith("video/") ? (
                     <video
                       src={imagePreview}
-                      className="w-full rounded-lg"
+                      className="w-auto rounded-lg max-h-[50vh] mx-auto"
                       controls
                     />
                   ) : null}
@@ -558,7 +557,7 @@ function Stories() {
                 <CustomButton
                   type="button"
                   title="Annuler"
-                  containerStyles="bg-gray-300 text-black mr-2 py-1 px-2 rounded-md"
+                  containerStyles="bg-bgColor mr-2 py-1 px-2 rounded-md"
                   onClick={() => setShowCreateStoryPopup(false)}
                 />
                 <CustomButton
