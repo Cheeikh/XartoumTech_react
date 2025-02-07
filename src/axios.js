@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { store } from "./redux/store";
 
 export const makeRequest = axios.create({
-    baseURL: "https://xartoom-tech-d55dace11841.herokuapp.com" // Assurez-vous que c'est l'URL correcte de votre backend
+    baseURL: "https://xartoum-tech-react-back.onrender.com" // Assurez-vous que c'est l'URL correcte de votre backend
 });
 
 export const getToken = () => {
