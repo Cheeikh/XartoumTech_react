@@ -8,14 +8,14 @@ export const register = async (req, res, next) => {
 
   // Valider les champs
   if (!(firstName && lastName && email && password)) {
-    return res.status(400).json({ message: "Provide Required Fields!" });
+    return res.status(400).json({ message: "Fournir les champs requis !" });
   }
 
   try {
     const userExist = await Users.findOne({ email });
 
     if (userExist) {
-      return res.status(400).json({ message: "Email Address already exists" });
+      return res.status(400).json({ message: "L'adresse email existe déjà" });
     }
 
     const hashedPassword = await hashString(password);
@@ -41,7 +41,7 @@ export const login = async (req, res, next) => {
   try {
     // Validation
     if (!email || !password) {
-      return res.status(400).json({ message: "Please Provide User Credentials" });
+      return res.status(400).json({ message: "Veuillez fournir les informations de l'utilisateur" });
     }
 
     // Trouver l'utilisateur par email
@@ -53,13 +53,13 @@ export const login = async (req, res, next) => {
         });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Email ou mot de passe invalide" });
     }
 
     if (!user.verified) {
       return res.status(400).json({
         message:
-            "User email is not verified. Check your email account and verify your email",
+            "L'email de l'utilisateur n'est pas vérifiée. Vérifiez votre compte email et vérifiez votre email",
       });
     }
 
@@ -67,7 +67,7 @@ export const login = async (req, res, next) => {
     const isMatch = await compareString(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Email ou mot de passe invalide" });
     }
 
     user.password = undefined;
@@ -76,7 +76,7 @@ export const login = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Login successfully",
+      message: "Connexion réussie",
       user,
       token,
     });

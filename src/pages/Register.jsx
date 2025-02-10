@@ -31,11 +31,14 @@ const Register = () => {
 
       if (response.data.success) {
         // Afficher une notification de succès
-        toast.success("Inscription réussie !");
+        toast.success(response.data.message);
 
-        // Rediriger l'utilisateur vers la page de connexion avec le message
+        // Rediriger l'utilisateur vers la page de connexion
         navigate("/login", { 
-          state: { message: "Un email de confirmation vous a été envoyé." }
+          state: { 
+            registrationSuccess: true, 
+            message: "Un mail vous a été envoyé. Veuillez vérifier votre boîte de réception." 
+          } 
         });
       } else {
         // Afficher le message d'erreur provenant du backend

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -27,7 +27,15 @@ const Login = () => {
 
   // Déterminer où rediriger après la connexion
   const from = location.state?.from?.pathname || "/";
+  
+  // Récupérer le message de succès d'inscription
   const registrationMessage = location.state?.message;
+
+  useEffect(() => {
+    if (registrationMessage) {
+      toast.success(registrationMessage);
+    }
+  }, [registrationMessage]);
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
@@ -96,11 +104,6 @@ const Login = () => {
           <div className="form-title text-xl sm:text-2xl font-bold mb-6 text-center text-ascent-1">
             Connectez-vous à votre compte
           </div>
-          {registrationMessage && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-              {registrationMessage}
-            </div>
-          )}
           <form onSubmit={handleSubmit(onSubmit)}>
             <label htmlFor="email" className="block text-lg font-medium text-ascent-1">
               Adresse Email
