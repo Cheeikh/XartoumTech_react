@@ -31,7 +31,7 @@ const Register = () => {
 
       if (response.data.success) {
         // Afficher une notification de succès
-        toast.success(response.data.message);
+        toast.success("Inscription réussie ! Un email de confirmation vous a été envoyé.");
 
         // Rediriger l'utilisateur vers la page de connexion
         navigate("/login");
