@@ -27,6 +27,7 @@ const Login = () => {
 
   // Déterminer où rediriger après la connexion
   const from = location.state?.from?.pathname || "/";
+  const registrationMessage = location.state?.message;
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
@@ -95,6 +96,11 @@ const Login = () => {
           <div className="form-title text-xl sm:text-2xl font-bold mb-6 text-center text-ascent-1">
             Connectez-vous à votre compte
           </div>
+          {registrationMessage && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+              {registrationMessage}
+            </div>
+          )}
           <form onSubmit={handleSubmit(onSubmit)}>
             <label htmlFor="email" className="block text-lg font-medium text-ascent-1">
               Adresse Email
@@ -155,7 +161,7 @@ const Login = () => {
           </a>
           <div className="create-account-container text-center mt-6 text-ascent-1">
           <span>
-            Vous n’avez pas de compte ?{" "}
+            Vous n'avez pas de compte ?{" "}
             <Link to="/register" className="create-account text-[#9a00d7]">
               Créer un compte
             </Link>
