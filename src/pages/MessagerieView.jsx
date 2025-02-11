@@ -60,7 +60,7 @@ const MessagerieView = () => {
 
   // Effet pour initialiser la connexion socket
   useEffect(() => {
-    const newSocket = io(window.location.hostname === "localhost" ? "http://localhost:8800" : "https://backend-app-pgo4.onrender.com");
+    const newSocket = io(window.location.hostname === "localhost" ? "http://localhost:8800" : "https://xartoum-tech-react-back.onrender.com");
     setSocket(newSocket);
     return () => newSocket.close();
   }, []);
