@@ -72,14 +72,13 @@ z-index: 49;
 
 @layer base {
   :root {
-    --color-bg: 227 227 227;
+    --color-bg: 245 245 245;
     --color-primary: 255 255 255;
-    --color-secondary:255 255 255;
-    --color-ascent1: 0 0 0;
+    --color-secondary: 249 250 251;
+    --color-ascent1: 17 17 17;
     --color-ascent2: 89 91 100;
-    --color-blue: 6 90 216;
+    --color-blue: 154 0 215;
     --color-white: 255 255 255;
-
   }
   /* //15 23 42  21 30 49*/
   [data-theme="dark"] {
@@ -88,9 +87,24 @@ z-index: 49;
     --color-secondary: 47 45 48;
     --color-ascent1: 255 255 255;
     --color-ascent2: 164 161 162;
-    --color-blue: 6 90 216;
+    --color-blue: 154 0 215;
     /* //16 176 255; */
     --color-white: 255 255 255;
   }
+}
+
+/* Transitions globales */
+.transition-theme {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Styles pour les formulaires */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--color-primary) inset !important;
+  -webkit-text-fill-color: var(--color-ascent1) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 

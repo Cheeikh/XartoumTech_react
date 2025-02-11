@@ -57,7 +57,7 @@ const Register = () => {
 
   return (
       <div
-          className="m-0 p-0 font-sans bg-cover min-h-screen flex items-center justify-center"
+          className="m-0 p-0 font-sans min-h-screen flex items-center justify-center bg-gradient-to-br from-bgColor via-primary to-secondary transition-colors duration-300"
           style={{
             backgroundImage: `url(${BackgroundImage})`,
           }}
@@ -77,147 +77,156 @@ const Register = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="form-container rounded-2xl p-4 sm:p-8 md:p-12 w-full sm:w-3/4 md:w-2/5 max-w-[90vw] sm:max-w-[70vw] md:max-w-[37vw] shadow-md mx-auto mt-8 md:mt-4 bg-primary bg-opacity-90"
+            className="form-container rounded-2xl p-8 w-full sm:w-3/4 md:w-2/5 max-w-[90vw] sm:max-w-[70vw] md:max-w-[37vw] shadow-xl mx-auto mt-8 md:mt-4 bg-primary backdrop-blur-md bg-opacity-80 dark:bg-opacity-90 border border-ascent-2/10"
         >
-          <div className="form-title text-xl sm:text-2xl font-bold mb-6 text-center">
+          <div className="form-title text-2xl sm:text-3xl font-bold mb-8 text-center text-ascent-1">
             Créez votre compte
           </div>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
-              <div className="w-full md:w-1/2">
-                <label htmlFor="firstName" className="block text-lg font-medium">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="w-full md:w-1/2 space-y-2">
+                <label htmlFor="firstName" className="block text-lg font-medium text-ascent-1">
                   Prénom
                 </label>
                 <input
                     type="text"
                     id="firstName"
                     placeholder="Prénom"
-                    className="input-field w-full p-4 mb-2 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
+                    className="input-field w-full p-4 border-2 border-ascent-2/20 rounded-xl text-lg bg-transparent text-ascent-1 placeholder-ascent-2/50 focus:border-[#9a00d7] focus:outline-none transition-colors duration-300"
                     {...register("firstName", {
                       required: "Le prénom est requis!",
                     })}
                 />
                 {errors.firstName && (
-                    <span className="text-red-500 text-sm block">
-                  {errors.firstName.message}
-                </span>
+                    <span className="text-red-500 text-sm block mt-1">
+                      {errors.firstName.message}
+                    </span>
                 )}
               </div>
-              <div className="w-full md:w-1/2">
-                <label htmlFor="lastName" className="block text-lg font-medium">
+              <div className="w-full md:w-1/2 space-y-2">
+                <label htmlFor="lastName" className="block text-lg font-medium text-ascent-1">
                   Nom
                 </label>
                 <input
                     type="text"
                     id="lastName"
                     placeholder="Nom"
-                    className="input-field w-full p-4 mb-2 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
+                    className="input-field w-full p-4 border-2 border-ascent-2/20 rounded-xl text-lg bg-transparent text-ascent-1 placeholder-ascent-2/50 focus:border-[#9a00d7] focus:outline-none transition-colors duration-300"
                     {...register("lastName", {
                       required: "Le nom est requis!",
                     })}
                 />
                 {errors.lastName && (
-                    <span className="text-red-500 text-sm block">
-                  {errors.lastName.message}
-                </span>
+                    <span className="text-red-500 text-sm block mt-1">
+                      {errors.lastName.message}
+                    </span>
                 )}
               </div>
             </div>
 
-            <label htmlFor="email" className="block text-lg font-medium">
-              Adresse Email
-            </label>
-            <input
-                type="email"
-                id="email"
-                placeholder="email@example.com"
-                className="input-field w-full p-4 mb-4 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
-                {...register("email", {
-                  required: "L'adresse email est requise",
-                  pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: "Adresse email invalide",
-                  },
-                })}
-            />
-            {errors.email && (
-                <span className="text-red-500 text-sm mb-4 block">
-              {errors.email.message}
-            </span>
-            )}
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-lg font-medium text-ascent-1">
+                Adresse Email
+              </label>
+              <input
+                  type="email"
+                  id="email"
+                  placeholder="email@example.com"
+                  className="input-field w-full p-4 border-2 border-ascent-2/20 rounded-xl text-lg bg-transparent text-ascent-1 placeholder-ascent-2/50 focus:border-[#9a00d7] focus:outline-none transition-colors duration-300"
+                  {...register("email", {
+                    required: "L'adresse email est requise",
+                    pattern: {
+                      value: /^\S+@\S+$/i,
+                      message: "Adresse email invalide",
+                    },
+                  })}
+              />
+              {errors.email && (
+                  <span className="text-red-500 text-sm block mt-1">
+                    {errors.email.message}
+                  </span>
+              )}
+            </div>
 
-            <label htmlFor="password" className="block text-lg font-medium">
-              Mot de Passe
-            </label>
-            <input
-                type="password"
-                id="password"
-                placeholder="Mot de Passe"
-                className="input-field w-full p-4 mb-4 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
-                {...register("password", {
-                  required: "Le mot de passe est requis!",
-                  minLength: {
-                    value: 6,
-                    message: "Le mot de passe doit comporter au moins 6 caractères",
-                  },
-                })}
-            />
-            {errors.password && (
-                <span className="text-red-500 text-sm mb-4 block">
-              {errors.password.message}
-            </span>
-            )}
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-lg font-medium text-ascent-1">
+                Mot de Passe
+              </label>
+              <input
+                  type="password"
+                  id="password"
+                  placeholder="Mot de Passe"
+                  className="input-field w-full p-4 border-2 border-ascent-2/20 rounded-xl text-lg bg-transparent text-ascent-1 placeholder-ascent-2/50 focus:border-[#9a00d7] focus:outline-none transition-colors duration-300"
+                  {...register("password", {
+                    required: "Le mot de passe est requis!",
+                    minLength: {
+                      value: 6,
+                      message: "Le mot de passe doit comporter au moins 6 caractères",
+                    },
+                  })}
+              />
+              {errors.password && (
+                  <span className="text-red-500 text-sm block mt-1">
+                    {errors.password.message}
+                  </span>
+              )}
+            </div>
 
-            <label htmlFor="cPassword" className="block text-lg font-medium">
-              Confirmez le Mot de Passe
-            </label>
-            <input
-                type="password"
-                id="cPassword"
-                placeholder="Confirmez le Mot de Passe"
-                className="input-field w-full p-4 mb-4 border-2 border-[#9a00d7] rounded-full text-lg mt-2"
-                {...register("cPassword", {
-                  validate: (value) => {
-                    const { password } = getValues();
-                    return (
-                        password === value || "Les mots de passe ne correspondent pas"
-                    );
-                  },
-                })}
-            />
-            {errors.cPassword && (
-                <span className="text-red-500 text-sm mb-4 block">
-              {errors.cPassword.message}
-            </span>
-            )}
+            <div className="space-y-2">
+              <label htmlFor="cPassword" className="block text-lg font-medium text-ascent-1">
+                Confirmez le Mot de Passe
+              </label>
+              <input
+                  type="password"
+                  id="cPassword"
+                  placeholder="Confirmez le Mot de Passe"
+                  className="input-field w-full p-4 border-2 border-ascent-2/20 rounded-xl text-lg bg-transparent text-ascent-1 placeholder-ascent-2/50 focus:border-[#9a00d7] focus:outline-none transition-colors duration-300"
+                  {...register("cPassword", {
+                    validate: (value) => {
+                      const { password } = getValues();
+                      return password === value || "Les mots de passe ne correspondent pas";
+                    },
+                  })}
+              />
+              {errors.cPassword && (
+                  <span className="text-red-500 text-sm block mt-1">
+                    {errors.cPassword.message}
+                  </span>
+              )}
+            </div>
 
             {errMsg && (
                 <span
                     className={`text-sm ${
                         errMsg !== "success" ? "text-red-500" : "text-green-500"
-                    } mt-0.5 block`}
+                    } mt-2 block`}
                 >
-              {errMsg}
-            </span>
+                  {errMsg}
+                </span>
             )}
 
             <button
                 type="submit"
-                className="button w-full py-3 bg-[#9a00d7] text-ascent-1 text-lg border-none rounded-full cursor-pointer mt-6"
+                className="button w-full py-4 bg-[#9a00d7] hover:bg-[#7b00ab] text-white text-lg font-semibold rounded-xl cursor-pointer transition-colors duration-300 flex items-center justify-center"
                 disabled={isSubmitting}
             >
-              {isSubmitting ? "Création du compte..." : "Créer un Compte"}
+              {isSubmitting ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                    <span>Création du compte...</span>
+                  </div>
+              ) : (
+                  "Créer un Compte"
+              )}
             </button>
-          </form>
 
-          <div className="login-link-container text-center mt-6">
-          <span>
-            Vous avez déjà un compte ?{" "}
-            <Link to="/login" className="login-link text-[#9a00d7]">
-              Connectez-vous
-            </Link>
-          </span>
-          </div>
+            <div className="text-center text-ascent-1">
+              <span>Vous avez déjà un compte ? </span>
+              <Link to="/login" className="text-[#9a00d7] hover:text-[#7b00ab] font-medium transition-colors duration-300">
+                Connectez-vous
+              </Link>
+            </div>
+          </form>
         </motion.div>
       </div>
   );
