@@ -23,7 +23,12 @@ const EditProfile = () => {
     formState: { errors },
   } = useForm({
     mode: "onChange",
-    defaultValues: { ...user },
+    defaultValues: { 
+      firstName: user?.user?.firstName || "",
+      lastName: user?.user?.lastName || "",
+      profession: user?.user?.profession || "",
+      location: user?.user?.location || ""
+    },
   });
 
   const onSubmit = async (data) => {
@@ -32,13 +37,19 @@ const EditProfile = () => {
 
     try {
       const formData = new FormData();
-      formData.append("firstName", data.firstName);
-      formData.append("lastName", data.lastName);
-      formData.append("profession", data.profession);
-      formData.append("location", data.location);
+      
+      // N'ajouter que les champs qui ont une valeur
+      if (data.firstName?.trim()) formData.append("firstName", data.firstName);
+      if (data.lastName?.trim()) formData.append("lastName", data.lastName);
+      if (data.profession?.trim()) formData.append("profession", data.profession);
+      if (data.location?.trim()) formData.append("location", data.location);
+      if (picture) formData.append("profileUrl", picture);
 
-      if (picture) {
-        formData.append("profileUrl", picture);
+      // Ne faire la requête que si au moins un champ est rempli
+      if ([...formData.entries()].length === 0) {
+        setErrMsg("Aucune modification n'a été apportée");
+        setIsSubmitting(false);
+        return;
       }
 
       console.log("FormData content:", Object.fromEntries(formData));
@@ -52,7 +63,12 @@ const EditProfile = () => {
       console.log("Server response:", response.data);
 
       if (response.data.success) {
-        dispatch(UpdateUser(response.data.user));
+        const currentUser = JSON.parse(localStorage.getItem("user"));
+        const updatedUser = {
+          user: response.data.user,
+          token: currentUser.token
+        };
+        dispatch(UpdateUser(updatedUser));
         toast.success(response.data.message);
         dispatch(UpdateProfileModal(false));
       } else {
@@ -122,9 +138,7 @@ const EditProfile = () => {
                 placeholder="Prénom"
                 type="text"
                 styles="w-full"
-                register={register("firstName", {
-                  required: "Le prénom est requis!",
-                })}
+                register={register("firstName")}
                 error={errors.firstName ? errors.firstName.message : ""}
               />
 
@@ -134,9 +148,7 @@ const EditProfile = () => {
                 placeholder="Nom"
                 type="text"
                 styles="w-full"
-                register={register("lastName", {
-                  required: "Le nom est requis!",
-                })}
+                register={register("lastName")}
                 error={errors.lastName ? errors.lastName.message : ""}
               />
 
@@ -146,9 +158,7 @@ const EditProfile = () => {
                 placeholder="Profession"
                 type="text"
                 styles="w-full"
-                register={register("profession", {
-                  required: "La profession est requise!",
-                })}
+                register={register("profession")}
                 error={errors.profession ? errors.profession.message : ""}
               />
 
@@ -158,9 +168,7 @@ const EditProfile = () => {
                 placeholder="Localisation"
                 type="text"
                 styles="w-full"
-                register={register("location", {
-                  required: "La localisation est requise!",
-                })}
+                register={register("location")}
                 error={errors.location ? errors.location.message : ""}
               />
 

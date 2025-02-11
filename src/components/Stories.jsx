@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { TextInput, CustomButton } from "../components";
 import { useForm } from "react-hook-form";
 
-function Stories() {
+const Stories = ({ userStories }) => {
   const [stories, setStories] = useState([]);
   const [selectedStory, setSelectedStory] = useState(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
@@ -39,8 +39,14 @@ function Stories() {
   } = useForm();
 
   useEffect(() => {
-    fetchStories();
-  }, []);
+    if (userStories) {
+      // Si des stories spécifiques sont fournies, les utiliser
+      setStories(userStories);
+    } else {
+      // Sinon, charger toutes les stories
+      fetchStories();
+    }
+  }, [userStories]);
 
   const fetchStories = async () => {
     try {
