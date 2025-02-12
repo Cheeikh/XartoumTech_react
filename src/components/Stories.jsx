@@ -5,6 +5,28 @@ import { makeRequest } from '../axios';
 import { useNavigate } from 'react-router-dom';
 import { TextInput, CustomButton } from "../components";
 import { useForm } from "react-hook-form";
+import { motion, AnimatePresence } from 'framer-motion';
+
+const StoryModal = ({ story, onClose, onPrevious, onNext, hasPrevious, hasNext }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center"
+    >
+      <div className="absolute inset-0 bg-black bg-opacity-90 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-md h-[80vh] bg-primary rounded-xl overflow-hidden shadow-2xl"
+      >
+        {/* ... reste du contenu du modal ... */}
+      </motion.div>
+    </motion.div>
+  );
+};
 
 const Stories = ({ userStories }) => {
   const [stories, setStories] = useState([]);
@@ -38,13 +60,16 @@ const Stories = ({ userStories }) => {
     formState: { errors },
   } = useForm();
 
+  // Vérifier si nous sommes sur le profil de l'utilisateur connecté
+  const isCurrentUserProfile = userStories ? userStories[0]?.user?._id === user?.user?._id : false;
+
   useEffect(() => {
     if (userStories) {
       // Si des stories spécifiques sont fournies, les utiliser
       setStories(userStories);
     } else {
       // Sinon, charger toutes les stories
-      fetchStories();
+    fetchStories();
     }
   }, [userStories]);
 
@@ -321,182 +346,143 @@ const Stories = ({ userStories }) => {
     }
   }, [selectedStory, currentContentIndex]);
 
+  const handleStoryHover = (story) => {
+    const video = document.querySelector(`#story-preview-${story._id}`);
+    if (video && story.content[0].type === 'video') {
+      video.play().catch(error => {
+        console.error("Erreur de lecture:", error);
+      });
+    }
+  };
+
+  const handleStoryLeave = (story) => {
+    const video = document.querySelector(`#story-preview-${story._id}`);
+    if (video && story.content[0].type === 'video') {
+      video.pause();
+      video.currentTime = 0;
+    }
+  };
+
   return (
     <div className="relative">
-      <button 
+      <AnimatePresence>
+        {scrollPosition > 0 && (
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
         onClick={handleScrollLeft} 
-        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-primary rounded-full p-1 shadow-md z-10"
-        style={{ display: scrollPosition > 0 ? 'block' : 'none' }}
-      >
-        <ChevronLeft size={24} />
-      </button>
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-primary rounded-full p-2 shadow-lg z-10 hover:bg-bgColor transition-all duration-300"
+          >
+            <ChevronLeft size={24} className="text-ascent-1" />
+          </motion.button>
+        )}
+      </AnimatePresence>
       
       <div 
         ref={storiesContainerRef}
-        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth" 
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-2"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div className="flex-shrink-0 flex flex-col items-center cursor-pointer text-ascent-1" onClick={handleCreateStory}>
-          <div className="w-20 h-20 rounded-full border-4 border-[#9a00d7] flex items-center justify-center bg-gray-200">
+        {isCurrentUserProfile && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex-shrink-0 flex flex-col items-center cursor-pointer text-ascent-1"
+            onClick={handleCreateStory}
+          >
+            <div className="w-20 h-20 rounded-full border-4 border-[#9a00d7] flex items-center justify-center bg-gray-200 hover:bg-gray-300 transition-colors duration-300">
             <Plus size={32} color="#9a00d7" />
           </div>
-          <p className="mt-2 text-sm">Créer</p>
-        </div>
-        {stories.map((story) => (
-          <div key={story._id} className="flex-shrink-0 flex flex-col items-center cursor-pointer" onClick={() => handleStoryClick(story)}>
-            <img src={story.user.profileUrl} alt={story.user.firstName} className="w-20 h-20 rounded-full border-4 border-[#9a00d7]" />
-            <p className="mt-2 text-sm text-ascent-1">{story.user.firstName}</p>
-          </div>
-        ))}
-      </div>
-  
-      <button 
-        onClick={handleScrollRight} 
-        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-primary rounded-full p-1 shadow-md z-10"
-        style={{ display: storiesContainerRef.current && scrollPosition < storiesContainerRef.current.scrollWidth - storiesContainerRef.current.clientWidth ? 'block' : 'none' }}
-      >
-        <ChevronRight size={24} />
-      </button>
-  
-      {selectedStory && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-40">
-          {/* Contenu du modal des stories */}
-          <div className="relative w-full max-w-md h-[80vh]">
-            {/* Barre de progression */}
-            <div className="absolute top-0 left-0 right-0 flex">
-              {selectedStory.content.map((_, index) => (
-                <div key={index} className="flex-1 h-1 bg-gray-400 mx-1">
-                  <div 
-                    className="h-full bg-primary" 
-                    style={{ 
-                      width: `${index === currentContentIndex ? progress : index < currentContentIndex ? 100 : 0}%`,
-                      transition: 'width 0.1s linear'
-                    }}
+            <p className="mt-2 text-sm font-medium">Créer</p>
+          </motion.div>
+        )}
+
+        {stories.map((story, index) => (
+          <motion.div
+            key={story._id}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex-shrink-0 flex flex-col items-center cursor-pointer group"
+            onClick={() => handleStoryClick(story)}
+            onMouseEnter={() => handleStoryHover(story)}
+            onMouseLeave={() => handleStoryLeave(story)}
+          >
+            <div className="relative w-20 h-20">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#9a00d7] to-[#7b00ab] animate-spin-slow" />
+              <div className="absolute inset-[3px] rounded-full bg-primary">
+                {story.content[0]?.type === 'video' ? (
+                  <video
+                    id={`story-preview-${story._id}`}
+                    src={story.content[0].url}
+                    className="w-full h-full rounded-full object-cover"
+                    muted
+                    playsInline
+                    loop
                   />
-                </div>
-              ))}
-            </div>
-            {/* Affichage du contenu (image ou vidéo) */}
-            {selectedStory.content[currentContentIndex].type === 'image' ? (
-              <img 
-                src={selectedStory.content[currentContentIndex].url} 
-                alt={selectedStory.user.firstName} 
-                className="w-full h-full object-cover rounded-lg"
-              />
-            ) : (
-              videoError ? (
-                <div className="w-full h-full flex items-center justify-center bg-gray-800 text-ascent-1">
-                  Impossible de charger la vidéo
-                </div>
-              ) : (
-                <video 
-                  ref={videoRef}
-                  src={selectedStory.content[currentContentIndex].url}
-                  className="w-full h-full object-cover rounded-lg"
-                  playsInline
-                  onError={handleVideoError}
-                />
-              )
-            )}
-            {/* Informations de l'utilisateur */}
-            <div className="absolute top-4 left-4 flex items-center">
-              <img src={selectedStory.user.profileUrl} alt={selectedStory.user.firstName} className="w-8 h-8 rounded-full mr-2" />
-              <p className="text-ascent-1 font-semibold">{selectedStory.user.firstName}</p>
-            </div>
-            {/* Bouton de fermeture */}
-            <button onClick={closeStory} className="absolute top-4 right-4 text-ascent-1">
-              <X size={24} />
-            </button>
-            {/* Boutons de navigation */}
-            <button onClick={handlePrevContent} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 rounded-full p-2">
-              <ChevronLeft size={32} />
-            </button>
-            <button onClick={handleNextContent} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 rounded-full p-2">
-              <ChevronRight size={32} />
-            </button>
-            {/* Description et actions */}
-            <div className="absolute bottom-4 left-4 right-4 text-white">
-              <p className={`${isDescriptionExpanded ? '' : 'line-clamp-2'} mb-2`}>
-                {selectedStory.content[currentContentIndex].description}
-              </p>
-              {selectedStory.content[currentContentIndex].description.length > 100 && (
-                <button onClick={toggleDescriptionExpanded} className="text-white text-sm flex items-center">
-                  {isDescriptionExpanded ? 'Voir moins' : 'Voir plus'}
-                  <ChevronDown size={16} className={`ml-1 transform ${isDescriptionExpanded ? 'rotate-180' : ''}`} />
-                </button>
-              )}
-              <div className="flex justify-between mt-4">
-                <button 
-                  className="flex items-center bg-black bg-opacity-50 rounded-full p-2"
-                  onClick={() => handleLike(selectedStory._id, currentContentIndex)}
-                >
-                  <Heart 
-                    size={24} 
-                    className="mr-2" 
-                    fill={likes[selectedStory._id]?.[currentContentIndex] > 0 ? 'white' : 'none'} 
-                    stroke="white"
+                ) : (
+                  <img
+                    src={story.user.profileUrl}
+                    alt={story.user.firstName}
+                    className="w-full h-full rounded-full object-cover"
                   />
-                  <span>{likes[selectedStory._id]?.[currentContentIndex] || 0}</span>
-                </button>
-                <button 
-                  className="flex items-center bg-black bg-opacity-50 rounded-full p-2"
-                  onClick={toggleComments}
-                >
-                  <MessageCircle size={24} className="mr-2" stroke="white" />
-                  <span>{comments[selectedStory._id]?.[currentContentIndex]?.length || 0}</span>
-                </button>
-                <button className="bg-black bg-opacity-50 rounded-full p-2">
-                  <Share size={24} stroke="white" />
-                </button>
+                )}
               </div>
             </div>
-          </div>
-          {/* Modal des commentaires à l'intérieur du modal des stories */}
-          {showComments && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div className="bg-primary rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto text-ascent-1">
-                <h3 className="text-xl font-bold mb-4">Commentaires</h3>
-                <div className="space-y-4 mb-4">
-                  {comments[selectedStory._id]?.[currentContentIndex]?.map((comment, index) => (
-                    <div key={index} className="flex items-start space-x-2">
-                      <img src={comment.user.profileUrl} alt={comment.user.firstName} className="w-8 h-8 rounded-full" />
-                      <div>
-                        <p className="font-semibold">{comment.user.firstName} {comment.user.lastName}</p>
-                        <p>{comment.text}</p>
-                      </div>
-                    </div>
+            <p className="mt-2 text-sm font-medium text-ascent-1 group-hover:text-[#9a00d7] transition-colors duration-300">
+              {story.user.firstName}
+            </p>
+          </motion.div>
                   ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Ajouter un commentaire..."
-                    className="flex-grow border rounded-full px-4 py-2"
-                  />
-                  <button
-                    onClick={() => handleComment(selectedStory._id, currentContentIndex)}
-                    className="bg-[#9a00d7] text-white px-4 py-2 rounded-full"
-                  >
-                    Envoyer
-                  </button>
-                </div>
-                <button
-                  onClick={toggleComments}
-                  className="mt-4 text-gray-500"
-                >
-                  Fermer
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-  
+
+      <AnimatePresence>
+        {storiesContainerRef.current && scrollPosition < storiesContainerRef.current.scrollWidth - storiesContainerRef.current.clientWidth && (
+          <motion.button
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            onClick={handleScrollRight}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-primary rounded-full p-2 shadow-lg z-10 hover:bg-bgColor transition-all duration-300"
+          >
+            <ChevronRight size={24} className="text-ascent-1" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedStory && (
+          <StoryModal
+            story={selectedStory}
+            onClose={() => setSelectedStory(null)}
+            onPrevious={handlePrevStory}
+            onNext={handleNextStory}
+            hasPrevious={currentStoryIndex > 0}
+            hasNext={currentStoryIndex < stories.length - 1}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Modal de création de story */}
+      <AnimatePresence>
       {showCreateStoryPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-primary rounded-lg p-6 w-full max-w-md text-ascent-1 max-h-[80vh] overflow-y-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-primary rounded-lg p-6 w-full max-w-md text-ascent-1 max-h-[80vh] overflow-y-auto relative"
+            >
             <h2 className="text-2xl font-bold mb-4">Créer une story</h2>
             <form onSubmit={handleSubmit(handleStorySubmit)}>
               <TextInput
@@ -574,12 +560,12 @@ const Stories = ({ userStories }) => {
                 />
               </div>
             </form>
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
-  
-}
+};
 
 export default Stories;

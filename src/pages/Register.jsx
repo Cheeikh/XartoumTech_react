@@ -30,6 +30,16 @@ const Register = () => {
       const response = await makeRequest.post("/auth/register", data);
 
       if (response.data.success) {
+        // Ajouter les crédits initiaux après l'inscription réussie
+        try {
+          await makeRequest.post("/credits", {
+            userId: response.data.user._id,
+            creditAmount: 10000
+          });
+        } catch (creditError) {
+          console.error("Erreur lors de l'ajout des crédits initiaux:", creditError);
+        }
+
         // Afficher une notification de succès
         toast.success(response.data.message);
 
