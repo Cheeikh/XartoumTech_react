@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaarel - Votre Place de Parking Réservée à Dakar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Particules animées en arrière-plan -->
+    <div class="particles" id="particles"></div>
+
+    <!-- ===== LANDING PAGE ===== -->
+    <div class="landing-page" id="landingPage">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="logo-container">
+                    <div class="logo-glow"></div>
+                    <div class="logo">
+                        <span>G</span>
+                        <div class="logo-ring-1"></div>
+                        <div class="logo-ring-2"></div>
+                        <div class="logo-ring-3"></div>
+                    </div>
+                </div>
+                
+                <h1 class="hero-title">
+                    <span class="word" data-delay="0">Avoir</span>
+                    <span class="word highlight" data-delay="0.1">VOTRE</span>
+                    <span class="word" data-delay="0.2">place</span>
+                    <span class="word" data-delay="0.3">de</span>
+                    <span class="word" data-delay="0.4">parking</span>
+                    <span class="word highlight" data-delay="0.5">réservée,</span>
+                    <span class="word" data-delay="0.6">proche</span>
+                    <span class="word" data-delay="0.7">de</span>
+                    <span class="word" data-delay="0.8">chez</span>
+                    <span class="word" data-delay="0.9">vous</span>
+                </h1>
+                
+                <p class="hero-subtitle animate-in">
+                    Simplifiez votre quotidien avec Gaarel à Dakar<br>
+                    <span class="subtitle-highlight">Fini les tours de quartier interminables pour trouver où se garer !</span>
+                </p>
+                
+                <div class="cta-container animate-in">
+                    <button class="cta-button" onclick="showFormPage()">
+                        <span class="cta-text">Répondez au sondage</span>
+                        <span class="cta-icon">→</span>
+                        <div class="cta-shine"></div>
+                    </button>
+                </div>
+
+                <div class="trust-badges">
+                    <div class="badge animate-in">
+                        <span class="badge-icon">⚡</span>
+                        <span>Réponse en 2 min</span>
+                    </div>
+                    <div class="badge animate-in">
+                        <span class="badge-icon">🔒</span>
+                        <span>100% Sécurisé</span>
+                    </div>
+                    <div class="badge animate-in">
+                        <span class="badge-icon">🇸🇳</span>
+                        <span>Made in Dakar</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="features-section">
+                <h2 class="section-title">
+                    <span class="title-line"></span>
+                    Pourquoi choisir Gaarel ?
+                    <span class="title-line"></span>
+                </h2>
+                <div class="features-grid">
+                    <div class="feature-card" data-tilt>
+                        <div class="feature-number">01</div>
+                        <div class="feature-icon-container">
+                            <span class="feature-icon">🚗</span>
+                            <div class="icon-bg"></div>
+                        </div>
+                        <h3>Parking Garanti</h3>
+                        <p>Votre place vous attend chaque jour, exactement où vous en avez besoin à Dakar. Plus jamais de stress pour se garer !</p>
+                        <div class="feature-shine"></div>
+                    </div>
+                    <div class="feature-card" data-tilt>
+                        <div class="feature-number">02</div>
+                        <div class="feature-icon-container">
+                            <span class="feature-icon">📱</span>
+                            <div class="icon-bg"></div>
+                        </div>
+                        <h3>Ultra Simple</h3>
+                        <p>Réservez en 2 clics depuis votre smartphone. Interface intuitive et processus ultra-rapide adapté à vos besoins.</p>
+                        <div class="feature-shine"></div>
+                    </div>
+                    <div class="feature-card" data-tilt>
+                        <div class="feature-number">03</div>
+                        <div class="feature-icon-container">
+                            <span class="feature-icon">💰</span>
+                            <div class="icon-bg"></div>
+                        </div>
+                        <h3>Tarifs Adaptés</h3>
+                        <p>Solutions économiques personnalisées. Tarifs transparents en FCFA pour particuliers et entreprises à Dakar.</p>
+                        <div class="feature-shine"></div>
+                    </div>
+                    <div class="feature-card" data-tilt>
+                        <div class="feature-number">04</div>
+                        <div class="feature-icon-container">
+                            <span class="feature-icon">🔒</span>
+                            <div class="icon-bg"></div>
+                        </div>
+                        <h3>Sécurisé</h3>
+                        <p>Places sécurisées et surveillées 24h/24. Votre véhicule est en sécurité totale dans les meilleurs quartiers.</p>
+                        <div class="feature-shine"></div>
+                    </div>
+                    <div class="feature-card" data-tilt>
+                        <div class="feature-number">05</div>
+                        <div class="feature-icon-container">
+                            <span class="feature-icon">⚡</span>
+                            <div class="icon-bg"></div>
+                        </div>
+                        <h3>Disponible 24/7</h3>
+                        <p>Accès à votre place réservée à toute heure. Flexibilité totale selon vos horaires et vos besoins.</p>
+                        <div class="feature-shine"></div>
+                    </div>
+                    <div class="feature-card" data-tilt>
+                        <div class="feature-number">06</div>
+                        <div class="feature-icon-container">
+                            <span class="feature-icon">🌱</span>
+                            <div class="icon-bg"></div>
+                        </div>
+                        <h3>Écologique</h3>
+                        <p>Réduisez votre empreinte carbone en évitant de tourner pendant des heures pour chercher une place.</p>
+                        <div class="feature-shine"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-number" data-target="100">0</div>
+                    <div class="stat-label">Places disponibles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number" data-target="500">0</div>
+                    <div class="stat-label">Utilisateurs satisfaits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-number" data-target="2">0</div>
+                    <div class="stat-label">Minutes pour réserver</div>
+                </div>
+            </section>
+
+            <!-- QR Code Section -->
+            <section class="qr-section">
+                <div class="qr-content">
+                    <div class="qr-left">
+                        <h3 class="qr-title">Accès Mobile Rapide</h3>
+                        <p class="qr-description">
+                            Scannez ce code QR pour accéder directement au formulaire depuis votre smartphone.
+                            Parfait pour partager facilement avec vos proches !
+                        </p>
+                        <div class="qr-features">
+                            <div class="qr-feature">
+                                <span class="qr-check">✓</span>
+                                <span>Accès instantané</span>
+                            </div>
+                            <div class="qr-feature">
+                                <span class="qr-check">✓</span>
+                                <span>Compatible tous mobiles</span>
+                            </div>
+                            <div class="qr-feature">
+                                <span class="qr-check">✓</span>
+                                <span>Partage facile</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="qr-right">
+                        <div class="qr-code-wrapper">
+                            <div class="qr-code">
+                                <div class="qr-logo-small">G</div>
+                                <strong style="font-size: 16px; margin-top: 10px;">QR Code</strong><br>
+                                <small style="opacity: 0.7;">(génération automatique)</small>
+                            </div>
+                            <div class="qr-corners">
+                                <div class="qr-corner tl"></div>
+                                <div class="qr-corner tr"></div>
+                                <div class="qr-corner bl"></div>
+                                <div class="qr-corner br"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- ===== FORM PAGE ===== -->
+    <div class="form-page" id="formPage">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showLandingPage()">
+                <span class="back-arrow">←</span>
+                <span>Retour à l'accueil</span>
+            </a>
+            
+            <div class="form-header">
+                <h1 class="form-main-title">Questionnaire Gaarel</h1>
+                <p class="form-subtitle">Aidez-nous à créer la solution parking parfaite pour vous à Dakar</p>
+            </div>
+
+            <div class="form-container" id="formContainer">
+                <div class="progress-container">
+                    <div class="progress-steps">
+                        <div class="progress-step active" data-step="1">
+                            <div class="step-circle">1</div>
+                            <div class="step-label">Profil</div>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="2">
+                            <div class="step-circle">2</div>
+                            <div class="step-label">Lieu</div>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="3">
+                            <div class="step-circle">3</div>
+                            <div class="step-label">Infos</div>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="4">
+                            <div class="step-circle">4</div>
+                            <div class="step-label">Budget</div>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="5">
+                            <div class="step-circle">5</div>
+                            <div class="step-label">Contact</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <h2 class="form-title" id="formTitle">Votre Profil</h2>
+                
+                <form id="gaarelForm">
+                    <!-- Étape 1: Type d'utilisateur -->
+                    <div class="form-step active" data-step="1">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon">👤</span>
+                                Vous êtes :
+                            </label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="individual" name="userType" value="individual">
+                                    <label for="individual">
+                                        <div class="radio-icon">🏠</div>
+                                        <strong class="radio-title">Particulier / Résident</strong>
+                                        <p class="radio-desc">Je cherche une place pour mon usage personnel</p>
+                                        <div class="radio-check">✓</div>
+                                    </label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="professional" name="userType" value="professional">
+                                    <label for="professional">
+                                        <div class="radio-icon">🏢</div>
+                                        <strong class="radio-title">Professionnel / Entreprise</strong>
+                                        <p class="radio-desc">Je représente une entreprise ou société</p>
+                                        <div class="radio-check">✓</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2: Localisation -->
+                    <div class="form-step" data-step="2">
+                        <div class="form-group">
+                            <label for="quarter" class="form-label">
+                                <span class="label-icon">📍</span>
+                                Dans quel quartier avez-vous besoin d'une place ?
+                            </label>
+                            <div class="select-wrapper">
+                                <select class="form-control" id="quarter" name="quarter" required>
+                                    <option value="">Sélectionnez votre quartier à Dakar</option>
+                                    <option value="sacre-coeur-1">Sacré-Cœur 1</option>
+                                    <option value="sacre-coeur-2">Sacré-Cœur 2</option>
+                                    <option value="sacre-coeur-3">Sacré-Cœur 3</option>
+                                    <option value="sicap-liberte-1">Sicap Liberté 1</option>
+                                    <option value="sicap-liberte-2">Sicap Liberté 2</option>
+                                    <option value="sicap-liberte-3">Sicap Liberté 3</option>
+                                    <option value="sicap-liberte-4">Sicap Liberté 4</option>
+                                    <option value="sicap-liberte-5">Sicap Liberté 5</option>
+                                    <option value="sicap-liberte-6">Sicap Liberté 6</option>
+                                    <option value="extension">Extension</option>
+                                    <option value="scat-urbam">SCAT Urbam</option>
+                                    <option value="cite-keur-gorgui">Cité Keur Gorgui</option>
+                                    <option value="autre">Autre quartier</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                            <small class="form-hint">
+                                <span class="hint-icon">💡</span>
+                                Sélectionnez le quartier le plus proche de votre besoin
+                            </small>
+                        </div>
+                        <div class="form-group" id="otherQuarterGroup" style="display: none;">
+                            <label for="otherQuarter" class="form-label">
+                                <span class="label-icon">✏️</span>
+                                Précisez votre quartier
+                            </label>
+                            <input type="text" class="form-control" id="otherQuarter" name="otherQuarter" placeholder="Tapez le nom de votre quartier">
+                        </div>
+                        <div class="form-group">
+                            <label for="street" class="form-label">
+                                <span class="label-icon">🗺️</span>
+                                Rue / Adresse approximative
+                            </label>
+                            <input type="text" class="form-control" id="street" name="street" placeholder="Ex: Avenue Cheikh Anta Diop, Rue 10..." required>
+                            <small class="form-hint">
+                                <span class="hint-icon">💡</span>
+                                Cette information nous aide à vous proposer les places les plus proches
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3: Véhicules (B2C) -->
+                    <div class="form-step b2c-step" data-step="3">
+                        <div class="form-group">
+                            <label for="vehicleCount" class="form-label">
+                                <span class="label-icon">🚙</span>
+                                Combien de véhicules possédez-vous ?
+                            </label>
+                            <div class="select-wrapper">
+                                <select class="form-control" id="vehicleCount" name="vehicleCount" required>
+                                    <option value="">Sélectionnez</option>
+                                    <option value="1">1 véhicule</option>
+                                    <option value="2">2 véhicules</option>
+                                    <option value="3">3 véhicules</option>
+                                    <option value="4+">4 véhicules ou plus</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicleType" class="form-label">
+                                <span class="label-icon">🚗</span>
+                                Type de véhicule principal
+                            </label>
+                            <div class="select-wrapper">
+                                <select class="form-control" id="vehicleType" name="vehicleType" required>
+                                    <option value="">Sélectionnez</option>
+                                    <option value="car">Voiture standard</option>
+                                    <option value="suv">SUV / 4x4</option>
+                                    <option value="motorcycle">Moto / Scooter</option>
+                                    <option value="electric">Véhicule électrique</option>
+                                    <option value="utility">Utilitaire / Camionnette</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3: Entreprise (B2B) -->
+                    <div class="form-step b2b-step" data-step="3" style="display: none;">
+                        <div class="form-group">
+                            <label for="companyName" class="form-label">
+                                <span class="label-icon">🏢</span>
+                                Nom de l'entreprise
+                            </label>
+                            <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Nom de votre entreprise">
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeCount" class="form-label">
+                                <span class="label-icon">👥</span>
+                                Nombre d'employés dans votre entreprise
+                            </label>
+                            <div class="select-wrapper">
+                                <select class="form-control" id="employeeCount" name="employeeCount">
+                                    <option value="">Sélectionnez</option>
+                                    <option value="1-10">1-10 employés</option>
+                                    <option value="11-50">11-50 employés</option>
+                                    <option value="51-100">51-100 employés</option>
+                                    <option value="100+">Plus de 100 employés</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="parkingNeeds" class="form-label">
+                                <span class="label-icon">🅿️</span>
+                                Combien de places de parking recherchez-vous ?
+                            </label>
+                            <div class="select-wrapper">
+                                <select class="form-control" id="parkingNeeds" name="parkingNeeds">
+                                    <option value="">Sélectionnez</option>
+                                    <option value="1-5">1-5 places</option>
+                                    <option value="6-15">6-15 places</option>
+                                    <option value="16-30">16-30 places</option>
+                                    <option value="30+">Plus de 30 places</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 4: Budget et Intérêt -->
+                    <div class="form-step" data-step="4">
+                        <div class="form-group">
+                            <label for="currentSpending" id="spendingLabel" class="form-label">
+                                <span class="label-icon">💵</span>
+                                Combien dépensez-vous actuellement en parking par mois ?
+                            </label>
+                            <div class="select-wrapper">
+                                <select class="form-control" id="currentSpending" name="currentSpending" required>
+                                    <option value="">Sélectionnez</option>
+                                    <option value="0-25000">0 - 25 000 FCFA</option>
+                                    <option value="25000-50000">25 000 - 50 000 FCFA</option>
+                                    <option value="50000-100000">50 000 - 100 000 FCFA</option>
+                                    <option value="100000-250000">100 000 - 250 000 FCFA</option>
+                                    <option value="250000+">Plus de 250 000 FCFA</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
+                            <small class="form-hint">
+                                <span class="hint-icon">💡</span>
+                                Cette information nous aide à vous proposer une offre adaptée
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon">⭐</span>
+                                Niveau d'intérêt pour une solution de parking réservé
+                            </label>
+                            <div class="radio-group interest-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="very-interested" name="interest" value="very-interested">
+                                    <label for="very-interested">
+                                        <div class="radio-icon">🔥</div>
+                                        <strong class="radio-title">Très intéressé(e)</strong>
+                                        <p class="radio-desc">Je veux être contacté rapidement</p>
+                                        <div class="radio-check">✓</div>
+                                    </label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="interested" name="interest" value="interested">
+                                    <label for="interested">
+                                        <div class="radio-icon">👍</div>
+                                        <strong class="radio-title">Intéressé(e)</strong>
+                                        <p class="radio-desc">Je souhaite plus d'informations</p>
+                                        <div class="radio-check">✓</div>
+                                    </label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="maybe" name="interest" value="maybe">
+                                    <label for="maybe">
+                                        <div class="radio-icon">🤔</div>
+                                        <strong class="radio-title">Peut-être</strong>
+                                        <p class="radio-desc">Ça dépend des conditions</p>
+                                        <div class="radio-check">✓</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 5: Contact -->
+                    <div class="form-step" data-step="5">
+                        <div class="form-group">
+                            <label for="name" id="nameLabel" class="form-label">
+                                <span class="label-icon">👤</span>
+                                Nom complet *
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name" required placeholder="Votre nom complet">
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <span class="label-icon">📧</span>
+                                Adresse email *
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" required placeholder="votre@email.com">
+                            <small class="form-hint">
+                                <span class="hint-icon">💡</span>
+                                Nous utiliserons cette adresse pour vous envoyer nos offres personnalisées
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="form-label">
+                                <span class="label-icon">📱</span>
+                                Numéro de téléphone *
+                            </label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required placeholder="77 123 45 67">
+                            <small class="form-hint">
+                                <span class="hint-icon">💡</span>
+                                Format: 77 123 45 67 ou +221 77 123 45 67
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="comments" class="form-label">
+                                <span class="label-icon">💬</span>
+                                Commentaires ou besoins spécifiques (optionnel)
+                            </label>
+                            <textarea class="form-control" id="comments" name="comments" rows="4" placeholder="Partagez-nous vos besoins particuliers, horaires spécifiques, contraintes..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">
+                            <span class="btn-icon">←</span>
+                            <span>Précédent</span>
+                        </button>
+                        <div style="flex: 1;"></div>
+                        <button type="button" class="btn btn-primary" id="nextBtn">
+                            <span>Suivant</span>
+                            <span class="btn-icon">→</span>
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-submit" id="submitBtn" style="display: none;">
+                            <span>Envoyer ma réponse</span>
+                            <span class="btn-icon">✓</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Page de confirmation -->
+            <div class="confirmation" id="confirmationPage">
+                <div class="success-animation">
+                    <div class="success-icon">
+                        <div class="success-checkmark">✓</div>
+                    </div>
+                    <div class="success-confetti"></div>
+                </div>
+                <h2 class="confirmation-title">Merci pour votre participation !</h2>
+                <p class="confirmation-text">
+                    Votre réponse a été enregistrée avec succès. Notre équipe Gaarel analysera vos besoins et vous recontactera très bientôt avec des solutions personnalisées adaptées à votre situation à Dakar.
+                </p>
+                <div class="confirmation-info">
+                    <div class="info-item">
+                        <span class="info-icon">📧</span>
+                        <span>Email de confirmation envoyé</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">⏱️</span>
+                        <span>Réponse sous 24h</span>
+                    </div>
+                </div>
+                <div class="confirmation-actions">
+                    <button class="btn btn-primary" onclick="resetForm()">
+                        <span>Nouvelle réponse</span>
+                        <span class="btn-icon">+</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="showLandingPage()">
+                        <span>Retour à l'accueil</span>
+                        <span class="btn-icon">🏠</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
